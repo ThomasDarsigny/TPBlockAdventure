@@ -23,9 +23,7 @@ int main()
 
 	//Test chunk
 	Chunk chunk;
-	chunk.SetBlock(4, 4, 4, BTYPE_DIRT);
-		
-	
-
-
+	chunk.SetBlock(4, 4, 4, BTYPE_GRASS);
+	std::cout << "Type: " << chunk.Get(4, 4, 4) << "\t Coordinates : (4,4,4)" << std::endl;
+	chunk.RemoveBlock(4,4,4);
 }
