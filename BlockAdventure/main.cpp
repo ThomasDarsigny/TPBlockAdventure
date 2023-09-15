@@ -18,8 +18,12 @@ int main()
 	//Test blockarray3d
 	BlockArray3d BlockArray(160, 160, 160);
 	BlockArray.Set(7, 7, 7, BTYPE_DIRT); //Mettre un DIRT aux Coordonnées 7,7,7
-	std::cout << BlockArray.Get(7,7,7) << std::endl;
+	std::cout << "Type: "<< BlockArray.Get(7, 7, 7) << "\t Coordinates : (7,7,7)" << std::endl;
 	BlockArray.Reset(BTYPE_DIRT);
+
+	//Test chunk
+	Chunk chunk;
+	chunk.SetBlock(4, 4, 4, BTYPE_DIRT);
 		
 	
 
