@@ -6,7 +6,7 @@
 
 class BlockInfo {
 public:
-    BlockInfo(BlockType type, const std::string& name);
+    BlockInfo(BlockType type, const std::string& name, int num);
     ~BlockInfo();
 
     BlockType GetType() const;
@@ -14,13 +14,12 @@ public:
     void SetDurability(int durability);
     int GetDurability() const;
 
-    void Show() const;
-    int m_durability;
+    void Show() const;    
 
 private:
     BlockType m_type;
     std::string m_name;
-    
+    int m_durability;
 };
 
 #endif 

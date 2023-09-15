@@ -1,8 +1,8 @@
 #include "blockinfo.h"
 #include <iostream>
 
-BlockInfo::BlockInfo(BlockType type, const std::string& name)
-	: m_type(type), m_name(name), m_durability() {}
+BlockInfo::BlockInfo(BlockType type, const std::string& name, int num)
+: m_type(type), m_name(name), m_durability(num) {}
 
 BlockInfo::~BlockInfo() {}
 
@@ -13,18 +13,7 @@ BlockType BlockInfo::GetType() const
 
 void BlockInfo::SetDurability(int durability) //Set the durability of the blocks
 {
-	switch (m_type)
-	{
-	case BTYPE_AIR:
-		m_durability = 0;
-		break;
-	case BTYPE_DIRT:
-		m_durability = 3;
-		break;
-	case BTYPE_GRASS:
-		m_durability = 3;
-		break;
-	}
+	m_durability = durability;		
 }
 
 

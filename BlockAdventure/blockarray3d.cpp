@@ -26,7 +26,7 @@ BlockType BlockArray3d::Get(int x, int y, int z) const {
     if (x >= 0 && x < m_x && y >= 0 && y < m_y && z >= 0 && z < m_z) {
         return m_blocks[CalculateIndex(x, y, z)];
     }
-    return BTYPE_AIR; // Default to air if out of bounds
+    return BTYPE_AIR; // Default to air
 }
 
 void BlockArray3d::Reset(BlockType type)

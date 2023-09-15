@@ -13,7 +13,7 @@ public:
 
 
 
-    void Set(int x, int y, int z, BlockType type);//code obligatoire
+    void Set(int x, int y, int z, BlockType type);
     BlockType Get(int x, int y, int z) const;
     void Reset(BlockType type);
 
