@@ -2,7 +2,7 @@
 #include <iostream>
 
 BlockInfo::BlockInfo(BlockType type, const std::string& name)
-	: m_type(type), m_name(name), m_durability(0) {}
+	: m_type(type), m_name(name), m_durability() {}
 
 BlockInfo::~BlockInfo() {}
 

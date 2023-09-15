@@ -15,11 +15,12 @@ public:
     int GetDurability() const;
 
     void Show() const;
+    int m_durability;
 
 private:
     BlockType m_type;
     std::string m_name;
-    int m_durability;
+    
 };
 
 #endif 
