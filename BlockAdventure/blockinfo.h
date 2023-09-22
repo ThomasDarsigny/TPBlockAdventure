@@ -1,12 +1,13 @@
-#ifndef BLOCKINFO_H
-#define BLOCKINFO_H
+#ifndef BLOCKINFO_H__
+#define BLOCKINFO_H__
 
-#include "define.h"
 #include <string>
+#include "define.h"
 
-class BlockInfo {
-public:
-    BlockInfo(BlockType type, const std::string& name, int num);
+class BlockInfo
+{
+    public:
+    BlockInfo(BlockType type, const std::string& name);
     ~BlockInfo();
 
     BlockType GetType() const;
@@ -14,12 +15,13 @@ public:
     void SetDurability(int durability);
     int GetDurability() const;
 
-    void Show() const;    
+    void Show() const;
 
-private:
+    private:
     BlockType m_type;
     std::string m_name;
     int m_durability;
+
 };
 
-#endif 
+#endif // BLOCKINFO_H__

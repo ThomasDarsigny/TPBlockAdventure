@@ -1,28 +1,34 @@
 #include "blockinfo.h"
 #include <iostream>
 
-BlockInfo::BlockInfo(BlockType type, const std::string& name, int num)
-: m_type(type), m_name(name), m_durability(num) {}
+BlockInfo::BlockInfo(BlockType type, const std::string& name) : m_type(type), m_name(name), m_durability(1)
+{
+}
 
-BlockInfo::~BlockInfo() {}
+BlockInfo::~BlockInfo()
+{
+}
 
 BlockType BlockInfo::GetType() const
 {
-	return m_type;
+    return m_type;
 }
 
-void BlockInfo::SetDurability(int durability) //Set the durability of the blocks
+void BlockInfo::SetDurability(int durability)
 {
-	m_durability = durability;		
+    m_durability = durability;
 }
 
-
-int BlockInfo::GetDurability() const //To know the durability of the block
+int BlockInfo::GetDurability() const
 {
-	return m_durability;
+    return m_durability;
 }
 
 void BlockInfo::Show() const
 {
-	std::cout << "Type: " << m_type << ", Name: " << m_name << ", Durability: " << m_durability << std::endl;
+    std::cout << "Type: " << m_type << std::endl;
+    std::cout << "Nom: " << m_name << std::endl;
+    std::cout << "Durabilite: " << m_durability << std::endl;
 }
+
+
