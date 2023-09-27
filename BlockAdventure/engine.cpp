@@ -87,31 +87,113 @@ void Engine::Render(float elapsedTime)
         glVertex3f(-100.f, -2.f, -100.f);
     glEnd();
 
-
-
-
-
-
+    ////////////////////////////////////////////////////////////////////////
     Transformation t;
     t.ApplyTranslation(0, 0, -7.f);
-    t.ApplyTranslation(sin(gameTime), 0, 0);
-    t.ApplyRotation(gameTime * 100.f, 0, 0, 1.f);
+    t.ApplyRotation(gameTime * 100.f, 0, 1, 0);
+    t.ApplyRotation(gameTime * 100.f, 1, 0, 0);
     t.Use();
 
+    //Front face
     glBegin(GL_QUADS);
-    glNormal3f(0, 0, 1); // Normal vector
+    glNormal3f(0, 0, 1);
 
     glTexCoord2f(0, 0);
-    glVertex3f(-1.f, -1.f, 0);
+    glVertex3f(-0.5f, -0.5f, 0.5f);
 
     glTexCoord2f(1, 0);
-    glVertex3f(1.f, -1.f, 0);
+    glVertex3f(0.5f, -0.5f, 0.5f);
 
     glTexCoord2f(1, 1);
-    glVertex3f(1.f, 1.f, 0);
+    glVertex3f(0.5f, 0.5f, 0.5f);
 
     glTexCoord2f(0, 1);
-    glVertex3f(-1.f, 1.f, 0);
+    glVertex3f(-0.5f, 0.5f, 0.5f);
+    glEnd();
+
+    // Back face
+    glBegin(GL_QUADS);
+    glNormal3f(0, 0, -1);
+
+    glTexCoord2f(1, 0);
+    glVertex3f(-0.5f, 0.5f, -0.5f);
+
+    glTexCoord2f(1, 1);
+    glVertex3f(-0.5f, -0.5f, -0.5f);
+
+    glTexCoord2f(0, 1);
+    glVertex3f(0.5f, -0.5f, -0.5f);
+
+    glTexCoord2f(0, 0);
+    glVertex3f(0.5f, 0.5f, -0.5f);
+    glEnd();
+
+    //Top face
+    glBegin(GL_QUADS);
+    glNormal3f(0, 1, 0);
+
+    glTexCoord2f(0, 0);
+    glVertex3f(-0.5f, 0.5f, -0.5f);
+
+    glTexCoord2f(1, 0);
+    glVertex3f(0.5f, 0.5f, -0.5f);
+
+    glTexCoord2f(1, 1);
+    glVertex3f(0.5f, 0.5f, 0.5f);
+
+    glTexCoord2f(0, 1);
+    glVertex3f(-0.5f, 0.5f, 0.5f);
+    glEnd();
+
+    // Bottom face
+    glBegin(GL_QUADS);
+    glNormal3f(0, -1, 0);
+
+    glTexCoord2f(1, 1);
+    glVertex3f(-0.5f, -0.5f, -0.5f);
+
+    glTexCoord2f(0, 1);
+    glVertex3f(0.5f, -0.5f, -0.5f);
+
+    glTexCoord2f(0, 0);
+    glVertex3f(0.5f, -0.5f, 0.5f);
+
+    glTexCoord2f(1, 0);
+    glVertex3f(-0.5f, -0.5f, 0.5f);
+    glEnd();
+
+    // Left side face
+    glBegin(GL_QUADS);
+    glNormal3f(-1, 0, 0);
+
+    glTexCoord2f(0, 0);
+    glVertex3f(-0.5f, -0.5f, -0.5f);
+
+    glTexCoord2f(1, 0);
+    glVertex3f(-0.5f, -0.5f, 0.5f);
+
+    glTexCoord2f(1, 1);
+    glVertex3f(-0.5f, 0.5f, 0.5f);
+
+    glTexCoord2f(0, 1);
+    glVertex3f(-0.5f, 0.5f, -0.5f);
+    glEnd();
+
+    // Right side face
+    glBegin(GL_QUADS);
+    glNormal3f(1, 0, 0);
+
+    glTexCoord2f(1, 0);
+    glVertex3f(0.5f, -0.5f, -0.5f);
+
+    glTexCoord2f(0, 0);
+    glVertex3f(0.5f, -0.5f, 0.5f);
+
+    glTexCoord2f(0, 1);
+    glVertex3f(0.5f, 0.5f, 0.5f);
+
+    glTexCoord2f(1, 1);
+    glVertex3f(0.5f, 0.5f, -0.5f);
     glEnd();
 
 }
