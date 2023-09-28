@@ -49,6 +49,9 @@ void Engine::DeInit()
 void Engine::LoadResource()
 {
     LoadTexture(m_textureFloor, TEXTURE_PATH "checker.png");
+    LoadTexture(m_textureSideGrass, TEXTURE_PATH "sidegrass.png");
+    LoadTexture(m_textureTopGrass, TEXTURE_PATH "topgrass.png");
+    LoadTexture(m_textureDirt, TEXTURE_PATH "dirt.png");
 }
 
 void Engine::UnloadResource()
@@ -69,7 +72,7 @@ void Engine::Render(float elapsedTime)
 
     // Plancher
     // Les vertex doivent etre affiches dans le sens anti-horaire (CCW)
-    m_textureFloor.Bind();
+    m_textureTopGrass.Bind();
     float nbRep = 50.f;
     glBegin(GL_QUADS);
         glNormal3f(0, 1, 0); // Normal vector
@@ -87,14 +90,15 @@ void Engine::Render(float elapsedTime)
         glVertex3f(-100.f, -2.f, -100.f);
     glEnd();
 
-    ////////////////////////////////////////////////////////////////////////
     Transformation t;
     t.ApplyTranslation(0, 0, -7.f);
     t.ApplyRotation(gameTime * 100.f, 0, 1, 0);
     t.ApplyRotation(gameTime * 100.f, 1, 0, 0);
     t.Use();
-
+    
     //Front face
+    //BIND LA TEXTURE
+    m_textureSideGrass.Bind();
     glBegin(GL_QUADS);
     glNormal3f(0, 0, 1);
 
@@ -112,6 +116,7 @@ void Engine::Render(float elapsedTime)
     glEnd();
 
     // Back face
+    //m_textureSideGrass.Bind();
     glBegin(GL_QUADS);
     glNormal3f(0, 0, -1);
 
@@ -128,7 +133,44 @@ void Engine::Render(float elapsedTime)
     glVertex3f(0.5f, 0.5f, -0.5f);
     glEnd();
 
+    // Left side face
+    m_textureSideGrass.Bind();
+    glBegin(GL_QUADS);
+    glNormal3f(-1, 0, 0);
+
+    glTexCoord2f(0, 0);
+    glVertex3f(-0.5f, -0.5f, -0.5f);
+
+    glTexCoord2f(1, 0);
+    glVertex3f(-0.5f, -0.5f, 0.5f);
+
+    glTexCoord2f(1, 1);
+    glVertex3f(-0.5f, 0.5f, 0.5f);
+
+    glTexCoord2f(0, 1);
+    glVertex3f(-0.5f, 0.5f, -0.5f);
+    glEnd();
+
+    // Right side face  
+    m_textureSideGrass.Bind();
+    glBegin(GL_QUADS);
+    glNormal3f(1, 0, 0);
+
+    glTexCoord2f(1, 0);
+    glVertex3f(0.5f, -0.5f, -0.5f);
+
+    glTexCoord2f(0, 0);
+    glVertex3f(0.5f, -0.5f, 0.5f);
+
+    glTexCoord2f(0, 1);
+    glVertex3f(0.5f, 0.5f, 0.5f);
+
+    glTexCoord2f(1, 1);
+    glVertex3f(0.5f, 0.5f, -0.5f);
+    glEnd();
+
     //Top face
+    m_textureTopGrass.Bind();
     glBegin(GL_QUADS);
     glNormal3f(0, 1, 0);
 
@@ -146,6 +188,7 @@ void Engine::Render(float elapsedTime)
     glEnd();
 
     // Bottom face
+    m_textureDirt.Bind();
     glBegin(GL_QUADS);
     glNormal3f(0, -1, 0);
 
@@ -162,40 +205,7 @@ void Engine::Render(float elapsedTime)
     glVertex3f(-0.5f, -0.5f, 0.5f);
     glEnd();
 
-    // Left side face
-    glBegin(GL_QUADS);
-    glNormal3f(-1, 0, 0);
-
-    glTexCoord2f(0, 0);
-    glVertex3f(-0.5f, -0.5f, -0.5f);
-
-    glTexCoord2f(1, 0);
-    glVertex3f(-0.5f, -0.5f, 0.5f);
-
-    glTexCoord2f(1, 1);
-    glVertex3f(-0.5f, 0.5f, 0.5f);
-
-    glTexCoord2f(0, 1);
-    glVertex3f(-0.5f, 0.5f, -0.5f);
-    glEnd();
-
-    // Right side face
-    glBegin(GL_QUADS);
-    glNormal3f(1, 0, 0);
-
-    glTexCoord2f(1, 0);
-    glVertex3f(0.5f, -0.5f, -0.5f);
-
-    glTexCoord2f(0, 0);
-    glVertex3f(0.5f, -0.5f, 0.5f);
-
-    glTexCoord2f(0, 1);
-    glVertex3f(0.5f, 0.5f, 0.5f);
-
-    glTexCoord2f(1, 1);
-    glVertex3f(0.5f, 0.5f, -0.5f);
-    glEnd();
-
+    
 }
 
 void Engine::KeyPressEvent(unsigned char key)

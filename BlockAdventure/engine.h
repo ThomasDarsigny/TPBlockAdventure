@@ -27,6 +27,9 @@ private:
     bool m_wireframe = false;
 
     Texture m_textureFloor;
+    Texture m_textureSideGrass;
+    Texture m_textureTopGrass;
+    Texture m_textureDirt;
 
     bool m_keyW = false;
     bool m_keyA = false;
