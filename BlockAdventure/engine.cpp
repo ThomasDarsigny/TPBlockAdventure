@@ -70,9 +70,11 @@ void Engine::Render(float elapsedTime)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-
+    //Mouvements du joueur
     m_player.Move(m_keyW,m_keyS, m_keyA, m_keyD, elapsedTime);
     Transformation cam;
+    cam.ApplyRotation(-m_player.GetRotationX(), 1.0f, 0, 0);
+    cam.ApplyRotation(-m_player.GetRotationY(), 0, 1.0f, 0);
     cam.ApplyTranslation(-m_player.GetPositon());
     cam.Use();
    
@@ -278,6 +280,11 @@ void Engine::MouseMoveEvent(int x, int y)
     // MouseMoveEvent, etc
     if(x == (Width() / 2) && y == (Height() / 2))
         return;
+    MakeRelativeToCenter(x, y);
+    m_player.TurnLeftRight(x);
+    m_player.TurnTopBottom(y);
+
+    
 
     CenterMouse();
 }

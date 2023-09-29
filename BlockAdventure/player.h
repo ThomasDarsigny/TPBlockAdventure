@@ -13,6 +13,8 @@ public:
 	void ApplyTransformation(Transformation& transformation) const;
 	
 	const Vector3f& GetPositon() const;
+	float GetRotationX() const;
+	float GetRotationY() const;
 
 private:
 	Vector3f m_position;

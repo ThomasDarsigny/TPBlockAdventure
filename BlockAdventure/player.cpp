@@ -13,6 +13,9 @@ void Player::TurnLeftRight(float value)
 
 void Player::TurnTopBottom(float value)
 {
+	m_rotX += value;
+	if (m_rotX < -90.0f) m_rotX = -90.0f; //Pour pas faire de tours en arrière
+	if (m_rotX > 90.0f) m_rotX = 90.0f;   //Pour pas faire de tours en avant
 }
 
 void Player::Move(bool front, bool back, bool left, bool right, float elapsedTime)
@@ -67,6 +70,16 @@ void Player::ApplyTransformation(Transformation& transformation) const
 const Vector3f& Player::GetPositon() const
 {
 	return m_position;
+}
+
+float Player::GetRotationX() const
+{
+	return m_rotX;
+}
+
+float Player::GetRotationY() const
+{
+	return m_rotY;
 }
 
 
