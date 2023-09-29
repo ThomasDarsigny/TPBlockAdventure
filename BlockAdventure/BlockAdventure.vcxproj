@@ -18,6 +18,7 @@
     <ClInclude Include="engine.h" />
     <ClInclude Include="matrix4.h" />
     <ClInclude Include="openglcontext.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="transformation.h" />
     <ClInclude Include="vector3.h" />
@@ -29,6 +30,7 @@
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openglcontext.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="transformation.cpp" />
   </ItemGroup>

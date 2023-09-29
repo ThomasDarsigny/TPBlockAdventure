@@ -4,7 +4,7 @@
 #include <iostream>
 #include"transformation.h"
 
-Engine::Engine()
+Engine::Engine(): m_player(Vector3f(0.0f,0.0f,0.0f))
 {
 }
 
@@ -70,6 +70,13 @@ void Engine::Render(float elapsedTime)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+
+    m_player.Move(m_keyW,m_keyS, m_keyA, m_keyD, elapsedTime);
+    Transformation cam;
+    cam.ApplyTranslation(-m_player.GetPositon());
+    cam.Use();
+   
+
     // Plancher
     // Les vertex doivent etre affiches dans le sens anti-horaire (CCW)
     m_textureTopGrass.Bind();
@@ -91,6 +98,7 @@ void Engine::Render(float elapsedTime)
     glEnd();
 
     Transformation t;
+    m_player.ApplyTransformation(t);
     t.ApplyTranslation(0, 0, -7.f);
     t.ApplyRotation(gameTime * 100.f, 0, 1, 0);
     t.ApplyRotation(gameTime * 100.f, 1, 0, 0);
@@ -218,6 +226,18 @@ void Engine::KeyPressEvent(unsigned char key)
         case 94: // F10
             SetFullscreen(!IsFullscreen());
             break;
+        case 0: //a
+            m_keyA = true;
+            break;
+        case 3: //d
+            m_keyD = true;
+            break;
+        case 22: //w
+            m_keyW = true;
+            break;
+        case 18: //s
+            m_keyS = true;
+            break;
         default:
             std::cout << "Unhandled key: " << (int)key << std::endl;
     }
@@ -233,6 +253,18 @@ void Engine::KeyReleaseEvent(unsigned char key)
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             else
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            break;
+        case 0: //a
+            m_keyA = false;
+            break;
+        case 3: //d
+            m_keyD = false;
+            break;
+        case 22: //w
+            m_keyW = false;
+            break;
+        case 18: //s
+            m_keyS = false;
             break;
     }
 }

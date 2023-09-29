@@ -3,6 +3,7 @@
 #include "define.h"
 #include "openglcontext.h"
 #include "texture.h"
+#include "player.h"
 
 class Engine : public OpenglContext
 {
@@ -30,6 +31,8 @@ private:
     Texture m_textureSideGrass;
     Texture m_textureTopGrass;
     Texture m_textureDirt;
+
+    Player m_player;
 
     bool m_keyW = false;
     bool m_keyA = false;
