@@ -107,7 +107,6 @@ void Engine::Render(float elapsedTime)
     t.Use();
     
     //Front face
-    //BIND LA TEXTURE
     m_textureSideGrass.Bind();
     glBegin(GL_QUADS);
     glNormal3f(0, 0, 1);
@@ -125,8 +124,7 @@ void Engine::Render(float elapsedTime)
     glVertex3f(-0.5f, 0.5f, 0.5f);
     glEnd();
 
-    // Back face
-    //m_textureSideGrass.Bind();
+    // Back face                                                //Celle la ne marche pas je crois
     glBegin(GL_QUADS);
     glNormal3f(0, 0, -1);
 
@@ -144,7 +142,6 @@ void Engine::Render(float elapsedTime)
     glEnd();
 
     // Left side face
-    m_textureSideGrass.Bind();
     glBegin(GL_QUADS);
     glNormal3f(-1, 0, 0);
 
@@ -162,7 +159,6 @@ void Engine::Render(float elapsedTime)
     glEnd();
 
     // Right side face  
-    m_textureSideGrass.Bind();
     glBegin(GL_QUADS);
     glNormal3f(1, 0, 0);
 
@@ -273,6 +269,7 @@ void Engine::KeyReleaseEvent(unsigned char key)
 
 void Engine::MouseMoveEvent(int x, int y)
 {
+    float m_sensitivity = 0.08f; // Valeur de sensibilité par défaut
     // Centrer la souris seulement si elle n'est pas déjà centrée
     // Il est nécessaire de faire la vérification pour éviter de tomber
     // dans une boucle infinie où l'appel à CenterMouse génère un
@@ -281,9 +278,8 @@ void Engine::MouseMoveEvent(int x, int y)
     if(x == (Width() / 2) && y == (Height() / 2))
         return;
     MakeRelativeToCenter(x, y);
-    m_player.TurnLeftRight(x);
-    m_player.TurnTopBottom(y);
-
+    m_player.TurnLeftRight(x * m_sensitivity);
+    m_player.TurnTopBottom(y * m_sensitivity);
     
 
     CenterMouse();
