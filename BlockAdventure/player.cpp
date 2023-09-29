@@ -21,10 +21,11 @@ void Player::TurnTopBottom(float value)
 void Player::Move(bool front, bool back, bool left, bool right, float elapsedTime)
 {
 	Vector3f Deplacement(0.0f, 0.0f, 0.0f);
+	float yrotrad;
+	float xrotrad;
 
 	if (front)
 	{
-		float yrotrad, xrotrad;
 		yrotrad = (m_rotY / 180 * 3.141592654f);
 		xrotrad = (m_rotY / 180 * 3.141592654f);
 		m_position.x += Deplacement.x += float(sin(yrotrad)) * elapsedTime;
@@ -33,8 +34,7 @@ void Player::Move(bool front, bool back, bool left, bool right, float elapsedTim
 	}
 
 	if (back)
-	{
-		float yrotrad, xrotrad;
+	{		
 		yrotrad = (m_rotY / 180 * 3.141592654f);
 		xrotrad = (m_rotY / 180 * 3.141592654f);
 		m_position.x += Deplacement.x -= float(sin(yrotrad)) * elapsedTime;
@@ -42,8 +42,7 @@ void Player::Move(bool front, bool back, bool left, bool right, float elapsedTim
 	}
 
 	if (left)
-	{
-		float yrotrad, xrotrad;
+	{	
 		yrotrad = (m_rotY / 180 * 3.141592654f);
 		xrotrad = (m_rotY / 180 * 3.141592654f);
 		m_position.x += Deplacement.x -= float(cos(yrotrad)) * elapsedTime;
@@ -52,7 +51,6 @@ void Player::Move(bool front, bool back, bool left, bool right, float elapsedTim
 
 	if (right)
 	{
-		float yrotrad, xrotrad;
 		yrotrad = (m_rotY / 180 * 3.141592654f);
 		xrotrad = (m_rotY / 180 * 3.141592654f);
 		m_position.x += Deplacement.x += float(cos(yrotrad)) * elapsedTime;
