@@ -71,7 +71,8 @@ void Engine::Render(float elapsedTime)
     glLoadIdentity();
 
     //Mouvements du joueur
-    m_player.Move(m_keyW,m_keyS, m_keyA, m_keyD, elapsedTime);
+    float Speed = 7.0f;
+    m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, elapsedTime * Speed);
     Transformation cam;
     cam.ApplyRotation(-m_player.GetRotationX(), 1.0f, 0, 0);
     cam.ApplyRotation(-m_player.GetRotationY(), 0, 1.0f, 0);
@@ -140,6 +141,7 @@ void Engine::Render(float elapsedTime)
     glTexCoord2f(0, 0);
     glVertex3f(0.5f, 0.5f, -0.5f);
     glEnd();
+   
 
     // Left side face
     glBegin(GL_QUADS);
@@ -210,8 +212,6 @@ void Engine::Render(float elapsedTime)
     glTexCoord2f(1, 0);
     glVertex3f(-0.5f, -0.5f, 0.5f);
     glEnd();
-
-    
 }
 
 void Engine::KeyPressEvent(unsigned char key)
