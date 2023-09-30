@@ -14,7 +14,7 @@ Engine::~Engine()
 
 void Engine::Init()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
     glEnable(GL_TEXTURE_2D);
 
     glMatrixMode(GL_PROJECTION);
@@ -210,7 +210,30 @@ void Engine::Render(float elapsedTime)
 
     glTexCoord2f(1, 0);
     glVertex3f(-0.5f, -0.5f, 0.5f);
+    glEnd(); 
+  
+    //Crosshair
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+
+    float crosshairSize = 0.006f;
+    glBegin(GL_QUADS);
+
+    glVertex2f(-crosshairSize, crosshairSize);
+
+    glVertex2f(crosshairSize, crosshairSize);
+
+    glVertex2f(crosshairSize, -crosshairSize);
+
+    glVertex2f(-crosshairSize, -crosshairSize);
     glEnd();
+
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
 }
 
 void Engine::KeyPressEvent(unsigned char key)
