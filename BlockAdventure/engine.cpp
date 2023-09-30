@@ -212,24 +212,30 @@ void Engine::Render(float elapsedTime)
     glVertex3f(-0.5f, -0.5f, 0.5f);
     glEnd(); 
   
-    //Crosshair
+    // Crosshair
     glPushMatrix();
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
 
-    float crosshairSize = 0.006f;
-    glBegin(GL_QUADS);
+    float crosshairSize = 0.01f;
+    int numSegments = 50;
+    float radius = crosshairSize / 2.0f;
+    float angleIncrement = 2.0f * 3.14159265359f / numSegments;
 
-    glVertex2f(-crosshairSize, crosshairSize);
+    glDisable(GL_LIGHTING);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(0.0f, 0.0f);
 
-    glVertex2f(crosshairSize, crosshairSize);
-
-    glVertex2f(crosshairSize, -crosshairSize);
-
-    glVertex2f(-crosshairSize, -crosshairSize);
+    for (int i = 0; i <= numSegments; ++i) {
+        float angle = i * angleIncrement;
+        float x = radius * cos(angle);
+        float y = radius * sin(angle);
+        glVertex2f(x, y);
+    }
     glEnd();
+    glEnable(GL_LIGHTING);
 
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
