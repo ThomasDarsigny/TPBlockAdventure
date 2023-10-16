@@ -1,7 +1,6 @@
 #ifndef DEFINE_H__
 #define DEFINE_H__
 
-#include <GL/glew.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -17,9 +16,7 @@
 #define CHUNK_SIZE_Y 128
 #define CHUNK_SIZE_Z 16
 
-typedef uint8_t BlockType; enum BLOCK_TYPE { BTYPE_AIR, 
-											 BTYPE_DIRT,
-	                                         BTYPE_GRASS };
+enum BlockType {BTYPE_AIR, BTYPE_DIRT, BTYPE_GRASS};
 
 
 #define TEXTURE_PATH        "../BlockAdventure/media/textures/"

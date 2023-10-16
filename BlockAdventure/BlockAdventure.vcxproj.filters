@@ -11,7 +11,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Blockarray3d.h">
+    <ClInclude Include="blockarray3d.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="blockinfo.h">
@@ -46,7 +46,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Blockarray3d.cpp">
+    <ClCompile Include="blockarray3d.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="blockinfo.cpp">

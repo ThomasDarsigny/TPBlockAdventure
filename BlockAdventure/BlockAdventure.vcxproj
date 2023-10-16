@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Blockarray3d.h" />
+    <ClInclude Include="blockarray3d.h" />
     <ClInclude Include="blockinfo.h" />
     <ClInclude Include="chunk.h" />
     <ClInclude Include="define.h" />
@@ -24,7 +24,7 @@
     <ClInclude Include="vector3.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Blockarray3d.cpp" />
+    <ClCompile Include="blockarray3d.cpp" />
     <ClCompile Include="blockinfo.cpp" />
     <ClCompile Include="chunk.cpp" />
     <ClCompile Include="engine.cpp" />
@@ -67,8 +67,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>external\glew170\include;external\devil178\include;external\sfml23\include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\glew170\lib;external\devil178\lib;external\sfml23\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>external\devil178\include;external\sfml23\include;$(IncludePath)</IncludePath>
+    <LibraryPath>external\devil178\lib;external\sfml23\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -86,7 +86,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32.lib;sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-graphics-d.lib;GlU32.Lib;OpenGL32.Lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-graphics-d.lib;GlU32.Lib;OpenGL32.Lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
