@@ -16,6 +16,7 @@ void Engine::Init()
 {
     glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
     glEnable(GL_TEXTURE_2D);
+    glEnable(GL_CULL_FACE);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
