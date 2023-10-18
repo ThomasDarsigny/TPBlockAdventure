@@ -1,6 +1,7 @@
 #ifndef DEFINE_H__
 #define DEFINE_H__
 
+#include <GL/glew.h>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -9,7 +10,7 @@
 #include <gl/GL.h>
 #include <gl/GLU.h>
 #else
-#include <GL/glew.h>
+
 #endif
 
 #define CHUNK_SIZE_X 16

@@ -14,6 +14,11 @@ Engine::~Engine()
 
 void Engine::Init()
 {
+    GLenum glewErr = glewInit(); if (glewErr != GLEW_OK)
+    {
+        std::cerr << "ERREUR GLEW: " << glewGetErrorString(glewErr) << std::endl; abort();
+    }
+
     glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_CULL_FACE);
@@ -112,6 +117,7 @@ void Engine::Render(float elapsedTime)
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
+    glColor3b(0, 1, 0);                                                             //Changement de couleur du crosshair
 
     float crosshairSize = 0.01f;
     int numSegments = 50;
