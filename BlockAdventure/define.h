@@ -19,8 +19,8 @@
 
 typedef uint8_t BlockType; enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_GRASS };
 
-
 #define TEXTURE_PATH        "../BlockAdventure/media/textures/"
+#define SHADER_PATH			"../BlockAdventure/media/shaders/"
 #define VIEW_DISTANCE       128
 
 #endif // DEFINE_H__

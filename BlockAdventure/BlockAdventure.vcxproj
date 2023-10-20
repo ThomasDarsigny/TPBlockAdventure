@@ -20,9 +20,12 @@
     <ClInclude Include="matrix4.h" />
     <ClInclude Include="openglcontext.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="shader.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="tool.h" />
     <ClInclude Include="transformation.h" />
     <ClInclude Include="vector3.h" />
+    <ClInclude Include="vertexbuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="blockinfo.cpp" />
@@ -31,8 +34,15 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openglcontext.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="shader.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="tool.cpp" />
     <ClCompile Include="transformation.cpp" />
+    <ClCompile Include="vertexbuffer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="media\shaders\shader01.frag" />
+    <None Include="media\shaders\shader01.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A21FD938-1FEA-4687-AB86-0EABAC30877B}</ProjectGuid>

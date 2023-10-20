@@ -1,4 +1,5 @@
 #include "engine.h"
+#include "shader.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -54,6 +55,11 @@ void Engine::DeInit()
 
 void Engine::LoadResource()
 {
+    std::cout << "Loading and compiling shaders..." << std::endl; if (!m_shader01.Load(SHADER_PATH "shader01.vert", SHADER_PATH "shader01.frag", true))
+    {
+        std::cout << "Failed to load shader" << std::endl; exit(1);
+    }
+
     LoadTexture(m_textureFloor, TEXTURE_PATH "checker.png");
     LoadTexture(m_textureSideGrass, TEXTURE_PATH "sidegrass.png");
     LoadTexture(m_textureTopGrass, TEXTURE_PATH "topgrass.png");
@@ -65,7 +71,7 @@ void Engine::UnloadResource()
 }
 
 void Engine::Render(float elapsedTime)
-{
+{ 
     static float gameTime = elapsedTime;
 
     gameTime += elapsedTime;

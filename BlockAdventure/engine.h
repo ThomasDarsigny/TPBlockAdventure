@@ -4,6 +4,7 @@
 #include "openglcontext.h"
 #include "texture.h"
 #include "player.h"
+#include "shader.h"
 
 class Engine : public OpenglContext
 {
@@ -31,6 +32,8 @@ private:
     Texture m_textureSideGrass;
     Texture m_textureTopGrass;
     Texture m_textureDirt;
+
+    Shader m_shader01;
 
     Player m_player;
 
