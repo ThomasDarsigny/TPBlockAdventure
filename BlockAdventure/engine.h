@@ -4,6 +4,7 @@
 #include "openglcontext.h"
 #include "texture.h"
 #include "player.h"
+#include "chunk.h"
 #include "shader.h"
 
 class Engine : public OpenglContext
@@ -36,6 +37,8 @@ private:
     Shader m_shader01;
 
     Player m_player;
+
+    Chunk m_testChunk;
 
     bool m_keyW = false;
     bool m_keyA = false;

@@ -72,6 +72,7 @@ void Engine::UnloadResource()
 
 void Engine::Render(float elapsedTime)
 { 
+
     static float gameTime = elapsedTime;
 
     gameTime += elapsedTime;
@@ -147,6 +148,24 @@ void Engine::Render(float elapsedTime)
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+
+
+   
+	for (int x = 0; x < CHUNK_SIZE_X; ++x)
+	{
+		for (int z = 0; z < CHUNK_SIZE_Z; ++z)
+		{
+			for (int y = 0; y < 32; ++y)
+			{
+				if (x % 2 == 0 && y % 2 == 0 && z % 2 == 0)
+					m_testChunk.SetBlock(x, y, z, BTYPE_DIRT);
+			}
+		}
+	}
+
+	if (m_testChunk.IsDirty()) m_testChunk.Update();
+	m_shader01.Use(); m_testChunk.Render();
+	Shader::Disable();
 }
 
 void Engine::KeyPressEvent(unsigned char key)

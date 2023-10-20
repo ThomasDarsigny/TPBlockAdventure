@@ -9,4 +9,6 @@ void main()
     texel *= light;
 
     gl_FragColor = texel;
+
 }
+
