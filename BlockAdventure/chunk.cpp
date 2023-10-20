@@ -18,8 +18,9 @@ void Chunk::SetBlock(int x, int y, int z, BlockType type)
     m_blocks.Set(x, y, z, type);
 }
 
-BlockType Chunk::GetBlock(int x, int y, int z)
+BlockType Chunk::GetBlock(int x, int y, int z) const
 {
     return m_blocks.Get(x, y, z);
 }
+
 

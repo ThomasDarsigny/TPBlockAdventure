@@ -106,22 +106,23 @@ void Engine::Render(float elapsedTime)
         glVertex3f(-100.f, -2.f, -100.f);
     glEnd();
 
+
     Transformation t;
     m_player.ApplyTransformation(t);
     t.ApplyTranslation(0, 0, -7.f);
     t.Use();
   
     // Crosshair
+    glColor3f(1.0f, 0.0f, 0.0f);
     glPushMatrix();
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glColor3b(0, 1, 0);                                                             //Changement de couleur du crosshair
 
     float crosshairSize = 0.01f;
     int numSegments = 50;
-    float radius = crosshairSize / 2.0f;
+    float radius = crosshairSize / 1.5f;
     float angleIncrement = 2.0f * 3.14159265359f / numSegments;
 
     glDisable(GL_LIGHTING);
@@ -135,8 +136,8 @@ void Engine::Render(float elapsedTime)
         glVertex2f(x, y);
     }
     glEnd();
-    glEnable(GL_LIGHTING);
 
+    glEnable(GL_LIGHTING);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
