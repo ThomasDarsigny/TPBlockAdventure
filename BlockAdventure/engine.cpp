@@ -149,7 +149,6 @@ void Engine::Render(float elapsedTime)
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-
    
 	for (int x = 0; x < CHUNK_SIZE_X; ++x)
 	{
@@ -162,7 +161,7 @@ void Engine::Render(float elapsedTime)
 			}
 		}
 	}
-
+    m_textureDirt.Bind();
 	if (m_testChunk.IsDirty()) m_testChunk.Update();
 	m_shader01.Use(); m_testChunk.Render();
 	Shader::Disable();

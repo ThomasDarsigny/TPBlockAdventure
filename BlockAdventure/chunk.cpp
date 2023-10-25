@@ -1,4 +1,5 @@
 #include <iostream>
+#include <climits>
 #include "chunk.h"
 
 Chunk::Chunk() : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z)
