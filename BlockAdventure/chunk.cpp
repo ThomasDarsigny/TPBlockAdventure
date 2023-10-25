@@ -57,7 +57,7 @@ void Chunk::Update()
 
 void Chunk::Render() const
 {
-	Shader shader;
+	Shader shader{};
 	shader.Use();
 
 	m_vertexBuffer.Render();

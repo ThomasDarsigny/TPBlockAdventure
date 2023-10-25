@@ -3,7 +3,6 @@
 
 #include "array3d.h"
 #include "shader.h"
-
 #include "vertexbuffer.h"
 
 class Chunk
@@ -15,7 +14,7 @@ public:
     void RemoveBlock(int x, int y, int z);
     void SetBlock(int x, int y, int z, BlockType type);
     BlockType GetBlock(int x, int y, int z) const;
-    void Chunk :: AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType bt, int x, int y, int z);
+    void AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType bt, int x, int y, int z);
 
     void Update();        
     void Render() const;   
