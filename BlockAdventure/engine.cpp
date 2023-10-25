@@ -180,7 +180,7 @@ void Engine::KeyPressEvent(unsigned char key)
         case 0: //a
             m_keyA = true;
             break;
-        case 3: //dt
+        case 3: //d
             m_keyD = true;
             break;
         case 22: //w
