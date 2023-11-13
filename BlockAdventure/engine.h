@@ -6,6 +6,7 @@
 #include "player.h"
 #include "chunk.h"
 #include "shader.h"
+#include "textureatlas.h"
 
 class Engine : public OpenglContext
 {
