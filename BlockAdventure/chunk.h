@@ -14,9 +14,9 @@ public:
     void RemoveBlock(int x, int y, int z);
     void SetBlock(int x, int y, int z, BlockType type);
     BlockType GetBlock(int x, int y, int z) const;
-    void AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType bt, int x, int y, int z);
+    void AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType bt, int x, int y, int z, const int WorldX, const int WorldZ);
 
-    void Update();        
+    void Update(int x, int z);
     void Render() const;   
     bool IsDirty() const;  
 

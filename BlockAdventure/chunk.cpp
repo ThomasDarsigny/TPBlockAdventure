@@ -26,10 +26,12 @@ BlockType Chunk::GetBlock(int x, int y, int z) const
     return m_blocks.Get(x, y, z);
 }
 
-void Chunk::Update()
+void Chunk::Update(int x, int z)
 {
    if(m_isDirty)
     {
+		const int WorldX = x * CHUNK_SIZE_X;
+		const int WorldZ = z * CHUNK_SIZE_Z;
         int maxVertexCount = (CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z) * (6 * 4); VertexBuffer::VertexData* vd = new VertexBuffer::VertexData[maxVertexCount]; int count = 0;
         for (int x = 0; x < CHUNK_SIZE_X; ++x)
         {
@@ -41,7 +43,7 @@ void Chunk::Update()
                     BlockType bt = GetBlock(x, y, z);
                     if (bt != BTYPE_AIR)
                     {
-                        AddBlockToMesh(vd, count, bt, x, y, z);
+                        AddBlockToMesh(vd, count, bt, x, y, z, WorldX, WorldZ);
                     }
                 }
             }
@@ -70,43 +72,43 @@ bool Chunk::IsDirty() const
 	return true;
 }
 
-void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType bt, int x, int y, int z)
+void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType bt, int x, int y, int z, const int WorldX, const int WorldZ)
 {
 	// front
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y - 0.5f, z + 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y - 0.5f, z + 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y + 0.5f, z + 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y + 0.5f, z + 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
 
 	// back
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y - 0.5f, z - 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y - 0.5f, z - 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y + 0.5f, z - 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y + 0.5f, z - 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
 
 	// top
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y + 0.5f, z + 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y + 0.5f, z + 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y + 0.5f, z - 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y + 0.5f, z - 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
 
 	// bottom
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y - 0.5f, z - 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y - 0.5f, z - 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y - 0.5f, z + 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y - 0.5f, z + 0.5f+WorldZ, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
 
 	// left
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f+WorldX, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
 
 	// right
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f+WorldX, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
 }
 
 

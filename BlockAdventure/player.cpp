@@ -1,7 +1,7 @@
 #include "player.h"
 #include "vector3.h"
 
-Player::Player(const Vector3f& position, float rotX, float rotY): m_position(position), m_rotX(rotX), m_rotY(rotY)
+Player::Player(const Vector3f& position, float rotX, float rotY): m_position(position), m_rotX(rotX), m_rotY(rotY), m_jumpHeight(0.0f)
 {
 	
 }
@@ -18,7 +18,7 @@ void Player::TurnTopBottom(float value)
 	if (m_rotX > 90.0f) m_rotX = 90.0f;   //Pour pas faire de tours en avant
 }
 
-void Player::Move(bool front, bool back, bool left, bool right, float elapsedTime)
+void Player::Move(bool front, bool back, bool left, bool right,bool jump , float elapsedTime)
 {
 	Vector3f Deplacement(0.0f, 0.0f, 0.0f);
 	float yrotrad;
@@ -49,7 +49,26 @@ void Player::Move(bool front, bool back, bool left, bool right, float elapsedTim
 		yrotrad = (m_rotY / 180 * 3.141592654f);
 		m_position.x += Deplacement.x += float(cos(yrotrad)) * elapsedTime;
 		m_position.z += Deplacement.z += float(sin(yrotrad)) * elapsedTime;
-	}		
+	}
+	if (jump && !jump)
+	{
+		jump = true;
+		m_jumpHeight = 0.0f;
+	}
+	if (jump)
+	{
+		m_jumpHeight += 1.f * elapsedTime;
+
+		// Adjust the player's position based on the jump height
+		m_position.y = m_jumpHeight;
+
+		// Check if the jump is complete (you may need to adjust this condition)
+		if (m_jumpHeight >= 1.0f) // Assuming a jump height of 1 units
+		{
+			jump = false;
+			m_jumpHeight = 0.0f;
+		}
+	}
 }
 
 void Player::ApplyTransformation(Transformation& transformation) const

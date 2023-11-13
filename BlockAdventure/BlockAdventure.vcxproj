@@ -22,6 +22,7 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="textureatlas.h" />
     <ClInclude Include="tool.h" />
     <ClInclude Include="transformation.h" />
     <ClInclude Include="vector3.h" />
@@ -36,6 +37,7 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="textureatlas.cpp" />
     <ClCompile Include="tool.cpp" />
     <ClCompile Include="transformation.cpp" />
     <ClCompile Include="vertexbuffer.cpp" />
