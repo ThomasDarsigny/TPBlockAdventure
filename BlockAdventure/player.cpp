@@ -50,25 +50,6 @@ void Player::Move(bool front, bool back, bool left, bool right,bool jump , float
 		m_position.x += Deplacement.x += float(cos(yrotrad)) * elapsedTime;
 		m_position.z += Deplacement.z += float(sin(yrotrad)) * elapsedTime;
 	}
-	if (jump && !jump)
-	{
-		jump = true;
-		m_jumpHeight = 0.0f;
-	}
-	if (jump)
-	{
-		m_jumpHeight += 1.f * elapsedTime;
-
-		// Adjust the player's position based on the jump height
-		m_position.y = m_jumpHeight;
-
-		// Check if the jump is complete (you may need to adjust this condition)
-		if (m_jumpHeight >= 1.0f) // Assuming a jump height of 1 units
-		{
-			jump = false;
-			m_jumpHeight = 0.0f;
-		}
-	}
 }
 
 void Player::ApplyTransformation(Transformation& transformation) const

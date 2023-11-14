@@ -50,23 +50,28 @@ void Engine::Init()
 	CenterMouse();
 	HideCursor();
 
-	unsigned int maxchunk = GetMaxChunk() / 2;
-	// divise par 2, a cause qu'il faut des chunks au negatif
-	// donc exemple : max chunk = 4
-	//						min : -2,  max : 2
-	for (int x = -maxchunk; x <= maxchunk; x++)
-		for (int z = -maxchunk; z <= maxchunk; z++)
-			if (x != 0 || z != 0) // oublier les 0, car sinon il va mettre exemple 5 chunks au lieu de 4
+	int maxchunk = 16 / 2;
+	// divise par 2, à cause qu'il faut des chunks au négatif
+	// exemple : max chunk = 4
+	//            min : -2,  max : 2
+	for (int x = -maxchunk; x <= maxchunk; x++) {
+		for (int z = -maxchunk; z <= maxchunk; z++) {
+			if (x != 0 || z != 0) // exclure les 0, sinon il va créer, par exemple, 5 chunks au lieu de 4
 			{
-				Chunk* NouveauChunk = new Chunk(); // creer un nouveau chunk
-				m_chunks.Set(x, z, NouveauChunk);	// mettre le nouveau chunk dans le array 2d
-				for (int x = 0; x < CHUNK_SIZE_X; ++x)
-					for (int z = 0; z < CHUNK_SIZE_Z; ++z)
-						for (int y = 0; y < 32; ++y)
-							if (x % 2 == 0 && y % 2 == 0 && z % 2 == 0)
-								NouveauChunk->SetBlock(x, y, z, BTYPE_DIRT);
+				Chunk* NouveauChunk = new Chunk(); // créer un nouveau chunk
+				m_chunks.Set(x, z, NouveauChunk); // mettre le nouveau chunk dans le tableau 2D
+				NouveauChunk->SetBlock(0, 0, 0, BTYPE_DIRT);
+
+				Chunk* chunk = m_chunks.Get(x, z);
+				if (chunk && chunk->IsDirty()) {
+					BlockType bt = chunk->GetBlock(0, 0, 0);
+				}
 			}
+		}
+	}
 }
+	
+
 
 void Engine::DeInit()
 {
@@ -79,14 +84,9 @@ void Engine::LoadResource()
 		std::cout << "Failed to load shader" << std::endl; exit(1);
 	}
 
-
 	TextureAtlas::TextureIndex texture = m_textureAtlas.AddTexture(TEXTURE_PATH "checker.png");
 
-
 	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.png");
-
-
-
 
 	if (!m_textureAtlas.Generate(128, false))
 	{
@@ -95,6 +95,7 @@ void Engine::LoadResource()
 	}
 
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.bmp");
+	LoadTexture(m_textureSideGrass, TEXTURE_PATH "sidegrass.png");
 }
 
 void Engine::UnloadResource()
@@ -103,6 +104,7 @@ void Engine::UnloadResource()
 
 void Engine::Render(float elapsedTime)
 {
+	m_textureAtlas.Bind();
 	static float gameTime = elapsedTime;
 	gameTime += elapsedTime;
 
@@ -120,10 +122,6 @@ void Engine::Render(float elapsedTime)
 	cam.ApplyRotation(-m_player.GetRotationY(), 0, 1.0f, 0);
 	cam.ApplyTranslation(-m_player.GetPositon());
 	cam.Use();
-
-
-
-
 
 	// Plancher
 	// Les vertex doivent etre affiches dans le sens anti-horaire (CCW)
@@ -179,27 +177,26 @@ void Engine::Render(float elapsedTime)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-	m_textureAtlas.Bind();
-
-	
 
 
-	int Maxchunk = GetMaxChunk() / 2;
-	for (int x = -Maxchunk; x < Maxchunk; x++)
+	int maxchunk = 16 / 2;
+	for (int x = -maxchunk; x < maxchunk; x++)
 	{
-		for (int y = -Maxchunk; y < Maxchunk; y++)
+		for (int y = -maxchunk; y < maxchunk; y++)
 		{
 			Chunk* chunk = m_chunks.Get(x, y);
-			if (chunk->IsDirty())
-				chunk->Update(x,y);
+			if (chunk && chunk->IsDirty())
+				chunk->Update(x, y, m_textureAtlas);
 		}
 	}
-	for (int x = -Maxchunk; x <= Maxchunk; x++)
-		for (int y = -Maxchunk; y <= Maxchunk; y++)
+
+	for (int x = -maxchunk; x <= maxchunk; x++)
+		for (int y = -maxchunk; y <= maxchunk; y++)
 		{
 			Chunk* chunk = m_chunks.Get(x, y);
 			chunk->Render();
 		}
+
 	m_shader01.Use(); m_testChunk.Render();
 	Shader::Disable();
 
@@ -231,6 +228,14 @@ void Engine::DrawHud(int Fps)
 	ss.str("");
 	ss << " position : " << m_player.GetPositon(); // important : on utilise l ’ operateur << pour afficher la position
 	PrintText(10, 10, ss.str());
+
+	glEnable(GL_LIGHTING);
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 }
 
 void Engine::PrintText(unsigned int x, unsigned int y, const std::string& t)
@@ -278,9 +283,6 @@ void Engine::KeyPressEvent(unsigned char key)
 		break;
 	case 18: //s
 		m_keyS = true;
-		break;
-	case 57: // space
-		m_keyJump = true;
 		break;
 	default:
 		std::cout << "Unhandled key: " << (int)key << std::endl;
@@ -359,5 +361,5 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 int Engine::GetMaxChunk()
 {
 	// racine de VIEW_DISTANCE
-	return pow(static_cast<double>(VIEW_DISTANCE), 2);
+	return sqrt(VIEW_DISTANCE);
 }

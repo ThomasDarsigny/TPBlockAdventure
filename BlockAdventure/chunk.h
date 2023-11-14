@@ -4,6 +4,7 @@
 #include "array3d.h"
 #include "shader.h"
 #include "vertexbuffer.h"
+#include "textureatlas.h"
 
 class Chunk
 {
@@ -14,9 +15,8 @@ public:
     void RemoveBlock(int x, int y, int z);
     void SetBlock(int x, int y, int z, BlockType type);
     BlockType GetBlock(int x, int y, int z) const;
-    void AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType bt, int x, int y, int z, const int WorldX, const int WorldZ);
-
-    void Update(int x, int z);
+    void AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType bt, int x, int y, int z, const int WorldX, const int WorldZ, TextureAtlas texture);
+    void Update(int worldx, int worldz, TextureAtlas texture);
     void Render() const;   
     bool IsDirty() const;  
 
@@ -24,6 +24,7 @@ private:
     Array3d<BlockType> m_blocks;
     VertexBuffer m_vertexBuffer; 
     Shader m_shader01;
+	
    
     bool m_isDirty = false;
 };

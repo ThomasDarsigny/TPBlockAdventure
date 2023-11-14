@@ -9,9 +9,7 @@ class Array2d
 public:
     Array2d(int x, int y) : m_x(x), m_y(y)
     {
-        int size = x * y;
-        m_data = new T[size];
-        Reset(T());
+        m_data = new T[x * y];
     }
 
     ~Array2d()
@@ -71,5 +69,5 @@ private:
     T* m_data;
 };
 
-#endif // ARRAY3D_H__
+#endif // ARRAY2D_H__
 
