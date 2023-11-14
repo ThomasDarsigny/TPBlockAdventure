@@ -1,10 +1,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include "engine.h"
-#include "shader.h"
 #include"transformation.h"
-#include "textureatlas.h"
 
 
 Engine::Engine() : m_player(Vector3f(0.0f, 0.0f, 0.0f)), m_textureAtlas(16), m_chunks(GetMaxChunk(), GetMaxChunk())
@@ -17,35 +14,35 @@ Engine::~Engine()
 
 void Engine::Init()
 {
-	GLenum glewErr = glewInit(); if (glewErr != GLEW_OK)
-	{
-		std::cerr << "ERREUR GLEW: " << glewGetErrorString(glewErr) << std::endl; abort();
-	}
+    GLenum glewErr = glewInit(); if (glewErr != GLEW_OK)
+    {
+        std::cerr << "ERREUR GLEW: " << glewGetErrorString(glewErr) << std::endl; abort();
+    }
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_CULL_FACE);
+    glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_CULL_FACE);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
-	glEnable(GL_DEPTH_TEST);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LINE_SMOOTH);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
+    glEnable(GL_DEPTH_TEST);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LINE_SMOOTH);
 
-	// Light
-	GLfloat light0Pos[4] = { 0.0f, CHUNK_SIZE_Y, 0.0f, 1.0f };
-	GLfloat light0Amb[4] = { 0.9f, 0.9f, 0.9f, 1.0f };
-	GLfloat light0Diff[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat light0Spec[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    // Light
+    GLfloat light0Pos[4] = { 0.0f, CHUNK_SIZE_Y, 0.0f, 1.0f };
+    GLfloat light0Amb[4] = { 0.9f, 0.9f, 0.9f, 1.0f };
+    GLfloat light0Diff[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat light0Spec[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
 
-	glEnable(GL_LIGHT0);
-	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
+    glEnable(GL_LIGHT0);
+    glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
 
 	CenterMouse();
 	HideCursor();
@@ -79,10 +76,10 @@ void Engine::DeInit()
 
 void Engine::LoadResource()
 {
-	std::cout << "Loading and compiling shaders..." << std::endl; if (!m_shader01.Load(SHADER_PATH "shader01.vert", SHADER_PATH "shader01.frag", true))
-	{
-		std::cout << "Failed to load shader" << std::endl; exit(1);
-	}
+    std::cout << "Loading and compiling shaders..." << std::endl; if (!m_shader01.Load(SHADER_PATH "shader01.vert", SHADER_PATH "shader01.frag", true))
+    {
+        std::cout << "Failed to load shader" << std::endl; exit(1);
+    }
 
 	TextureAtlas::TextureIndex texture = m_textureAtlas.AddTexture(TEXTURE_PATH "checker.png");
 
@@ -103,100 +100,98 @@ void Engine::UnloadResource()
 }
 
 void Engine::Render(float elapsedTime)
-{
-	m_textureAtlas.Bind();
-	static float gameTime = elapsedTime;
-	gameTime += elapsedTime;
+{ 
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    static float gameTime = elapsedTime;
 
-	// Transformations initiales
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+    gameTime += elapsedTime;
 
-	//Mouvements du joueur
-	float Speed = 7.0f;
-	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, elapsedTime * Speed);
-	Transformation cam;
-	cam.ApplyRotation(-m_player.GetRotationX(), 1.0f, 0, 0);
-	cam.ApplyRotation(-m_player.GetRotationY(), 0, 1.0f, 0);
-	cam.ApplyTranslation(-m_player.GetPositon());
-	cam.Use();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Plancher
-	// Les vertex doivent etre affiches dans le sens anti-horaire (CCW)
-	float nbRep = 50.f;
-	glBegin(GL_QUADS);
-	glNormal3f(0, 1, 0); // Normal vector
+    // Transformations initiales
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
-	glTexCoord2f(0, 0);
-	glVertex3f(-100.f, -2.f, 100.f);
+    //Mouvements du joueur
+    float Speed = 7.0f;
+    m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, elapsedTime * Speed);
+    Transformation cam;
+    cam.ApplyRotation(-m_player.GetRotationX(), 1.0f, 0, 0);
+    cam.ApplyRotation(-m_player.GetRotationY(), 0, 1.0f, 0);
+    cam.ApplyTranslation(-m_player.GetPositon());
+    cam.Use();
+   
 
-	glTexCoord2f(nbRep, 0);
-	glVertex3f(100.f, -2.f, 100.f);
+    // Plancher
+    // Les vertex doivent etre affiches dans le sens anti-horaire (CCW)
+    m_textureTopGrass.Bind();
+    float nbRep = 50.f;
+    glBegin(GL_QUADS);
+        glNormal3f(0, 1, 0); // Normal vector
 
-	glTexCoord2f(nbRep, nbRep);
-	glVertex3f(100.f, -2.f, -100.f);
+        glTexCoord2f(0, 0);
+        glVertex3f(-100.f, -2.f, 100.f);
 
-	glTexCoord2f(0, nbRep);
-	glVertex3f(-100.f, -2.f, -100.f);
-	glEnd();
+        glTexCoord2f(nbRep, 0);
+        glVertex3f(100.f, -2.f, 100.f);
 
+        glTexCoord2f(nbRep, nbRep);
+        glVertex3f(100.f, -2.f, -100.f);
 
-	Transformation t;
-	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0, 0, -7.f);
-	t.Use();
-
-	// Crosshair
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-
-	float crosshairSize = 0.01f;
-	int numSegments = 50;
-	float radius = crosshairSize / 1.5f;
-	float angleIncrement = 2.0f * 3.14159265359f / numSegments;
-
-	glDisable(GL_LIGHTING);
-	glBegin(GL_TRIANGLE_FAN);
-	glVertex2f(0.0f, 0.0f);
-
-	for (int i = 0; i <= numSegments; ++i) {
-		float angle = i * angleIncrement;
-		float x = radius * cos(angle);
-		float y = radius * sin(angle);
-		glVertex2f(x, y);
-	}
-	glEnd();
-
-	glEnable(GL_LIGHTING);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+        glTexCoord2f(0, nbRep);
+        glVertex3f(-100.f, -2.f, -100.f);
+    glEnd();
 
 
-	int maxchunk = 16 / 2;
-	for (int x = -maxchunk; x < maxchunk; x++)
+    Transformation t;
+    m_player.ApplyTransformation(t);
+    t.ApplyTranslation(0, 0, -7.f);
+    t.Use();
+  
+    // Crosshair
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+
+    float crosshairSize = 0.01f;
+    int numSegments = 50;
+    float radius = crosshairSize / 1.5f;
+    float angleIncrement = 2.0f * 3.14159265359f / numSegments;
+
+    glDisable(GL_LIGHTING);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(0.0f, 0.0f);
+
+    for (int i = 0; i <= numSegments; ++i) {
+        float angle = i * angleIncrement;
+        float x = radius * cos(angle);
+        float y = radius * sin(angle);
+        glVertex2f(x, y);
+    }
+    glEnd();
+
+    glEnable(GL_LIGHTING);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+
+   
+	for (int x = 0; x < CHUNK_SIZE_X; ++x)
 	{
-		for (int y = -maxchunk; y < maxchunk; y++)
+		for (int z = 0; z < CHUNK_SIZE_Z; ++z)
 		{
-			Chunk* chunk = m_chunks.Get(x, y);
-			if (chunk && chunk->IsDirty())
-				chunk->Update(x, y, m_textureAtlas);
+			for (int y = 0; y < 32; ++y)
+			{
+				if (x % 2 == 0 && y % 2 == 0 && z % 2 == 0)
+					m_testChunk.SetBlock(x, y, z, BTYPE_DIRT);
+			}
 		}
 	}
-
-	for (int x = -maxchunk; x <= maxchunk; x++)
-		for (int y = -maxchunk; y <= maxchunk; y++)
-		{
-			Chunk* chunk = m_chunks.Get(x, y);
-			chunk->Render();
-		}
-
+    m_textureDirt.Bind();
+	if (m_testChunk.IsDirty()) m_testChunk.Update();
 	m_shader01.Use(); m_testChunk.Render();
 	Shader::Disable();
 
@@ -261,78 +256,75 @@ void Engine::PrintText(unsigned int x, unsigned int y, const std::string& t)
 	}
 }
 
-
 void Engine::KeyPressEvent(unsigned char key)
 {
-	switch (key)
-	{
-	case 36: // ESC
-		Stop();
-		break;
-	case 94: // F10
-		SetFullscreen(!IsFullscreen());
-		break;
-	case 0: //a
-		m_keyA = true;
-		break;
-	case 3: //d
-		m_keyD = true;
-		break;
-	case 22: //w
-		m_keyW = true;
-		break;
-	case 18: //s
-		m_keyS = true;
-		break;
-	default:
-		std::cout << "Unhandled key: " << (int)key << std::endl;
-	}
+    switch(key)
+    {
+        case 36: // ESC
+            Stop();
+            break;
+        case 94: // F10
+            SetFullscreen(!IsFullscreen());
+            break;
+        case 0: //a
+            m_keyA = true;
+            break;
+        case 3: //d
+            m_keyD = true;
+            break;
+        case 22: //w
+            m_keyW = true;
+            break;
+        case 18: //s
+            m_keyS = true;
+            break;
+        default:
+            std::cout << "Unhandled key: " << (int)key << std::endl;
+    }
 }
 
 void Engine::KeyReleaseEvent(unsigned char key)
 {
-	switch (key)
-	{
-	case 24: // Y
-		m_wireframe = !m_wireframe;
-		if (m_wireframe)
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		else
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		break;
-	case 0: //a
-		m_keyA = false;
-		break;
-	case 3: //d
-		m_keyD = false;
-		break;
-	case 22: //w
-		m_keyW = false;
-		break;
-	case 18: //s
-		m_keyS = false;
-	case 57:
-		m_keyJump = false;
-		break;
-	}
+    switch(key)
+    {
+        case 24: // Y
+            m_wireframe = !m_wireframe;
+            if(m_wireframe)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            else
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            break;
+        case 0: //a
+            m_keyA = false;
+            break;
+        case 3: //d
+            m_keyD = false;
+            break;
+        case 22: //w
+            m_keyW = false;
+            break;
+        case 18: //s
+            m_keyS = false;
+            break;
+    }
 }
 
 void Engine::MouseMoveEvent(int x, int y)
 {
-	// Centrer la souris seulement si elle n'est pas déjà centrée
-	// Il est nécessaire de faire la vérification pour éviter de tomber
-	// dans une boucle infinie où l'appel à CenterMouse génère un
-	// MouseMoveEvent, qui rapelle CenterMouse qui rapelle un autre
-	// MouseMoveEvent, etc
-	if (x == (Width() / 2) && y == (Height() / 2))
-		return;
-	float m_sensitivity = 0.08f;
-	MakeRelativeToCenter(x, y);
-	m_player.TurnLeftRight(x * m_sensitivity);
-	m_player.TurnTopBottom(y * m_sensitivity);
+    // Centrer la souris seulement si elle n'est pas déjà centrée
+    // Il est nécessaire de faire la vérification pour éviter de tomber
+    // dans une boucle infinie où l'appel à CenterMouse génère un
+    // MouseMoveEvent, qui rapelle CenterMouse qui rapelle un autre
+    // MouseMoveEvent, etc
+    if(x == (Width() / 2) && y == (Height() / 2))
+        return;
+    float m_sensitivity = 0.08f;
+    MakeRelativeToCenter(x, y);
+    m_player.TurnLeftRight(x * m_sensitivity);
+    m_player.TurnTopBottom(y * m_sensitivity);
+    
 
-
-	CenterMouse();
+    CenterMouse();
 }
 
 void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
@@ -345,21 +337,15 @@ void Engine::MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y)
 
 bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool stopOnError)
 {
-	texture.Load(filename);
-	if (!texture.IsValid())
-	{
-		std::cerr << "Unable to load texture (" << filename << ")" << std::endl;
-		if (stopOnError)
-			Stop();
+    texture.Load(filename);
+    if(!texture.IsValid())
+    {
+        std::cerr << "Unable to load texture (" << filename << ")" << std::endl;
+        if(stopOnError)
+            Stop();
 
-		return false;
-	}
+        return false;
+    }
 
-	return true;
-}
-
-int Engine::GetMaxChunk()
-{
-	// racine de VIEW_DISTANCE
-	return sqrt(VIEW_DISTANCE);
+    return true;
 }
