@@ -20,6 +20,7 @@ public:
     virtual void LoadResource();
     virtual void UnloadResource();
     virtual void Render(float elapsedTime);
+    void DrawHud(int Fps, const int gameTime, const int m_crossSize);
     virtual void KeyPressEvent(unsigned char key);
     virtual void KeyReleaseEvent(unsigned char key);
     virtual void MouseMoveEvent(int x, int y);
@@ -29,17 +30,17 @@ public:
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
     int GetMaxChunk();
-    void DrawHud(int Fps);
+   
     void PrintText(unsigned int x, unsigned int y, const std::string& t);
 private:
     bool m_wireframe = false;
 
-    Texture m_textureFloor;
-    Texture m_textureSideGrass;
-    Texture m_textureTopGrass;
-    Texture m_textureDirt;
+    //TEXTURES
     Texture m_textureFont;
+    Texture m_textureCrosshair;
+    Texture m_textureItemBar;
 
+    //SHADERS
     Shader m_shader01;
 
     Player m_player;
@@ -47,8 +48,10 @@ private:
     Chunk m_testChunk;
 
     TextureAtlas m_textureAtlas;
+
     Array2d<Chunk*> m_chunks; // mettre dans un pointeur pour reprendre chunk[posx,posy] par la suite
 
+    const int m_crossSize = 20;
 
     bool m_keyW = false;
     bool m_keyA = false;

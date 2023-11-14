@@ -7,7 +7,7 @@
 #include "textureatlas.h"
 
 
-Engine::Engine() : m_player(Vector3f(0.0f, 0.0f, 0.0f)), m_textureAtlas(16), m_chunks(GetMaxChunk(), GetMaxChunk())
+Engine::Engine() : m_player(Vector3f(0.0f, 0.0f, 0.0f)), m_textureAtlas(8), m_chunks(GetMaxChunk(), GetMaxChunk())
 {
 }
 
@@ -22,7 +22,7 @@ void Engine::Init()
         std::cerr << "ERREUR GLEW: " << glewGetErrorString(glewErr) << std::endl; abort();
     }
 
-    glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_CULL_FACE);
 
@@ -66,12 +66,17 @@ void Engine::LoadResource()
     texture = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.png");
     texture = m_textureAtlas.AddTexture(TEXTURE_PATH "sidegrass.png");
     texture = m_textureAtlas.AddTexture(TEXTURE_PATH "topgrass.png");
+    texture = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.png");
+    texture = m_textureAtlas.AddTexture(TEXTURE_PATH "sidewood.png");
+    texture = m_textureAtlas.AddTexture(TEXTURE_PATH "topwood.png");
     if (!m_textureAtlas.Generate(128, false))
     {
         std::cout << " Unable to generate texture atlas ..." << std::endl;
         abort();
     }
     LoadTexture(m_textureFont, TEXTURE_PATH "font.png");
+    LoadTexture(m_textureCrosshair, TEXTURE_PATH "crosshair.png");
+    //LoadTexture(m_textureItemBar, TEXTURE_PATH "Itembar.png");
 }
 
 void Engine::UnloadResource()
@@ -127,31 +132,6 @@ void Engine::Render(float elapsedTime)
     t.ApplyTranslation(0, 0, -7.f);
     t.Use();
 
-    // Crosshair
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-
-    float crosshairSize = 0.01f;
-    int numSegments = 50;
-    float radius = crosshairSize / 1.5f;
-    float angleIncrement = 2.0f * 3.14159265359f / numSegments;
-
-    glDisable(GL_LIGHTING);
-    glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(0.0f, 0.0f);
-
-    for (int i = 0; i <= numSegments; ++i) {
-        float angle = i * angleIncrement;
-        float x = radius * cos(angle);
-        float y = radius * sin(angle);
-        glVertex2f(x, y);
-    }
-    glEnd();
-
     glEnable(GL_LIGHTING);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
@@ -174,16 +154,16 @@ void Engine::Render(float elapsedTime)
     m_testChunk.Render();
     Shader::Disable();
 
+
     if (m_wireframe)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    DrawHud(static_cast<int>(1.0f / elapsedTime));
-
+    if (elapsedTime > 0.00f)
+        DrawHud(static_cast<int>(1.0f / elapsedTime), gameTime, m_crossSize);
     if (m_wireframe)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
-void Engine::DrawHud(int Fps)
+void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 {
     // Setter le blend function , tout ce qui sera noir sera transparent
     glDisable(GL_LIGHTING);
@@ -200,11 +180,29 @@ void Engine::DrawHud(int Fps)
     // Bind de la texture pour le font
     m_textureFont.Bind();
     std::ostringstream ss;
-    ss << " fps : " << Fps;
+    ss << " Fps : " << Fps;
     PrintText(10, Height() - 25, ss.str());
     ss.str("");
-    ss << " position : " << m_player.GetPositon(); // important : on utilise l ’ operateur << pour afficher la position
+    ss << " Position : " << m_player.GetPositon(); // important : on utilise l ’ operateur << pour afficher la position
     PrintText(10, 10, ss.str());
+    ss.str("");
+    ss << "Game Time : " << gameTime;
+    PrintText(16, Height() - 50, ss.str()); 
+
+    m_textureCrosshair.Bind(); 
+    glLoadIdentity(); 
+    glTranslated(Width() / 2 - m_crossSize / 2, Height() / 2 - m_crossSize / 2, 0);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0, 0); 
+    glVertex2i(0, 0); 
+    glTexCoord2f(1, 0); 
+    glVertex2i(m_crossSize, 0);
+    glTexCoord2f(1, 1); 
+    glVertex2i(m_crossSize, m_crossSize);
+    glTexCoord2f(0, 1); 
+    glVertex2i(0, m_crossSize);
+    glEnd();
+
 
     glEnable(GL_LIGHTING);
     glDisable(GL_BLEND);
