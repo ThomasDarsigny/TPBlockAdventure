@@ -1,5 +1,5 @@
-#ifndef ARRAY2D_H__
-#define ARRAY2D_H__
+#ifndef ARRAY3D_H__
+#define ARRAY3D_H__
 
 #include "define.h"
 
@@ -7,16 +7,17 @@ template <typename T>
 class Array2d
 {
 public:
-    Array2d(int x, int y) : m_x(x), m_y(y)
+    Array3d(int x, int y) : m_x(x), m_y(y)
     {
         m_data = new T[x * y];
     }
 
-    ~Array2d()
+    ~Array3d()
     {
+        delete[] m_data;
     }
 
-    Array2d(const Array2d& array) : m_x(array.m_x), m_y(array.m_y)
+    Array3d(const Array3d& array) : m_x(array.m_x), m_y(array.m_y)
     {
         int size = m_x * m_y;
         m_data = new T[size];

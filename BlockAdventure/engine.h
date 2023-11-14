@@ -7,8 +7,6 @@
 #include "chunk.h"
 #include "shader.h"
 #include "textureatlas.h"
-#include "array2d.h"
-#include "blockinfo.h"
 
 class Engine : public OpenglContext
 {
@@ -28,9 +26,7 @@ public:
 
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
-    int GetMaxChunk();
-    void DrawHud(int Fps);
-    void PrintText(unsigned int x, unsigned int y, const std::string& t);
+
 private:
     bool m_wireframe = false;
 
@@ -38,7 +34,6 @@ private:
     Texture m_textureSideGrass;
     Texture m_textureTopGrass;
     Texture m_textureDirt;
-    Texture m_textureFont;
 
     Shader m_shader01;
 
@@ -46,15 +41,10 @@ private:
 
     Chunk m_testChunk;
 
-    TextureAtlas m_textureAtlas;
-    Array2d<Chunk*> m_chunks; // mettre dans un pointeur pour reprendre chunk[posx,posy] par la suite
-    
-
     bool m_keyW = false;
     bool m_keyA = false;
     bool m_keyS = false;
     bool m_keyD = false;
-    bool m_keyJump = false;
 };
 
 #endif // ENGINE_H__
