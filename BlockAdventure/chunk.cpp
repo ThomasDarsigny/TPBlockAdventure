@@ -75,9 +75,9 @@ bool Chunk::IsDirty() const
 void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType bt, int x, int y, int z)
 {
 
-	float u, v, h, w;
+	/*float u, v, h, w;
 	TextureAtlas m_textureAtlas = texture;
-	m_textureAtlas.TextureIndexToCoord(BTYPE_DIRT - 1, u, v, h, w);
+	m_textureAtlas.TextureIndexToCoord(BTYPE_DIRT - 1, u, v, h, w);*/
 
 
 	// front

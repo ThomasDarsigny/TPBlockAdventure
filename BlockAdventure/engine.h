@@ -41,6 +41,8 @@ private:
 
     Chunk m_testChunk;
 
+    TextureAtlas m_textureAtlas;    
+
     bool m_keyW = false;
     bool m_keyA = false;
     bool m_keyS = false;

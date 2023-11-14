@@ -59,6 +59,9 @@
     <ClInclude Include="vertexbuffer.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\Downloads\textureatlas.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="blockinfo.cpp">
@@ -92,6 +95,9 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="vertexbuffer.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\Downloads\textureatlas.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
