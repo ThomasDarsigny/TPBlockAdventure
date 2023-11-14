@@ -17,7 +17,7 @@
 #define CHUNK_SIZE_Y 128
 #define CHUNK_SIZE_Z 16
 
-typedef uint8_t BlockType; enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_GRASS };
+typedef uint8_t BlockType; enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_GRASS, BTYPE_CHECKER };
 
 #define TEXTURE_PATH        "../BlockAdventure/media/textures/"
 #define SHADER_PATH			"../BlockAdventure/media/shaders/"
