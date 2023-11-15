@@ -1,8 +1,8 @@
 #include "BlockInfo.h"
 #include <iostream> 
 
-BlockInfo::BlockInfo(BlockType type, const std::string& name)
-	: m_type(type), m_name(name), m_durability(100), blocku(0.0f), blockv(0.0f), blockh(1.0f), blockw(1.0f)
+BlockInfo::BlockInfo(BlockType type, const std::string& name, int durability ,bool lightSource)
+	: m_type(type), m_name(name), m_durability(durability), m_lightSource(lightSource), blocku(0.0f), blockv(0.0f), blockh(1.0f), blockw(1.0f)
 {
 }
 

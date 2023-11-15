@@ -7,7 +7,7 @@
 class BlockInfo
 {
 public:
-	BlockInfo(BlockType type, const std::string& name);
+	BlockInfo(BlockType type, const std::string& name, int durability, bool lightSource);
 	~BlockInfo();
 
 	BlockType GetType() const;
@@ -27,8 +27,15 @@ public:
 
 private:
 	BlockType m_type;
+
 	std::string m_name;
+	std::string m_texture;
+
 	int m_durability;
+	bool m_lightSource;
+
+
+
 	float blocku;
 	float blockv;
 	float blockh;
