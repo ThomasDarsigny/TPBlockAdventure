@@ -10,20 +10,20 @@
 
 TextureAtlas::TextureAtlas(unsigned int nbTexture) : m_isValid(false), m_currentTextureIndex(0)
 {
-    if(nbTexture < 4)
+    if (nbTexture < 4)
         nbTexture = 4;
 
     // Arrondir sur la puissance de 2 superieure
     m_nbTexturePerSide = (int)sqrt((float)nbTexture);
-    if(m_nbTexturePerSide * m_nbTexturePerSide < nbTexture)
+    if (m_nbTexturePerSide * m_nbTexturePerSide < nbTexture)
         m_nbTexturePerSide++;
-    while(!IsPowerOfTwo(m_nbTexturePerSide))
+    while (!IsPowerOfTwo(m_nbTexturePerSide))
         m_nbTexturePerSide++;
 }
 
 TextureAtlas::~TextureAtlas()
 {
-    if(IsValid())
+    if (IsValid())
         glDeleteTextures(1, &m_textureId);
 }
 
@@ -32,7 +32,7 @@ TextureAtlas::TextureIndex TextureAtlas::AddTexture(const std::string& fname)
 {
     TextureList::iterator it = m_textureList.find(fname);
 
-    if(it != m_textureList.end())
+    if (it != m_textureList.end())
         return it->second.texIdx;
 
     TextureIndex id = m_currentTextureIndex++;
@@ -45,22 +45,22 @@ bool TextureAtlas::Generate(int textureSize, bool mipmap)
     // TODO mipmap pas encore 100% parfait...
     assert(!mipmap);
 
-    if(!IsPowerOfTwo(textureSize))
+    if (!IsPowerOfTwo(textureSize))
         return false;
 
     // Initialize Devil only once:
     static bool alreadyInitialized = false;
-    if(!alreadyInitialized)
+    if (!alreadyInitialized)
     {
         ilInit();
         iluInit();
         alreadyInitialized = true;
     }
 
-    for(TextureList::iterator it = m_textureList.begin(); it != m_textureList.end(); ++it)
+    for (TextureList::iterator it = m_textureList.begin(); it != m_textureList.end(); ++it)
     {
         ILuint texid = it->second.texId;
-        if(texid == (ILuint)-1)
+        if (texid == (ILuint)-1)
         {
             std::cout << "Loading " << it->first << " (id=" << it->second.texIdx << ")..." << std::endl;
             ilGenImages(1, &texid);
@@ -93,22 +93,22 @@ bool TextureAtlas::Generate(int textureSize, bool mipmap)
 
     glGenTextures(1, &m_textureId);
     glBindTexture(GL_TEXTURE_2D, m_textureId);
-    if(mipmap)
+    if (mipmap)
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,  GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,  GL_NEAREST_MIPMAP_LINEAR );
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
     else
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
     int level = textureSize;
     int oglLevel = 0;
     int mipmapSize = textureSize * m_nbTexturePerSide;
-    while(mipmapSize != 0)
+    while (mipmapSize != 0)
     {
         ILuint atlasTex;
         ilGenImages(1, &atlasTex);
@@ -117,7 +117,7 @@ bool TextureAtlas::Generate(int textureSize, bool mipmap)
         ilClearColour(1, 0, 0, 1);
         ilClearImage();
 
-        for(TextureList::iterator it = m_textureList.begin(); it != m_textureList.end(); ++it)
+        for (TextureList::iterator it = m_textureList.begin(); it != m_textureList.end(); ++it)
         {
             ILuint tmpImg;
             ilGenImages(1, &tmpImg);
@@ -126,7 +126,7 @@ bool TextureAtlas::Generate(int textureSize, bool mipmap)
 
             iluImageParameter(ILU_FILTER, ILU_NEAREST);
             //iluImageParameter(ILU_FILTER, ILU_BILINEAR);
-            if(level != textureSize)
+            if (level != textureSize)
                 iluScale(level, level, 1);
 
             char* data = new char[level * level * 4];
@@ -140,7 +140,7 @@ bool TextureAtlas::Generate(int textureSize, bool mipmap)
             ilSetPixels(x * level, y * level, 0, level, level, 1, IL_RGBA, IL_UNSIGNED_BYTE, data);
             //ilOverlayImage(tmpImg, x * level, y * level, 0);
 
-            delete [] data;
+            delete[] data;
             ilDeleteImages(1, &tmpImg);
         }
 
@@ -165,14 +165,14 @@ bool TextureAtlas::Generate(int textureSize, bool mipmap)
 
         ilDeleteImages(1, &atlasTex);
 
-        if(!mipmap)
+        if (!mipmap)
             break;
 
         level /= 2;
         mipmapSize /= 2;
     }
 
-    m_isValid = true;    
+    m_isValid = true;
     return true;
 }
 

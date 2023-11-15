@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\BlockAdventure\BlockAdventure\textureatlas.h" />
     <ClInclude Include="array2d.h" />
     <ClInclude Include="array3d.h" />
     <ClInclude Include="blockinfo.h" />
@@ -22,6 +21,7 @@
     <ClInclude Include="openglcontext.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="textureatlas.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="tool.h" />
     <ClInclude Include="transformation.h" />
@@ -29,7 +29,6 @@
     <ClInclude Include="vertexbuffer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\BlockAdventure\BlockAdventure\textureatlas.cpp" />
     <ClCompile Include="blockinfo.cpp" />
     <ClCompile Include="chunk.cpp" />
     <ClCompile Include="engine.cpp" />
@@ -38,6 +37,7 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="textureatlas.cpp" />
     <ClCompile Include="tool.cpp" />
     <ClCompile Include="transformation.cpp" />
     <ClCompile Include="vertexbuffer.cpp" />
