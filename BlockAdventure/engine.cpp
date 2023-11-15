@@ -62,13 +62,13 @@ void Engine::LoadResource()
 		std::cout << "Failed to load shader" << std::endl; exit(1);
 	}
 
-	TextureAtlas::TextureIndex texturechecker = m_textureAtlas.AddTexture(TEXTURE_PATH "checker.png");
-	TextureAtlas::TextureIndex texturedirt = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.png");
-	TextureAtlas::TextureIndex texturesidegrass = m_textureAtlas.AddTexture(TEXTURE_PATH "sidegrass.png");
-	TextureAtlas::TextureIndex texturetopgrass = m_textureAtlas.AddTexture(TEXTURE_PATH "topgrass.png");
-	TextureAtlas::TextureIndex texturestone = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.png");
-	TextureAtlas::TextureIndex texturetopwood = m_textureAtlas.AddTexture(TEXTURE_PATH "topwood.png");
-	TextureAtlas::TextureIndex texturesidewood = m_textureAtlas.AddTexture(TEXTURE_PATH "sidewood.png");
+	TextureAtlas::TextureIndex  texture = m_textureAtlas.AddTexture(TEXTURE_PATH "checker.png");
+	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.png");
+	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "sidegrass.png");
+	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "topgrass.png");
+	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.png");
+	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "topwood.png");
+	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "sidewood.png");
 	if (!m_textureAtlas.Generate(128, false))
 	{
 		std::cout << " Unable to generate texture atlas ..." << std::endl;

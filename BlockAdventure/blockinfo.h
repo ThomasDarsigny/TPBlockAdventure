@@ -29,7 +29,7 @@ private:
 	BlockType m_type;
 
 	std::string m_name;
-	std::string m_texture;
+	int m_texureID;
 
 	int m_durability;
 	bool m_lightSource;
