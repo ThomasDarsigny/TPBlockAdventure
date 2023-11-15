@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\OneDrive\Bureau\BlockAdventure\BlockAdventure\textureatlas.h" />
+    <ClInclude Include="..\..\..\..\..\BlockAdventure\BlockAdventure\textureatlas.h" />
     <ClInclude Include="array2d.h" />
     <ClInclude Include="array3d.h" />
     <ClInclude Include="blockinfo.h" />
@@ -29,7 +29,7 @@
     <ClInclude Include="vertexbuffer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\OneDrive\Bureau\BlockAdventure\BlockAdventure\textureatlas.cpp" />
+    <ClCompile Include="..\..\..\..\..\BlockAdventure\BlockAdventure\textureatlas.cpp" />
     <ClCompile Include="blockinfo.cpp" />
     <ClCompile Include="chunk.cpp" />
     <ClCompile Include="engine.cpp" />
