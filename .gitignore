@@ -17,7 +17,10 @@
 mono_crash.*
 
 # Build results
-[Dd]ebug/
+BlockAdventure/debug
+[Dd]ebug/*.exe
+[Dd]ebug/*.pdb
+[Dd]ebug/*.ilk
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
