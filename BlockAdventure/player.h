@@ -10,7 +10,7 @@ public:
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
 	Vector3f SimulateMove(bool m_keyW, bool m_keyS, bool m_keyA, bool m_keyD, bool m_keyJump, float elapsedTime);
-	void SetIsBlockDORU(bool blockunder, bool blockupper);
+	void CheckBlockUnderROver(bool blockunder, bool blockabove);
 	void SetPosition(Vector3f positionJoueur);
 	void ApplyTransformation(Transformation& transformation) const;
 	
@@ -24,7 +24,7 @@ private:
 	float m_rotY;
 
 	bool BlockUnder = false;
-	bool BlockUpper = false;
+	bool BlockAbove = false;
 	bool IsJumping = false;
 	float positiondebutY = 0;
 

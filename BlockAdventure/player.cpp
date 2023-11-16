@@ -14,76 +14,44 @@ void Player::TurnLeftRight(float value)
 void Player::TurnTopBottom(float value)
 {
 	m_rotX += value;
-	if (m_rotX < -90.0f) m_rotX = -90.0f; //Pour pas faire de tours en arrière
-	if (m_rotX > 90.0f) m_rotX = 90.0f;   //Pour pas faire de tours en avant
+	if (m_rotX < -90.0f) m_rotX = -90.0f; //Pour ne pas faire de tours en arrière
+	if (m_rotX > 90.0f) m_rotX = 90.0f;   //Pour ne pas faire de tours en avant
 }
 
 Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool m_keyJump, float elapsedTime)
 {
-	float timeSinceLastJump = 0.0f;
-	Vector3f Deplacement(0.0f, 0.0f, 0.0f);
-	float yrotrad;
+	float yrotrad = (m_rotY / 180 * 3.141592654f);
+	Vector3f movement(0.0f, 0.0f, 0.0f);
 
-	if (front)
-	{
-		yrotrad = (m_rotY / 180 * 3.141592654f);
-		Deplacement.x += float(sin(yrotrad)) * elapsedTime;
-		Deplacement.z -= float(cos(yrotrad)) * elapsedTime;
-	}
+	if (front)  movement += Vector3f(sin(yrotrad), 0.0f, -cos(yrotrad)) * elapsedTime;
+	if (back)   movement += Vector3f(-sin(yrotrad), 0.0f, cos(yrotrad)) * elapsedTime;
+	if (left)   movement += Vector3f(-cos(yrotrad), 0.0f, -sin(yrotrad)) * elapsedTime;
+	if (right)  movement += Vector3f(cos(yrotrad), 0.0f, sin(yrotrad)) * elapsedTime;
 
-	if (back)
-	{
-		yrotrad = (m_rotY / 180 * 3.141592654f);
-		Deplacement.x -= float(sin(yrotrad)) * elapsedTime;
-		Deplacement.z += float(cos(yrotrad)) * elapsedTime;
-	}
-
-	if (left)
-	{
-		yrotrad = (m_rotY / 180 * 3.141592654f);
-		Deplacement.x -= float(cos(yrotrad)) * elapsedTime;
-		Deplacement.z -= float(sin(yrotrad)) * elapsedTime;
-	}
-
-	if (right)
-	{
-		yrotrad = (m_rotY / 180 * 3.141592654f);
-		Deplacement.x += float(cos(yrotrad)) * elapsedTime;
-		Deplacement.z += float(sin(yrotrad)) * elapsedTime;
-	}
-
-	if (BlockUnder) {
-		IsJumping = false;
-
-		if (m_keyJump) {
-
-			IsJumping = true;
-			positiondebutY = m_position.y;
-		}
+	if (BlockUnder && m_keyJump) {
+		IsJumping = true;
+		positiondebutY = m_position.y;
 	}
 
 	if (IsJumping) {
-		
+		movement.y += elapsedTime;
 
-		Deplacement.y += elapsedTime;
-		if (m_position.y > positiondebutY + 1.25f || BlockUpper) {
+		if (m_position.y > positiondebutY + 1.25f || BlockAbove) {
 			IsJumping = false;
-			Deplacement.y = 0;
+			movement.y = 0;
 		}
 	}
 	else {
-
-		Deplacement.y -= elapsedTime;
+		movement.y -= elapsedTime;
 	}
 
-	return Deplacement;
-
+	return movement;
 }
 
-void Player::SetIsBlockDORU(bool blockunder, bool blockupper)
+void Player::CheckBlockUnderROver(bool blockunder, bool blockabove)
 {
 	BlockUnder = blockunder;
-	BlockUpper = blockupper;
+	BlockAbove = blockabove;
 }
 
 void Player::SetPosition(Vector3f positionJoueur)
@@ -112,5 +80,3 @@ float Player::GetRotationY() const
 {
 	return m_rotY;
 }
-
-

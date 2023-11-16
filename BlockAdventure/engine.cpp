@@ -207,7 +207,6 @@ void Engine::Render(float elapsedTime)
 	cam.ApplyTranslation(0.5f, 0, 0.5f);
 	cam.Use();
 
-
 	m_textureAtlas.Bind();
 	for (int x = 0; x < m_chunkPositionX; x++)
 	{
@@ -247,12 +246,9 @@ void Engine::Render(float elapsedTime)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Engine::CollisionPlayer(float elapsedTime)
 {
-	const int m_chunkZMaxDynamic = CHUNK_SIZE_Z;
-	const int m_chunkXMaxDynamic = CHUNK_SIZE_X;
-	const int m_maxChunk = GetMaxChunk();
-
 	// Collision
 	Vector3f pos = m_player.GetPositon();
 	int chunkposx = static_cast<int>(pos.x / CHUNK_SIZE_X);
@@ -302,6 +298,8 @@ void Engine::CollisionPlayer(float elapsedTime)
 		applySafetyNet(chunk, pos, blockPositionX, blockPositionZ);	
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Vérifier la collision dans l'axe x
 void Engine::checkCollisionX(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int getblockx, int blockPositionZ)
 {
@@ -322,15 +320,15 @@ void Engine::checkCollisionY(Chunk* chunk, const Vector3f& pos, Vector3f& delta,
 	if (bt1 != BTYPE_AIR)
 	{
 		delta.y = 0;
-		m_player.SetIsBlockDORU(false, true);
+		m_player.CheckBlockUnderROver(false, true);
 	}
 	else if (bt2 != BTYPE_AIR)
 	{
 		delta.y = 0;
-		m_player.SetIsBlockDORU(true, false);
+		m_player.CheckBlockUnderROver(true, false);
 	}
 	else
-		m_player.SetIsBlockDORU(false, false);
+		m_player.CheckBlockUnderROver(false, false);
 }
 
 // Vérifier la collision dans l'axe z
@@ -398,32 +396,6 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	glTexCoord2f(0, 1);
 	glVertex2i(0, m_crossSize);
 	glEnd();
-
-	//--------------------------------------------------------------------------------------------------
-
-	//SettingsButton
-	glDisable(GL_BLEND);
-	glDisable(GL_ALPHA_TEST);
-	m_textureSettingsButton.Bind();
-	glLoadIdentity();
-	// Déplacer vers le haut à droite
-	int settingbuttonWidth = 35; // Choisissez la largeur souhaitée
-	int settingbuttonHeight = 35; // Conservez la hauteur d'origine ou ajustez au besoin
-	glTranslated(Width() - settingbuttonWidth - 30, Height() - settingbuttonHeight - 30, 0);								//À RETIRER ET AMÉLIORER
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0);
-	glVertex2i(0, 0);
-	glTexCoord2f(1, 0);
-	glVertex2i(settingbuttonWidth, 0);
-	glTexCoord2f(1, 1);
-	glVertex2i(settingbuttonWidth, settingbuttonHeight);
-	glTexCoord2f(0, 1);
-	glVertex2i(0, settingbuttonHeight);
-	glEnable(GL_BLEND);
-	glEnable(GL_ALPHA_TEST);
-	glEnd();
-
-	//--------------------------------------------------------------------------------------------------
 
 	//ItemBar
 	glDisable(GL_BLEND);
@@ -531,6 +503,7 @@ void Engine::KeyReleaseEvent(unsigned char key)
 		break;
 	case 18: //s
 		m_keyS = false;
+		break;
 	case 57: //space
 		m_keyJump = false;
 		break;
