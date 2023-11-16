@@ -1,9 +1,9 @@
 #include "player.h"
 #include "vector3.h"
 
-Player::Player(const Vector3f& position, float rotX, float rotY): m_position(position), m_rotX(rotX), m_rotY(rotY)
+Player::Player(const Vector3f& position, float rotX, float rotY) : m_position(position), m_rotX(rotX), m_rotY(rotY)
 {
-	
+
 }
 
 void Player::TurnLeftRight(float value)
@@ -20,6 +20,7 @@ void Player::TurnTopBottom(float value)
 
 Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool m_keyJump, float elapsedTime)
 {
+	float timeSinceLastJump = 0.0f;
 	Vector3f Deplacement(0.0f, 0.0f, 0.0f);
 	float yrotrad;
 
@@ -51,27 +52,30 @@ Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool
 		Deplacement.z += float(sin(yrotrad)) * elapsedTime;
 	}
 
-	if (m_keyJump)
-					{
-		if (!BlockUnder)
-		{
-			Deplacement.y -= 0.5f * elapsedTime;
-		}
-		else
-		{
-			if (BlockUpper)
-			{
-				Deplacement.y += 0.5f * elapsedTime;
-			}
+	if (BlockUnder) {
+		IsJumping = false;
+
+		if (m_keyJump) {
+
+			IsJumping = true;
+			positiondebutY = m_position.y;
 		}
 	}
-	else
-	{
-		if (!BlockUnder)
-		{
-			Deplacement.y -= 1.0f * elapsedTime;
+
+	if (IsJumping) {
+		
+
+		Deplacement.y += elapsedTime;
+		if (m_position.y > positiondebutY + 1.25f || BlockUpper) {
+			IsJumping = false;
+			Deplacement.y = 0;
 		}
 	}
+	else {
+
+		Deplacement.y -= elapsedTime;
+	}
+
 	return Deplacement;
 
 }
@@ -88,7 +92,7 @@ void Player::SetPosition(Vector3f positionJoueur)
 }
 
 void Player::ApplyTransformation(Transformation& transformation) const
-{ 
+{
 	transformation.ApplyRotation(-m_rotX, 1.f, 0, 0);
 	transformation.ApplyRotation(-m_rotY, 0, 1.f, 0);
 	transformation.ApplyTranslation(-m_position);

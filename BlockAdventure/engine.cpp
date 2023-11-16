@@ -7,7 +7,7 @@
 #include "textureatlas.h"
 
 
-Engine::Engine() : m_player(Vector3f(0.0f, 5.0f, 0.0f)), m_textureAtlas(8), m_chunks(GetMaxChunk(), GetMaxChunk())
+Engine::Engine() : m_player(Vector3f(0.0f, 0.0f, 0.0f)), m_textureAtlas(8), m_chunks(GetMaxChunk(), GetMaxChunk())
 {
 }
 
@@ -22,7 +22,7 @@ void Engine::Init()
 		std::cerr << "ERREUR GLEW: " << glewGetErrorString(glewErr) << std::endl; abort();
 	}
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(135.0 / 255.0, 206.0 / 255.0, 250.0 / 255.0, 1.0); // Sky color
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_CULL_FACE);
 
@@ -35,17 +35,7 @@ void Engine::Init()
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LINE_SMOOTH);
 
-	// Light
-	GLfloat light0Pos[4] = { 0.0f, CHUNK_SIZE_Y, 0.0f, 1.0f };
-	GLfloat light0Amb[4] = { 0.9f, 0.9f, 0.9f, 1.0f };
-	GLfloat light0Diff[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat light0Spec[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
-
-	glEnable(GL_LIGHT0);
-	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
+	
 
 	CenterMouse();
 	HideCursor();
@@ -177,6 +167,7 @@ void Engine::LoadTextures()
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.png");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "crosshair.png");
 	LoadTexture(m_textureItemBar, TEXTURE_PATH "Itembar.png");
+	LoadTexture(m_textureSettingsButton, TEXTURE_PATH "settings.png");
 }
 
 
@@ -187,6 +178,17 @@ void Engine::UnloadResource()
 
 void Engine::Render(float elapsedTime)
 {
+	// Light
+	GLfloat light0Pos[4] = { 0.0f, CHUNK_SIZE_Y, 0.0f, 1.0f };
+	GLfloat light0Amb[4] = { 0.9f, 0.9f, 0.9f, 1.0f };
+	GLfloat light0Diff[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat light0Spec[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
+
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
 	static float gameTime = elapsedTime;
 
 	gameTime += elapsedTime;
@@ -202,7 +204,7 @@ void Engine::Render(float elapsedTime)
 	CollisionPlayer(elapsedTime * Speed);
 	Transformation cam;
 	m_player.ApplyTransformation(cam);
-	cam.ApplyTranslation(-m_player.GetPositon());
+	cam.ApplyTranslation(0.5f, 0, 0.5f);
 	cam.Use();
 
 
@@ -232,11 +234,6 @@ void Engine::Render(float elapsedTime)
 	else
 		finiUpdate = true;
 
-	Transformation t;
-	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0, 0, -7.f);
-	t.Use();
-
 	glEnable(GL_LIGHTING);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -252,105 +249,114 @@ void Engine::Render(float elapsedTime)
 
 void Engine::CollisionPlayer(float elapsedTime)
 {
-	int m_chunkZMaxDynamic = CHUNK_SIZE_Z;
-	int m_chunkXMaxDynamic = CHUNK_SIZE_X;
-	// Colision
-	Vector3f pos = m_player.GetPositon();
-	int chunkposx = chunkposx = pos.x / m_chunkXMaxDynamic;
-	int chunkposy = chunkposy = pos.z / m_chunkZMaxDynamic;
+	const int m_chunkZMaxDynamic = CHUNK_SIZE_Z;
+	const int m_chunkXMaxDynamic = CHUNK_SIZE_X;
+	const int m_maxChunk = GetMaxChunk();
 
+	// Collision
+	Vector3f pos = m_player.GetPositon();
+	int chunkposx = static_cast<int>(pos.x / CHUNK_SIZE_X);
+	int chunkposy = static_cast<int>(pos.z / CHUNK_SIZE_Z);
+
+	// Adjust chunk positions for negative coordinates
 	if (pos.x < 0 && pos.z < 0)
 	{
-		std::cout << "";
-		chunkposx = (pos.x / m_chunkXMaxDynamic) - 1;
-		chunkposy = (pos.z / m_chunkZMaxDynamic) - 1;
+		chunkposx = static_cast<int>((pos.x / CHUNK_SIZE_X) - 1);
+		chunkposy = static_cast<int>((pos.z / CHUNK_SIZE_Z) - 1);
 	}
 	else if (pos.z < 0)
 	{
-		chunkposy = (pos.z / m_chunkZMaxDynamic) - 1;
-		chunkposx = (pos.x / m_chunkXMaxDynamic);
+		chunkposy = static_cast<int>((pos.z / CHUNK_SIZE_Z) - 1);
+		chunkposx = static_cast<int>(pos.x / CHUNK_SIZE_X);
 	}
 	else if (pos.x < 0)
 	{
-		chunkposy = (pos.z / m_chunkZMaxDynamic);
-		chunkposx = (pos.x / m_chunkXMaxDynamic) - 1;
+		chunkposy = static_cast<int>(pos.z / CHUNK_SIZE_Z);
+		chunkposx = static_cast<int>((pos.x / CHUNK_SIZE_X) - 1);
 	}
-
-	bool safe = true;
-	const int m_maxChunk = GetMaxChunk();
-	if ((chunkposx > m_maxChunk && chunkposy > m_maxChunk) || chunkposx > m_maxChunk || chunkposy > m_maxChunk)
-		safe = false;
-	else if ((chunkposx < -m_maxChunk && chunkposy < -m_maxChunk) || chunkposx < -m_maxChunk || chunkposy < -m_maxChunk)
-		safe = false;
-	if (safe)
-	{
+	
+	
 		Chunk* chunk = m_chunks.Get(chunkposx, chunkposy);
-		const int blockPositionX = static_cast<int>(chunkposx * m_chunkXMaxDynamic);
-		const int blockPositionZ = static_cast<int>(chunkposy * m_chunkZMaxDynamic);
+		const int blockPositionX = chunkposx * CHUNK_SIZE_X;
+		const int blockPositionZ = chunkposy * CHUNK_SIZE_Z;
 
+		// Simulate player movement
 		Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, elapsedTime);
-		BlockType bt1, bt2, bt3;
 
-		// Collision par rapport au déplacement en x:
-		const int getblockx = pos.x + delta.x - blockPositionX;
-		const int getblockz = pos.z + delta.z - blockPositionZ;
+		// Check for collision in the x-axis
+		int getblockx = static_cast<int>(pos.x + delta.x - blockPositionX);
+		int getblockz = static_cast<int>(pos.z + delta.z - blockPositionZ);
+		checkCollisionX(chunk, pos, delta, getblockx, blockPositionZ);
 
-		bt1 = chunk->GetBlock(getblockx, pos.y, pos.z - blockPositionZ);
-		bt2 = chunk->GetBlock(getblockx, pos.y + 0.9f, pos.z - blockPositionZ);
-		bt3 = chunk->GetBlock(getblockx, pos.y - 1.f, pos.z - blockPositionZ);
+		// Check for collision in the y-axis
+		checkCollisionY(chunk, pos, delta, blockPositionX, blockPositionZ);
 
-		if (bt1 != BTYPE_AIR || bt2 != BTYPE_AIR || bt3 != BTYPE_AIR)
-			delta.x = 0;
+		// Check for collision in the z-axis
+		checkCollisionZ(chunk, pos, delta, blockPositionX, getblockz);
 
-		// Collision par rapport au déplacement en y:
-		bt1 = chunk->GetBlock(pos.x - blockPositionX, pos.y + delta.y + 0.9f, pos.z - blockPositionZ);
-		bt2 = chunk->GetBlock(pos.x - blockPositionX, pos.y + delta.y - 1.f, pos.z - blockPositionZ);
-
-		if (bt1 != BTYPE_AIR)
-		{
-			delta.y = 0;
-			m_player.SetIsBlockDORU(false, true);
-		}
-		else if (bt2 != BTYPE_AIR)
-		{
-			delta.y = 0;
-			m_player.SetIsBlockDORU(true, false);
-		}
-		else
-			m_player.SetIsBlockDORU(false, false);
-
-		// Collision par rapport au déplacement en z:
-		bt1 = chunk->GetBlock(pos.x - blockPositionX, pos.y, getblockz);
-		bt2 = chunk->GetBlock(pos.x - blockPositionX, pos.y + 0.9f, getblockz);
-		bt3 = chunk->GetBlock(pos.x - blockPositionX, pos.y - 1.f, getblockz);
-
-		if (bt1 != BTYPE_AIR || bt2 != BTYPE_AIR || bt3 != BTYPE_AIR)
-			delta.z = 0;
-
+		// Update player position
 		pos += delta;
 		m_player.SetPosition(pos);
 
-		// SafetyNet
-		bt1 = chunk->GetBlock(pos.x - blockPositionX, pos.y, pos.z - blockPositionZ);
-		bt2 = chunk->GetBlock(pos.x - blockPositionX, pos.y + 0.9f, pos.z - blockPositionZ);
-		bt3 = chunk->GetBlock(pos.x - blockPositionX, pos.y - 1.f, pos.z - blockPositionZ);
-
-		if (bt1 != BTYPE_AIR || bt2 != BTYPE_AIR || bt3 != BTYPE_AIR)
-		{
-			pos.y += 1;
-			m_player.SetPosition(pos);
-		}
-	}
-	else
-	{
-		Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, elapsedTime);
-		pos += delta;
-		m_player.SetPosition(pos);
-	}
-
+		// Application du SafetyNet
+		applySafetyNet(chunk, pos, blockPositionX, blockPositionZ);	
 }
 
+// Vérifier la collision dans l'axe x
+void Engine::checkCollisionX(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int getblockx, int blockPositionZ)
+{
+	BlockType bt1 = chunk->GetBlock(getblockx, pos.y, pos.z - blockPositionZ);
+	BlockType bt2 = chunk->GetBlock(getblockx, pos.y + 0.9f, pos.z - blockPositionZ);
+	BlockType bt3 = chunk->GetBlock(getblockx, pos.y - 1.f, pos.z - blockPositionZ);
 
+	if (bt1 != BTYPE_AIR || bt2 != BTYPE_AIR || bt3 != BTYPE_AIR)
+		delta.x = 0;
+}
+
+// Vérifier la collision dans l'axe y
+void Engine::checkCollisionY(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int blockPositionZ)
+{
+	BlockType bt1 = chunk->GetBlock(pos.x - blockPositionX, pos.y + delta.y + 0.9f, pos.z - blockPositionZ);
+	BlockType bt2 = chunk->GetBlock(pos.x - blockPositionX, pos.y + delta.y - 1.f, pos.z - blockPositionZ);
+
+	if (bt1 != BTYPE_AIR)
+	{
+		delta.y = 0;
+		m_player.SetIsBlockDORU(false, true);
+	}
+	else if (bt2 != BTYPE_AIR)
+	{
+		delta.y = 0;
+		m_player.SetIsBlockDORU(true, false);
+	}
+	else
+		m_player.SetIsBlockDORU(false, false);
+}
+
+// Vérifier la collision dans l'axe z
+void Engine::checkCollisionZ(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int getblockz)
+{
+	BlockType bt1 = chunk->GetBlock(pos.x - blockPositionX, pos.y, getblockz);
+	BlockType bt2 = chunk->GetBlock(pos.x - blockPositionX, pos.y + 0.9f, getblockz);
+	BlockType bt3 = chunk->GetBlock(pos.x - blockPositionX, pos.y - 1.f, getblockz);
+
+	if (bt1 != BTYPE_AIR || bt2 != BTYPE_AIR || bt3 != BTYPE_AIR)
+		delta.z = 0;
+}
+
+// Application du SafetyNet
+void Engine::applySafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ)
+{
+	BlockType bt1 = chunk->GetBlock(pos.x - blockPositionX, pos.y, pos.z - blockPositionZ);
+	BlockType bt2 = chunk->GetBlock(pos.x - blockPositionX, pos.y + 0.9f, pos.z - blockPositionZ);
+	BlockType bt3 = chunk->GetBlock(pos.x - blockPositionX, pos.y - 1.f, pos.z - blockPositionZ);
+
+	if (bt1 != BTYPE_AIR || bt2 != BTYPE_AIR || bt3 != BTYPE_AIR)
+	{
+		pos.y += 1;
+		m_player.SetPosition(pos);
+	}
+}
 
 void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 {
@@ -392,6 +398,32 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	glTexCoord2f(0, 1);
 	glVertex2i(0, m_crossSize);
 	glEnd();
+
+	//--------------------------------------------------------------------------------------------------
+
+	//SettingsButton
+	glDisable(GL_BLEND);
+	glDisable(GL_ALPHA_TEST);
+	m_textureSettingsButton.Bind();
+	glLoadIdentity();
+	// Déplacer vers le haut à droite
+	int settingbuttonWidth = 35; // Choisissez la largeur souhaitée
+	int settingbuttonHeight = 35; // Conservez la hauteur d'origine ou ajustez au besoin
+	glTranslated(Width() - settingbuttonWidth - 30, Height() - settingbuttonHeight - 30, 0);								//À RETIRER ET AMÉLIORER
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0);
+	glVertex2i(0, 0);
+	glTexCoord2f(1, 0);
+	glVertex2i(settingbuttonWidth, 0);
+	glTexCoord2f(1, 1);
+	glVertex2i(settingbuttonWidth, settingbuttonHeight);
+	glTexCoord2f(0, 1);
+	glVertex2i(0, settingbuttonHeight);
+	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+	glEnd();
+
+	//--------------------------------------------------------------------------------------------------
 
 	//ItemBar
 	glDisable(GL_BLEND);
@@ -469,7 +501,7 @@ void Engine::KeyPressEvent(unsigned char key)
 	case 18: //s
 		m_keyS = true;
 		break;
-	case 32: //space
+	case 57: //space
 		m_keyJump = true;
 		break;
 	default:
@@ -499,7 +531,7 @@ void Engine::KeyReleaseEvent(unsigned char key)
 		break;
 	case 18: //s
 		m_keyS = false;
-	case 32: //space
+	case 57: //space
 		m_keyJump = false;
 		break;
 	}

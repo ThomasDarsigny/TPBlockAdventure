@@ -114,7 +114,7 @@ bool TextureAtlas::Generate(int textureSize, bool mipmap)
         ilGenImages(1, &atlasTex);
         ilBindImage(atlasTex);
         ilTexImage(mipmapSize, mipmapSize, 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, 0);
-        ilClearColour(1, 0, 0, 1);
+        ilClearColour(0, 0, 0, 1);
         ilClearImage();
 
         for (TextureList::iterator it = m_textureList.begin(); it != m_textureList.end(); ++it)

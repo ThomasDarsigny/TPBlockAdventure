@@ -25,6 +25,8 @@ private:
 
 	bool BlockUnder = false;
 	bool BlockUpper = false;
+	bool IsJumping = false;
+	float positiondebutY = 0;
 
 };
 
