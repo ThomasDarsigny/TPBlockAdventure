@@ -61,7 +61,7 @@ void Engine::Init()
 				for (int x = 0; x < CHUNK_SIZE_X; ++x)
 					for (int z = 0; z < CHUNK_SIZE_Z; ++z)
 					{
-                        if (y < 2)
+						if (y < 2)
 							nouveauchunk->SetBlock(x, y, z, BTYPE_STONE);
 						if (y == 2)
 							nouveauchunk->SetBlock(x, y, z, BTYPE_STONE);
@@ -199,7 +199,7 @@ void Engine::Render(float elapsedTime)
 
 	//Mouvements du joueur
 	float Speed = 7.0f;
-	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, elapsedTime * Speed);
+	CollisionPlayer(elapsedTime * Speed);
 	Transformation cam;
 	m_player.ApplyTransformation(cam);
 	cam.ApplyTranslation(-m_player.GetPositon());
@@ -249,6 +249,108 @@ void Engine::Render(float elapsedTime)
 	if (m_wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
+
+void Engine::CollisionPlayer(float elapsedTime)
+{
+	int m_chunkZMaxDynamic = CHUNK_SIZE_Z;
+	int m_chunkXMaxDynamic = CHUNK_SIZE_X;
+	// Colision
+	Vector3f pos = m_player.GetPositon();
+	int chunkposx = chunkposx = pos.x / m_chunkXMaxDynamic;
+	int chunkposy = chunkposy = pos.z / m_chunkZMaxDynamic;
+
+	if (pos.x < 0 && pos.z < 0)
+	{
+		std::cout << "";
+		chunkposx = (pos.x / m_chunkXMaxDynamic) - 1;
+		chunkposy = (pos.z / m_chunkZMaxDynamic) - 1;
+	}
+	else if (pos.z < 0)
+	{
+		chunkposy = (pos.z / m_chunkZMaxDynamic) - 1;
+		chunkposx = (pos.x / m_chunkXMaxDynamic);
+	}
+	else if (pos.x < 0)
+	{
+		chunkposy = (pos.z / m_chunkZMaxDynamic);
+		chunkposx = (pos.x / m_chunkXMaxDynamic) - 1;
+	}
+
+	bool safe = true;
+	const int m_maxChunk = GetMaxChunk();
+	if ((chunkposx > m_maxChunk && chunkposy > m_maxChunk) || chunkposx > m_maxChunk || chunkposy > m_maxChunk)
+		safe = false;
+	else if ((chunkposx < -m_maxChunk && chunkposy < -m_maxChunk) || chunkposx < -m_maxChunk || chunkposy < -m_maxChunk)
+		safe = false;
+	if (safe)
+	{
+		Chunk* chunk = m_chunks.Get(chunkposx, chunkposy);
+		const int blockPositionX = static_cast<int>(chunkposx * m_chunkXMaxDynamic);
+		const int blockPositionZ = static_cast<int>(chunkposy * m_chunkZMaxDynamic);
+
+		Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, elapsedTime);
+		BlockType bt1, bt2, bt3;
+
+		// Collision par rapport au déplacement en x:
+		const int getblockx = pos.x + delta.x - blockPositionX;
+		const int getblockz = pos.z + delta.z - blockPositionZ;
+
+		bt1 = chunk->GetBlock(getblockx, pos.y, pos.z - blockPositionZ);
+		bt2 = chunk->GetBlock(getblockx, pos.y + 0.9f, pos.z - blockPositionZ);
+		bt3 = chunk->GetBlock(getblockx, pos.y - 1.f, pos.z - blockPositionZ);
+
+		if (bt1 != BTYPE_AIR || bt2 != BTYPE_AIR || bt3 != BTYPE_AIR)
+			delta.x = 0;
+
+		// Collision par rapport au déplacement en y:
+		bt1 = chunk->GetBlock(pos.x - blockPositionX, pos.y + delta.y + 0.9f, pos.z - blockPositionZ);
+		bt2 = chunk->GetBlock(pos.x - blockPositionX, pos.y + delta.y - 1.f, pos.z - blockPositionZ);
+
+		if (bt1 != BTYPE_AIR)
+		{
+			delta.y = 0;
+			m_player.SetIsBlockDORU(false, true);
+		}
+		else if (bt2 != BTYPE_AIR)
+		{
+			delta.y = 0;
+			m_player.SetIsBlockDORU(true, false);
+		}
+		else
+			m_player.SetIsBlockDORU(false, false);
+
+		// Collision par rapport au déplacement en z:
+		bt1 = chunk->GetBlock(pos.x - blockPositionX, pos.y, getblockz);
+		bt2 = chunk->GetBlock(pos.x - blockPositionX, pos.y + 0.9f, getblockz);
+		bt3 = chunk->GetBlock(pos.x - blockPositionX, pos.y - 1.f, getblockz);
+
+		if (bt1 != BTYPE_AIR || bt2 != BTYPE_AIR || bt3 != BTYPE_AIR)
+			delta.z = 0;
+
+		pos += delta;
+		m_player.SetPosition(pos);
+
+		// SafetyNet
+		bt1 = chunk->GetBlock(pos.x - blockPositionX, pos.y, pos.z - blockPositionZ);
+		bt2 = chunk->GetBlock(pos.x - blockPositionX, pos.y + 0.9f, pos.z - blockPositionZ);
+		bt3 = chunk->GetBlock(pos.x - blockPositionX, pos.y - 1.f, pos.z - blockPositionZ);
+
+		if (bt1 != BTYPE_AIR || bt2 != BTYPE_AIR || bt3 != BTYPE_AIR)
+		{
+			pos.y += 1;
+			m_player.SetPosition(pos);
+		}
+	}
+	else
+	{
+		Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, elapsedTime);
+		pos += delta;
+		m_player.SetPosition(pos);
+	}
+
+}
+
+
 
 void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 {
@@ -367,6 +469,9 @@ void Engine::KeyPressEvent(unsigned char key)
 	case 18: //s
 		m_keyS = true;
 		break;
+	case 32: //space
+		m_keyJump = true;
+		break;
 	default:
 		std::cout << "Unhandled key: " << (int)key << std::endl;
 	}
@@ -394,6 +499,8 @@ void Engine::KeyReleaseEvent(unsigned char key)
 		break;
 	case 18: //s
 		m_keyS = false;
+	case 32: //space
+		m_keyJump = false;
 		break;
 	}
 }

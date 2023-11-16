@@ -18,7 +18,7 @@ void Player::TurnTopBottom(float value)
 	if (m_rotX > 90.0f) m_rotX = 90.0f;   //Pour pas faire de tours en avant
 }
 
-void Player::Move(bool front, bool back, bool left, bool right, float elapsedTime)
+Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool m_keyJump, float elapsedTime)
 {
 	Vector3f Deplacement(0.0f, 0.0f, 0.0f);
 	float yrotrad;
@@ -26,30 +26,65 @@ void Player::Move(bool front, bool back, bool left, bool right, float elapsedTim
 	if (front)
 	{
 		yrotrad = (m_rotY / 180 * 3.141592654f);
-		m_position.x += Deplacement.x += float(sin(yrotrad)) * elapsedTime;
-		m_position.z += Deplacement.z -= float(cos(yrotrad)) * elapsedTime;		
+		Deplacement.x += float(sin(yrotrad)) * elapsedTime;
+		Deplacement.z -= float(cos(yrotrad)) * elapsedTime;
 	}
 
 	if (back)
-	{		
+	{
 		yrotrad = (m_rotY / 180 * 3.141592654f);
-		m_position.x += Deplacement.x -= float(sin(yrotrad)) * elapsedTime;
-		m_position.z += Deplacement.z += float(cos(yrotrad)) * elapsedTime;
+		Deplacement.x -= float(sin(yrotrad)) * elapsedTime;
+		Deplacement.z += float(cos(yrotrad)) * elapsedTime;
 	}
 
 	if (left)
-	{	
+	{
 		yrotrad = (m_rotY / 180 * 3.141592654f);
-		m_position.x += Deplacement.x -= float(cos(yrotrad)) * elapsedTime;
-		m_position.z += Deplacement.z -= float(sin(yrotrad)) * elapsedTime;
+		Deplacement.x -= float(cos(yrotrad)) * elapsedTime;
+		Deplacement.z -= float(sin(yrotrad)) * elapsedTime;
 	}
 
 	if (right)
 	{
 		yrotrad = (m_rotY / 180 * 3.141592654f);
-		m_position.x += Deplacement.x += float(cos(yrotrad)) * elapsedTime;
-		m_position.z += Deplacement.z += float(sin(yrotrad)) * elapsedTime;
-	}		
+		Deplacement.x += float(cos(yrotrad)) * elapsedTime;
+		Deplacement.z += float(sin(yrotrad)) * elapsedTime;
+	}
+
+	if (m_keyJump)
+					{
+		if (!BlockUnder)
+		{
+			Deplacement.y -= 0.5f * elapsedTime;
+		}
+		else
+		{
+			if (BlockUpper)
+			{
+				Deplacement.y += 0.5f * elapsedTime;
+			}
+		}
+	}
+	else
+	{
+		if (!BlockUnder)
+		{
+			Deplacement.y -= 1.0f * elapsedTime;
+		}
+	}
+	return Deplacement;
+
+}
+
+void Player::SetIsBlockDORU(bool blockunder, bool blockupper)
+{
+	BlockUnder = blockunder;
+	BlockUpper = blockupper;
+}
+
+void Player::SetPosition(Vector3f positionJoueur)
+{
+	m_position = positionJoueur;
 }
 
 void Player::ApplyTransformation(Transformation& transformation) const

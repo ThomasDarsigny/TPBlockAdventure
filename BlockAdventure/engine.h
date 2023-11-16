@@ -30,6 +30,7 @@ public:
     virtual void MouseMoveEvent(int x, int y) override;
     virtual void MousePressEvent(const MOUSE_BUTTON& button, int x, int y) override;
     virtual void MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y) override;
+    
 
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
@@ -41,6 +42,7 @@ private:
     void GenerateTextureAtlas();
     void LoadTextures();
     void PopulateBlockInfo();
+    void CollisionPlayer(float elapsedTime);
 
 private:
     bool m_wireframe = false;

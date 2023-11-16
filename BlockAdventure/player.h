@@ -9,7 +9,9 @@ public:
 	Player(const Vector3f& position, float rotX = 0, float rotY = 0);
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
-	void Move(bool front, bool back, bool left, bool right, float elapsedTime);
+	Vector3f SimulateMove(bool m_keyW, bool m_keyS, bool m_keyA, bool m_keyD, bool m_keyJump, float elapsedTime);
+	void SetIsBlockDORU(bool blockunder, bool blockupper);
+	void SetPosition(Vector3f positionJoueur);
 	void ApplyTransformation(Transformation& transformation) const;
 	
 	const Vector3f& GetPositon() const;
@@ -20,6 +22,9 @@ private:
 	Vector3f m_position;
 	float m_rotX;
 	float m_rotY;
+
+	bool BlockUnder = false;
+	bool BlockUpper = false;
 
 };
 
