@@ -1,45 +1,33 @@
-#ifndef BLOCKINFO_H__
-#define BLOCKINFO_H__
+#ifndef BLOCKINFO_H
+#define BLOCKINFO_H
 
 #include <string>
 #include "define.h"
+#include "textureatlas.h"
+
+class TextureAtlas; 
 
 class BlockInfo
 {
 public:
-	BlockInfo(BlockType type, const std::string& name, int durability, bool lightSource);
-	~BlockInfo();
+    BlockInfo(BlockType type, const std::string& name, int durability, bool lightSource);
+    ~BlockInfo();
 
-	BlockType GetType() const;
+    BlockType GetType() const;
 
-	void SetDurability(int durability);
-	void SetTexture(float u, float v, float h, float w);
+    void SetDurability(int durability);
 
-	int GetDurability() const;
+    int GetDurability() const;
+    int GetTextureIndex(int idx) const;
+    void GetTextureIndexToCoord(unsigned int idx, float& u, float& v, float& w, float& h) const;
 
-	// Change the return type to float for texture coordinates
-	float GetBlockU() const;
-	float GetBlockV() const;
-	float GetBlockH() const;
-	float GetBlockW() const;
-
-	void Show() const;
+    BlockType m_type;
+    int m_textureCount;
+    TextureAtlas::TextureIndex* m_textures;
 
 private:
-	BlockType m_type;
-
-	std::string m_name;
-	int m_texureID;
-
-	int m_durability;
-	bool m_lightSource;
-
-
-
-	float blocku;
-	float blockv;
-	float blockh;
-	float blockw;
+    TextureAtlas m_textureAtlas;
+    int m_durability;
 };
 
-#endif // BLOCKINFO_H__
+#endif // BLOCKINFO_H

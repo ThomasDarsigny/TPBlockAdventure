@@ -1,5 +1,6 @@
 #ifndef ENGINE_H__
 #define ENGINE_H__
+
 #include "define.h"
 #include "openglcontext.h"
 #include "texture.h"
@@ -15,32 +16,42 @@ class Engine : public OpenglContext
 public:
     Engine();
     virtual ~Engine();
-    virtual void Init();
-    virtual void DeInit();
-    virtual void LoadResource();
-    virtual void UnloadResource();
-    virtual void Render(float elapsedTime);
-    void DrawHud(int Fps, const int gameTime, const int m_crossSize);
-    virtual void KeyPressEvent(unsigned char key);
-    virtual void KeyReleaseEvent(unsigned char key);
-    virtual void MouseMoveEvent(int x, int y);
-    virtual void MousePressEvent(const MOUSE_BUTTON& button, int x, int y);
-    virtual void MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y);
+
+    virtual void Init() override;
+    virtual void DeInit() override;
+    virtual void LoadResource() override;
+    virtual void UnloadResource() override;
+    virtual void Render(float elapsedTime) override;
+
+    void DrawHud(int fps, int gameTime, int crossSize);
+
+    virtual void KeyPressEvent(unsigned char key) override;
+    virtual void KeyReleaseEvent(unsigned char key) override;
+    virtual void MouseMoveEvent(int x, int y) override;
+    virtual void MousePressEvent(const MOUSE_BUTTON& button, int x, int y) override;
+    virtual void MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y) override;
 
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
     int GetMaxChunk();
-   
-    void PrintText(unsigned int x, unsigned int y, const std::string& t);
+    void PrintText(unsigned int x, unsigned int y, const std::string& text);
+    void LoadShaders();
+    void LoadBlockTextures();
+    void LoadBlockType(BlockType type, const std::string& texturePath, int count);
+    void GenerateTextureAtlas();
+    void LoadTextures();
+    void PopulateBlockInfo();
+
 private:
     bool m_wireframe = false;
 
-    //TEXTURES
+    // TEXTURES
     Texture m_textureFont;
     Texture m_textureCrosshair;
     Texture m_textureItemBar;
+    std::map<BlockType, std::vector<int>> m_BlockType;
 
-    //SHADERS
+    // SHADERS
     Shader m_shader01;
 
     Player m_player;
@@ -49,10 +60,16 @@ private:
 
     TextureAtlas m_textureAtlas;
 
-    Array2d<Chunk*> m_chunks; // mettre dans un pointeur pour reprendre chunk[posx,posy] par la suite
+    Array2d<Chunk*> m_chunks;
+
+    BlockInfo* m_blockinfo[BTYPE_FIN];
 
     const int m_crossSize = 20;
 
+    int m_chunkPositionX = 0;
+    int m_chunkPositionY = 0;
+    bool m_Plusx = true;
+    bool finiUpdate = false;
     bool m_keyW = false;
     bool m_keyA = false;
     bool m_keyS = false;

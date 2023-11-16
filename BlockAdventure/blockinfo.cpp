@@ -1,59 +1,32 @@
-#include "BlockInfo.h"
-#include <iostream> 
+#include "blockinfo.h"
+#include <iostream>
 
-BlockInfo::BlockInfo(BlockType type, const std::string& name, int durability ,bool lightSource)
-	: m_type(type), m_name(name), m_durability(durability), m_lightSource(lightSource), blocku(0.0f), blockv(0.0f), blockh(1.0f), blockw(1.0f)
-{
+BlockInfo::BlockInfo(BlockType type, const std::string& name, int durability, bool lightSource)
+    : m_type(type), m_durability(durability), m_textureAtlas(16) {}
+
+BlockInfo::~BlockInfo() {}
+
+BlockType BlockInfo::GetType() const {
+    return m_type;
 }
 
-BlockInfo::~BlockInfo()
-{
+void BlockInfo::SetDurability(int durability) {
+    m_durability = durability;
 }
 
-BlockType BlockInfo::GetType() const
-{
-	return m_type;
+int BlockInfo::GetDurability() const {
+    return m_durability;
 }
 
-void BlockInfo::SetDurability(int durability)
-{
-	m_durability = durability;
+int BlockInfo::GetTextureIndex(int idx) const {
+    if (idx >= 0 && idx < 6) {
+        return m_textures[idx];
+    }
+    else {
+        return -1;
+    }
 }
 
-void BlockInfo::SetTexture(float u, float v, float h, float w)
-{
-	blocku = u;
-	blockv = v;
-	blockh = h;
-	blockw = w;
-}
-
-float BlockInfo::GetBlockU() const
-{
-	return blocku;
-}
-
-float BlockInfo::GetBlockV() const
-{
-	return blockv;
-}
-
-float BlockInfo::GetBlockH() const
-{
-	return blockh;
-}
-
-float BlockInfo::GetBlockW() const
-{
-	return blockw;
-}
-
-int BlockInfo::GetDurability() const
-{
-	return m_durability;
-}
-
-void BlockInfo::Show() const
-{
-	std::cout << "Block Type: " << m_type << ", Name: " << m_name << ", Durability: " << m_durability << std::endl;
+void BlockInfo::GetTextureIndexToCoord(unsigned int idx, float& u, float& v, float& w, float& h) const {
+    m_textureAtlas.TextureIndexToCoord(idx, u, v, w, h);
 }

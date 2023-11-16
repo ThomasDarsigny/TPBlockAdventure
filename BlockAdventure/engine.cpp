@@ -7,7 +7,7 @@
 #include "textureatlas.h"
 
 
-Engine::Engine() : m_player(Vector3f(0.0f, 0.0f, 0.0f)), m_textureAtlas(8), m_chunks(GetMaxChunk(), GetMaxChunk())
+Engine::Engine() : m_player(Vector3f(0.0f, 5.0f, 0.0f)), m_textureAtlas(8), m_chunks(GetMaxChunk(), GetMaxChunk())
 {
 }
 
@@ -49,6 +49,61 @@ void Engine::Init()
 
 	CenterMouse();
 	HideCursor();
+
+	const int m_maxChunk = GetMaxChunk();
+	for (int y = -m_maxChunk; y <= m_maxChunk; ++y)
+	{
+		for (int x = -m_maxChunk; x <= m_maxChunk; ++x)
+		{
+			Chunk* nouveauchunk = new Chunk();
+			m_chunks.Set(x, y, nouveauchunk);
+			for (int y = 0; y < 5; ++y)
+				for (int x = 0; x < CHUNK_SIZE_X; ++x)
+					for (int z = 0; z < CHUNK_SIZE_Z; ++z)
+					{
+                        if (y < 2)
+							nouveauchunk->SetBlock(x, y, z, BTYPE_STONE);
+						if (y == 2)
+							nouveauchunk->SetBlock(x, y, z, BTYPE_STONE);
+						if (y == 3)
+							nouveauchunk->SetBlock(x, y, z, BTYPE_DIRT);
+						if (y == 4)
+							nouveauchunk->SetBlock(x, y, z, BTYPE_GRASS);
+					}
+			// Escalier
+			nouveauchunk->SetBlock(6, 5, 7, BTYPE_STONE);
+			nouveauchunk->SetBlock(7, 6, 7, BTYPE_STONE);
+			nouveauchunk->SetBlock(8, 7, 7, BTYPE_STONE);
+			nouveauchunk->SetBlock(9, 8, 7, BTYPE_STONE);
+
+			// Passage
+			nouveauchunk->SetBlock(11, 5, 1, BTYPE_STONE);
+			nouveauchunk->SetBlock(11, 6, 1, BTYPE_STONE);
+			nouveauchunk->SetBlock(11, 7, 1, BTYPE_STONE);
+			nouveauchunk->SetBlock(11, 7, 2, BTYPE_STONE);
+			nouveauchunk->SetBlock(11, 7, 3, BTYPE_STONE);
+			nouveauchunk->SetBlock(11, 6, 3, BTYPE_STONE);
+			nouveauchunk->SetBlock(11, 5, 3, BTYPE_STONE);
+			//Mur axe des Z
+			for (int i = 5; i <= 8; i++)
+			{
+				nouveauchunk->SetBlock(5, i, 10, BTYPE_STONE);
+				nouveauchunk->SetBlock(5, i, 11, BTYPE_STONE);
+				nouveauchunk->SetBlock(5, i, 12, BTYPE_STONE);
+				nouveauchunk->SetBlock(5, i, 13, BTYPE_STONE);
+				nouveauchunk->SetBlock(5, i, 14, BTYPE_STONE);
+			}
+			//Mur axe des X
+			for (int i = 5; i <= 8; i++) {
+				nouveauchunk->SetBlock(14, i, 14, BTYPE_STONE);
+				nouveauchunk->SetBlock(13, i, 14, BTYPE_STONE);
+				nouveauchunk->SetBlock(12, i, 14, BTYPE_STONE);
+				nouveauchunk->SetBlock(11, i, 14, BTYPE_STONE);
+				nouveauchunk->SetBlock(10, i, 14, BTYPE_STONE);
+			}
+		}
+	}
+
 }
 
 void Engine::DeInit()
@@ -57,27 +112,74 @@ void Engine::DeInit()
 
 void Engine::LoadResource()
 {
-	std::cout << "Loading and compiling shaders..." << std::endl; if (!m_shader01.Load(SHADER_PATH "shader01.vert", SHADER_PATH "shader01.frag", true))
-	{
-		std::cout << "Failed to load shader" << std::endl; exit(1);
-	}
+	LoadShaders();
+	LoadBlockTextures();
+	GenerateTextureAtlas();
+	PopulateBlockInfo();
+	LoadTextures();
+}
 
-	TextureAtlas::TextureIndex  texture = m_textureAtlas.AddTexture(TEXTURE_PATH "checker.png");
-	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.png");
-	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "sidegrass.png");
-	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "topgrass.png");
-	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.png");
-	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "topwood.png");
-	texture = m_textureAtlas.AddTexture(TEXTURE_PATH "sidewood.png");
+void Engine::LoadShaders()
+{
+	std::cout << "Loading and compiling shaders..." << std::endl;
+	if (!m_shader01.Load(SHADER_PATH "shader01.vert", SHADER_PATH "shader01.frag", true))
+	{
+		std::cout << "Failed to load shader" << std::endl;
+		exit(1);
+	}
+}
+
+void Engine::LoadBlockTextures()
+{
+	LoadBlockType(BTYPE_CHECKER, "checker.png", 6);
+	LoadBlockType(BTYPE_DIRT, "dirt.png", 6);
+	LoadBlockType(BTYPE_GRASS, "topgrass.png", 1);
+	LoadBlockType(BTYPE_GRASS, "sidegrass.png", 4);
+	LoadBlockType(BTYPE_GRASS, "dirt.png", 1);
+	LoadBlockType(BTYPE_STONE, "stone.png", 6);
+	LoadBlockType(BTYPE_WOOD, "topwood.png", 1);
+	LoadBlockType(BTYPE_WOOD, "sidewood.png", 4);
+	LoadBlockType(BTYPE_WOOD, "topwood.png", 1);
+}
+
+void Engine::LoadBlockType(BlockType type, const std::string& texturePath, int count)
+{
+	TextureAtlas::TextureIndex texture = m_textureAtlas.AddTexture(TEXTURE_PATH + texturePath);
+	for (int j = 0; j < count; j++)
+		m_BlockType[type].push_back(texture);
+}
+
+void Engine::GenerateTextureAtlas()
+{
 	if (!m_textureAtlas.Generate(128, false))
 	{
-		std::cout << " Unable to generate texture atlas ..." << std::endl;
+		std::cout << " Unable to generate texture atlas..." << std::endl;
 		abort();
 	}
+}
+
+void Engine::PopulateBlockInfo()
+{
+	for (int i = 0; i < BTYPE_FIN; i++)
+	{
+		m_blockinfo[i] = new BlockInfo(static_cast<BlockType>(i), std::to_string(i), 1, false);
+		m_blockinfo[i]->m_type = static_cast<BlockType>(i);
+		m_blockinfo[i]->m_textureCount = m_BlockType[i].size();
+		m_blockinfo[i]->m_textures = new TextureAtlas::TextureIndex[m_blockinfo[i]->m_textureCount];
+
+		for (int j = 0; j < m_blockinfo[i]->m_textureCount; j++)
+			m_blockinfo[i]->m_textures[j] = m_BlockType[i][j];
+	}
+}
+
+void Engine::LoadTextures()
+{
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.png");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "crosshair.png");
 	LoadTexture(m_textureItemBar, TEXTURE_PATH "Itembar.png");
 }
+
+
 
 void Engine::UnloadResource()
 {
@@ -85,7 +187,6 @@ void Engine::UnloadResource()
 
 void Engine::Render(float elapsedTime)
 {
-
 	static float gameTime = elapsedTime;
 
 	gameTime += elapsedTime;
@@ -100,32 +201,36 @@ void Engine::Render(float elapsedTime)
 	float Speed = 7.0f;
 	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, elapsedTime * Speed);
 	Transformation cam;
-	cam.ApplyRotation(-m_player.GetRotationX(), 1.0f, 0, 0);
-	cam.ApplyRotation(-m_player.GetRotationY(), 0, 1.0f, 0);
+	m_player.ApplyTransformation(cam);
 	cam.ApplyTranslation(-m_player.GetPositon());
 	cam.Use();
 
 
-	// Plancher
-	// Les vertex doivent etre affiches dans le sens anti-horaire (CCW)
 	m_textureAtlas.Bind();
-	float nbRep = 50.f;
-	glBegin(GL_QUADS);
-	glNormal3f(0, 1, 0); // Normal vector
+	for (int x = 0; x < m_chunkPositionX; x++)
+	{
+		for (int y = 0; y < m_chunkPositionY; y++)
+		{
+			Chunk* chunk = m_chunks.Get(x, y);
+			for (int i = 0; i < BTYPE_FIN; i++)
+				chunk->SetBlockInfo(m_blockinfo[i], i);
 
-	glTexCoord2f(0, 0);
-	glVertex3f(-100.f, -2.f, 100.f);
+			if (!finiUpdate || chunk->IsDirty())
+				chunk->Update(x, y);
+			chunk->Render();
+		}
+	}
 
-	glTexCoord2f(nbRep, 0);
-	glVertex3f(100.f, -2.f, 100.f);
-
-	glTexCoord2f(nbRep, nbRep);
-	glVertex3f(100.f, -2.f, -100.f);
-
-	glTexCoord2f(0, nbRep);
-	glVertex3f(-100.f, -2.f, -100.f);
-	glEnd();
-
+	if (m_chunkPositionX < GetMaxChunk() || m_chunkPositionY < GetMaxChunk())
+	{
+		if (m_Plusx)
+			m_chunkPositionX++;
+		else
+			m_chunkPositionY++;
+		m_Plusx = !m_Plusx;
+	}
+	else
+		finiUpdate = true;
 
 	Transformation t;
 	m_player.ApplyTransformation(t);
@@ -136,24 +241,6 @@ void Engine::Render(float elapsedTime)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-
-	for (int x = 0; x < CHUNK_SIZE_X; ++x)
-	{
-		for (int z = 0; z < CHUNK_SIZE_Z; ++z)
-		{
-			for (int y = 0; y < 32; ++y)
-			{
-				if (x % 2 == 0 && y % 2 == 0 && z % 2 == 0)
-					m_testChunk.SetBlock(x, y, z, BTYPE_DIRT);
-			}
-		}
-	}
-	if (m_testChunk.IsDirty()) m_testChunk.Update();
-
-	m_shader01.Use();
-	m_testChunk.Render();
-	Shader::Disable();
-
 
 	if (m_wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -203,7 +290,6 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	glTexCoord2f(0, 1);
 	glVertex2i(0, m_crossSize);
 	glEnd();
-
 
 	//ItemBar
 	glDisable(GL_BLEND);
@@ -356,5 +442,5 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 int Engine::GetMaxChunk()
 {
 	// racine de VIEW_DISTANCE
-	return pow(static_cast<double>(VIEW_DISTANCE), 2);
+	return VIEW_DISTANCE / CHUNK_SIZE_X;
 }
