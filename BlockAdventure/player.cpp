@@ -22,6 +22,10 @@ void Player::TurnTopBottom(float value)
 
 Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool m_keyJump, bool m_keyFly, float elapsedTime)
 {
+	if (elapsedTime > 0.5f)
+	{
+		(elapsedTime < 0.5f);
+	}
 	float yrotrad = (m_rotY / 180 * 3.141592654f);
 	Vector3f movement(0.0f, 0.0f, 0.0f);
 
@@ -30,16 +34,11 @@ Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool
 	if (left)   movement += Vector3f(-cos(yrotrad), 0.0f, -sin(yrotrad)) * elapsedTime;
 	if (right)  movement += Vector3f(cos(yrotrad), 0.0f, sin(yrotrad)) * elapsedTime;
 	
-	// Flying logic
 	if (m_keyFly) {
 		movement.y +=1* elapsedTime;
 	}
 	else
-		{
-		if (elapsedTime > 0.5f)
-		{
-			(elapsedTime < 0.5f);
-		}
+		{		
 
 		if (BlockUnder && m_keyJump) {
 			IsJumping = true;
@@ -58,8 +57,6 @@ Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool
 			movement.y -= elapsedTime;
 		}
 	}
-	
-
 	return movement;
 }
 
