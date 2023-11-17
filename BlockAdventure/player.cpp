@@ -29,12 +29,6 @@ Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool
 	if (back)   movement += Vector3f(-sin(yrotrad), 0.0f, cos(yrotrad)) * elapsedTime;
 	if (left)   movement += Vector3f(-cos(yrotrad), 0.0f, -sin(yrotrad)) * elapsedTime;
 	if (right)  movement += Vector3f(cos(yrotrad), 0.0f, sin(yrotrad)) * elapsedTime;
-	
-
-	if (elapsedTime > 0.5f)
-	{
-		(elapsedTime < 0.5f);
-	}
 
 	if (m_keyFly) {
 		movement.y +=1* elapsedTime;
