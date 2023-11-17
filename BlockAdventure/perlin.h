@@ -1,12 +1,7 @@
-//http://www.flipcode.com/archives/Perlin_Noise_Class.shtml
 #ifndef PERLIN_H_
-
 #define PERLIN_H_
-
-#include <stdlib.h>
-
-
 #define SAMPLE_SIZE 1024
+#include <stdlib.h>
 
 class Perlin
 {
@@ -56,5 +51,4 @@ private:
   bool  mStart;
 
 };
-
 #endif
