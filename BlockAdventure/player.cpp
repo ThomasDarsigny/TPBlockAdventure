@@ -84,7 +84,5 @@ float Player::GetRotationY() const
 
 const Vector3f& Player::GetCameraDirection() const
 {
-	
-
 	return m_cameraDirection;
 }

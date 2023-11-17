@@ -13,7 +13,7 @@ public:
 	void CheckBlockUnderROver(bool blockunder, bool blockabove);
 	void SetPosition(Vector3f positionJoueur);
 	void ApplyTransformation(Transformation& transformation) const;
-	const Vector3f& Player::GetCameraDirection() const;
+	const Vector3f& GetCameraDirection() const;
 	
 	const Vector3f& GetPositon() const;
 	float GetRotationX() const;

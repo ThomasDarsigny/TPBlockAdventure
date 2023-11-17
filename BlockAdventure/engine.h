@@ -58,8 +58,8 @@ private:
 	Texture m_textureFont;
 	Texture m_textureCrosshair;
 	Texture m_textureItemBar;
-	Texture m_textureCompass;
-	Texture m_textureCompass2;
+	//Texture m_textureCompass;
+	//Texture m_textureCompass2;
 	std::map<BlockType, std::vector<int>> m_BlockType;
 
 	// SHADERS

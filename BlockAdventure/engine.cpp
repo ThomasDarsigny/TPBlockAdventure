@@ -167,8 +167,8 @@ void Engine::LoadTextures()
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.png");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "crosshair.png");
 	LoadTexture(m_textureItemBar, TEXTURE_PATH "Itembar.png");
-	LoadTexture(m_textureCompass, TEXTURE_PATH "compass.png");
-	LoadTexture(m_textureCompass2, TEXTURE_PATH "compass2.png");
+	//LoadTexture(m_textureCompass, TEXTURE_PATH "compass.png");
+	//LoadTexture(m_textureCompass2, TEXTURE_PATH "compass2.png");
 }
 
 
