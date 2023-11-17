@@ -358,7 +358,6 @@ void Engine::applySafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int
 	}
 }
 
-
 void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 {
 	// Setter le blend function , tout ce qui sera noir sera transparent
