@@ -21,6 +21,7 @@ void Player::TurnTopBottom(float value)
 Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool m_keyJump, float elapsedTime)
 {
 	float yrotrad = (m_rotY / 180 * 3.141592654f);
+	m_cameraDirection = Vector3f(sin(yrotrad), -sin(m_rotX / 180 * 3.141592654f), -cos(yrotrad)); //Direction de la caméra
 	Vector3f movement(0.0f, 0.0f, 0.0f);
 
 	if (front)  movement += Vector3f(sin(yrotrad), 0.0f, -cos(yrotrad)) * elapsedTime;
@@ -36,7 +37,7 @@ Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool
 	if (IsJumping) {
 		movement.y += elapsedTime;
 
-		if (m_position.y > positiondebutY + 1.25f || BlockAbove) {
+		if (m_position.y > positiondebutY + 1.5f || BlockAbove) {
 			IsJumping = false;
 			movement.y = 0;
 		}
@@ -79,4 +80,11 @@ float Player::GetRotationX() const
 float Player::GetRotationY() const
 {
 	return m_rotY;
+}
+
+const Vector3f& Player::GetCameraDirection() const
+{
+	
+
+	return m_cameraDirection;
 }

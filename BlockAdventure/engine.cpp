@@ -35,7 +35,7 @@ void Engine::Init()
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LINE_SMOOTH);
 
-	
+
 
 	CenterMouse();
 	HideCursor();
@@ -167,7 +167,8 @@ void Engine::LoadTextures()
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.png");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "crosshair.png");
 	LoadTexture(m_textureItemBar, TEXTURE_PATH "Itembar.png");
-	LoadTexture(m_textureSettingsButton, TEXTURE_PATH "settings.png");
+	LoadTexture(m_textureCompass, TEXTURE_PATH "compass.png");
+	LoadTexture(m_textureCompass2, TEXTURE_PATH "compass2.png");
 }
 
 
@@ -206,6 +207,7 @@ void Engine::Render(float elapsedTime)
 	m_player.ApplyTransformation(cam);
 	cam.ApplyTranslation(0.5f, 0, 0.5f);
 	cam.Use();
+	
 
 	m_textureAtlas.Bind();
 	for (int x = 0; x < m_chunkPositionX; x++)
@@ -270,32 +272,32 @@ void Engine::CollisionPlayer(float elapsedTime)
 		chunkposy = static_cast<int>(pos.z / CHUNK_SIZE_Z);
 		chunkposx = static_cast<int>((pos.x / CHUNK_SIZE_X) - 1);
 	}
-	
-	
-		Chunk* chunk = m_chunks.Get(chunkposx, chunkposy);
-		const int blockPositionX = chunkposx * CHUNK_SIZE_X;
-		const int blockPositionZ = chunkposy * CHUNK_SIZE_Z;
 
-		// Simulate player movement
-		Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, elapsedTime);
 
-		// Check for collision in the x-axis
-		int getblockx = static_cast<int>(pos.x + delta.x - blockPositionX);
-		int getblockz = static_cast<int>(pos.z + delta.z - blockPositionZ);
-		checkCollisionX(chunk, pos, delta, getblockx, blockPositionZ);
+	Chunk* chunk = m_chunks.Get(chunkposx, chunkposy);
+	const int blockPositionX = chunkposx * CHUNK_SIZE_X;
+	const int blockPositionZ = chunkposy * CHUNK_SIZE_Z;
 
-		// Check for collision in the y-axis
-		checkCollisionY(chunk, pos, delta, blockPositionX, blockPositionZ);
+	// Simulate player movement
+	Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, elapsedTime);
 
-		// Check for collision in the z-axis
-		checkCollisionZ(chunk, pos, delta, blockPositionX, getblockz);
+	// Check for collision in the x-axis
+	int getblockx = static_cast<int>(pos.x + delta.x - blockPositionX);
+	int getblockz = static_cast<int>(pos.z + delta.z - blockPositionZ);
+	checkCollisionX(chunk, pos, delta, getblockx, blockPositionZ);
 
-		// Update player position
-		pos += delta;
-		m_player.SetPosition(pos);
+	// Check for collision in the y-axis
+	checkCollisionY(chunk, pos, delta, blockPositionX, blockPositionZ);
 
-		// Application du SafetyNet
-		applySafetyNet(chunk, pos, blockPositionX, blockPositionZ);	
+	// Check for collision in the z-axis
+	checkCollisionZ(chunk, pos, delta, blockPositionX, getblockz);
+
+	// Update player position
+	pos += delta;
+	m_player.SetPosition(pos);
+
+	// Application du SafetyNet
+	applySafetyNet(chunk, pos, blockPositionX, blockPositionZ);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -356,6 +358,7 @@ void Engine::applySafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int
 	}
 }
 
+
 void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 {
 	// Setter le blend function , tout ce qui sera noir sera transparent
@@ -374,13 +377,17 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	m_textureFont.Bind();
 	std::ostringstream ss;
 	ss << " Fps : " << Fps;
-	PrintText(10, Height() - 25, ss.str());
+	PrintText(1, Height() - 25, ss.str());
 	ss.str("");
-	ss << " Position : " << m_player.GetPositon(); // important : on utilise l ’ operateur << pour afficher la position
-	PrintText(10, 10, ss.str());
+	ss << " Position : " << m_player.GetPositon();
+	PrintText(1, 10, ss.str());
 	ss.str("");
 	ss << "Game Time : " << gameTime;
-	PrintText(16, Height() - 50, ss.str());
+	PrintText(7, Height() - 40, ss.str());
+	ss.str("");
+	Vector3f cameraDirection = m_player.GetCameraDirection();	// Utilisez cameraDirection pour mettre à jour la boussole ou effectuer d'autres actions liées à la direction de la caméra.
+	ss<< "Direction " << cameraDirection;
+	PrintText(6, Height() - 55, ss.str());
 
 	//Crosshair
 	m_textureCrosshair.Bind();
@@ -402,8 +409,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	glDisable(GL_ALPHA_TEST);
 	m_textureItemBar.Bind();
 	glLoadIdentity();
-	//Déplacer vers le bas au milieu
-	glTranslated(Width() / 2 - 175, 30, 0);
+	glTranslated(Width() / 2 - 175, 30, 0); 	//Déplacer vers le bas au milieu
 	int itemBarWidth = 370; // Choisissez la largeur souhaitée
 	int itemBarHeight = 55; // Conservez la hauteur d'origine ou ajustez au besoin
 	glBegin(GL_QUADS);
