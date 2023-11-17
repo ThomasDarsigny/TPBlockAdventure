@@ -62,9 +62,6 @@
     <ClInclude Include="textureatlas.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="perlin.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="blockinfo.cpp">
@@ -101,9 +98,6 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="textureatlas.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="perlin.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
