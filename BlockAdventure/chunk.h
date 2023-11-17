@@ -19,6 +19,7 @@ public:
     void Render() const;
     bool IsDirty() const;
     void SetBlockInfo(BlockInfo* _m_blockinfo, BlockType bt);
+   
 
 private:
     Array3d<BlockType> m_blocks;

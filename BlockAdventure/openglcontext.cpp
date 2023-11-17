@@ -65,7 +65,6 @@ bool OpenglContext::Start(const std::string& title, int width, int height, bool 
 
         m_lastFrameTime = clock.getElapsedTime().asSeconds();
 
-        // Handle ourself frame rate limit, sf::Window::setFramerateLimit doesn't seems to work
         float waitTime = (1.f / m_maxFps) - m_lastFrameTime;
         if(waitTime > 0)
         {

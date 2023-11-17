@@ -47,6 +47,7 @@ private:
 	void checkCollisionY(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int blockPositionZ);
 	void checkCollisionZ(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int getblockz);
 	void applySafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ);
+	
 
 private:
 	bool m_wireframe = false;
@@ -55,8 +56,6 @@ private:
 	Texture m_textureFont;
 	Texture m_textureCrosshair;
 	Texture m_textureItemBar;
-	//Texture m_textureCompass;
-	//Texture m_textureCompass2;
 	std::map<BlockType, std::vector<int>> m_BlockType;
 
 	// SHADERS
@@ -83,6 +82,7 @@ private:
 	bool m_keyS = false;
 	bool m_keyD = false;
 	bool m_keyJump = false;
+	bool m_keyFly = false;
 };
 
 #endif // ENGINE_H__

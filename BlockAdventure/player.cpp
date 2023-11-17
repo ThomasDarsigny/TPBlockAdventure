@@ -9,6 +9,8 @@ Player::Player(const Vector3f& position, float rotX, float rotY) : m_position(po
 void Player::TurnLeftRight(float value)
 {
 	m_rotY += value;
+	if (m_rotY > 360.0f) m_rotY -= 360.0f;
+	if (m_rotY < 0.0f) m_rotY += 360.0f;
 }
 
 void Player::TurnTopBottom(float value)
@@ -18,33 +20,45 @@ void Player::TurnTopBottom(float value)
 	if (m_rotX > 90.0f) m_rotX = 90.0f;   //Pour ne pas faire de tours en avant
 }
 
-Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool m_keyJump, float elapsedTime)
+Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool m_keyJump, bool m_keyFly, float elapsedTime)
 {
 	float yrotrad = (m_rotY / 180 * 3.141592654f);
-	m_cameraDirection = Vector3f(sin(yrotrad), -sin(m_rotX / 180 * 3.141592654f), -cos(yrotrad)); //Direction de la caméra
 	Vector3f movement(0.0f, 0.0f, 0.0f);
 
 	if (front)  movement += Vector3f(sin(yrotrad), 0.0f, -cos(yrotrad)) * elapsedTime;
 	if (back)   movement += Vector3f(-sin(yrotrad), 0.0f, cos(yrotrad)) * elapsedTime;
 	if (left)   movement += Vector3f(-cos(yrotrad), 0.0f, -sin(yrotrad)) * elapsedTime;
 	if (right)  movement += Vector3f(cos(yrotrad), 0.0f, sin(yrotrad)) * elapsedTime;
-
-	if (BlockUnder && m_keyJump) {
-		IsJumping = true;
-		positiondebutY = m_position.y;
+	
+	// Flying logic
+	if (m_keyFly) {
+		movement.y +=1* elapsedTime;
 	}
+	else
+		{
+		if (elapsedTime > 0.5f)
+		{
+			(elapsedTime < 0.5f);
+		}
 
-	if (IsJumping) {
-		movement.y += elapsedTime;
+		if (BlockUnder && m_keyJump) {
+			IsJumping = true;
+			positiondebutY = m_position.y;
+		}
 
-		if (m_position.y > positiondebutY + 1.5f || BlockAbove) {
-			IsJumping = false;
-			movement.y = 0;
+		if (IsJumping) {
+			movement.y += elapsedTime;
+
+			if (m_position.y > positiondebutY + 1.3f || BlockAbove) {
+				IsJumping = false;
+				movement.y = 0;
+			}
+		}
+		else {
+			movement.y -= elapsedTime;
 		}
 	}
-	else {
-		movement.y -= elapsedTime;
-	}
+	
 
 	return movement;
 }
@@ -82,7 +96,9 @@ float Player::GetRotationY() const
 	return m_rotY;
 }
 
-const Vector3f& Player::GetCameraDirection() const
+void Player::SetRotationY(float rotY)
 {
-	return m_cameraDirection;
+	m_rotY = rotY;
 }
+
+

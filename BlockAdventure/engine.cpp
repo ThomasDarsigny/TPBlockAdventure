@@ -26,6 +26,19 @@ void Engine::Init()
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_CULL_FACE);
 
+	// Light
+	GLfloat light0Pos[4] = { 0.0f, 8 , 0, 1.0f };
+	GLfloat light0Amb[4] = { 1,1,1,1 };
+	GLfloat light0Diff[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	GLfloat light0Spec[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
+
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
+
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
@@ -34,8 +47,6 @@ void Engine::Init()
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LINE_SMOOTH);
-
-
 
 	CenterMouse();
 	HideCursor();
@@ -67,21 +78,21 @@ void Engine::Init()
 			nouveauchunk->SetBlock(9, 8, 7, BTYPE_STONE);
 
 			// Passage
-			nouveauchunk->SetBlock(11, 5, 1, BTYPE_STONE);
-			nouveauchunk->SetBlock(11, 6, 1, BTYPE_STONE);
-			nouveauchunk->SetBlock(11, 7, 1, BTYPE_STONE);
-			nouveauchunk->SetBlock(11, 7, 2, BTYPE_STONE);
-			nouveauchunk->SetBlock(11, 7, 3, BTYPE_STONE);
-			nouveauchunk->SetBlock(11, 6, 3, BTYPE_STONE);
-			nouveauchunk->SetBlock(11, 5, 3, BTYPE_STONE);
+			nouveauchunk->SetBlock(11, 5, 1, BTYPE_DIRT);
+			nouveauchunk->SetBlock(11, 6, 1, BTYPE_DIRT);
+			nouveauchunk->SetBlock(11, 7, 1, BTYPE_DIRT);
+			nouveauchunk->SetBlock(11, 7, 2, BTYPE_DIRT);
+			nouveauchunk->SetBlock(11, 7, 3, BTYPE_DIRT);
+			nouveauchunk->SetBlock(11, 6, 3, BTYPE_DIRT);
+			nouveauchunk->SetBlock(11, 5, 3, BTYPE_DIRT);
 			//Mur axe des Z
 			for (int i = 5; i <= 8; i++)
 			{
-				nouveauchunk->SetBlock(5, i, 10, BTYPE_STONE);
-				nouveauchunk->SetBlock(5, i, 11, BTYPE_STONE);
-				nouveauchunk->SetBlock(5, i, 12, BTYPE_STONE);
-				nouveauchunk->SetBlock(5, i, 13, BTYPE_STONE);
-				nouveauchunk->SetBlock(5, i, 14, BTYPE_STONE);
+				nouveauchunk->SetBlock(5, i, 10, BTYPE_DIRT);
+				nouveauchunk->SetBlock(5, i, 11, BTYPE_DIRT);
+				nouveauchunk->SetBlock(5, i, 12, BTYPE_DIRT);
+				nouveauchunk->SetBlock(5, i, 13, BTYPE_DIRT);
+				nouveauchunk->SetBlock(5, i, 14, BTYPE_DIRT);
 			}
 			//Mur axe des X
 			for (int i = 5; i <= 8; i++) {
@@ -93,7 +104,7 @@ void Engine::Init()
 			}
 		}
 	}
-
+	m_player.SetRotationY(130);
 }
 
 void Engine::DeInit()
@@ -167,8 +178,6 @@ void Engine::LoadTextures()
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.png");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "crosshair.png");
 	LoadTexture(m_textureItemBar, TEXTURE_PATH "Itembar.png");
-	//LoadTexture(m_textureCompass, TEXTURE_PATH "compass.png");
-	//LoadTexture(m_textureCompass2, TEXTURE_PATH "compass2.png");
 }
 
 
@@ -179,17 +188,6 @@ void Engine::UnloadResource()
 
 void Engine::Render(float elapsedTime)
 {
-	// Light
-	GLfloat light0Pos[4] = { 0.0f, CHUNK_SIZE_Y, 0.0f, 1.0f };
-	GLfloat light0Amb[4] = { 0.9f, 0.9f, 0.9f, 1.0f };
-	GLfloat light0Diff[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat light0Spec[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
-
-	glEnable(GL_LIGHT0);
-	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
 	static float gameTime = elapsedTime;
 
 	gameTime += elapsedTime;
@@ -273,31 +271,45 @@ void Engine::CollisionPlayer(float elapsedTime)
 		chunkposx = static_cast<int>((pos.x / CHUNK_SIZE_X) - 1);
 	}
 
+	bool safe = true;
+	int max = GetMaxChunk();
+	if ((chunkposx >= max && chunkposy >= max) || chunkposx >= max || chunkposy >= max)
+		safe = false;
+	else if ((chunkposx < 0 && chunkposy < 0) || chunkposx < 0 || chunkposy < 0)
+		safe = false;
+	if (safe)
+	{
+		Chunk* chunk = m_chunks.Get(chunkposx, chunkposy);
+		const int blockPositionX = chunkposx * CHUNK_SIZE_X;
+		const int blockPositionZ = chunkposy * CHUNK_SIZE_Z;
 
-	Chunk* chunk = m_chunks.Get(chunkposx, chunkposy);
-	const int blockPositionX = chunkposx * CHUNK_SIZE_X;
-	const int blockPositionZ = chunkposy * CHUNK_SIZE_Z;
+		// Simulate player movement
+		Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, m_keyFly, elapsedTime);
 
-	// Simulate player movement
-	Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, elapsedTime);
+		// Check for collision in the x-axis
+		int getblockx = static_cast<int>(pos.x + delta.x - blockPositionX);
+		int getblockz = static_cast<int>(pos.z + delta.z - blockPositionZ);
+		checkCollisionX(chunk, pos, delta, getblockx, blockPositionZ);
 
-	// Check for collision in the x-axis
-	int getblockx = static_cast<int>(pos.x + delta.x - blockPositionX);
-	int getblockz = static_cast<int>(pos.z + delta.z - blockPositionZ);
-	checkCollisionX(chunk, pos, delta, getblockx, blockPositionZ);
+		// Check for collision in the y-axis
+		checkCollisionY(chunk, pos, delta, blockPositionX, blockPositionZ);
 
-	// Check for collision in the y-axis
-	checkCollisionY(chunk, pos, delta, blockPositionX, blockPositionZ);
+		// Check for collision in the z-axis
+		checkCollisionZ(chunk, pos, delta, blockPositionX, getblockz);
 
-	// Check for collision in the z-axis
-	checkCollisionZ(chunk, pos, delta, blockPositionX, getblockz);
+		// Update player position
+		pos += delta;
+		m_player.SetPosition(pos);
 
-	// Update player position
-	pos += delta;
-	m_player.SetPosition(pos);
-
-	// Application du SafetyNet
-	applySafetyNet(chunk, pos, blockPositionX, blockPositionZ);
+		// Application du SafetyNet
+		applySafetyNet(chunk, pos, blockPositionX, blockPositionZ);
+	}
+	else
+	{
+		Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, m_keyFly, elapsedTime);
+		pos += delta;
+		m_player.SetPosition(pos);
+	}	
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -384,8 +396,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	ss << "Game Time : " << gameTime;
 	PrintText(7, Height() - 40, ss.str());
 	ss.str("");
-	Vector3f cameraDirection = m_player.GetCameraDirection();	// Utilisez cameraDirection pour mettre à jour la boussole ou effectuer d'autres actions liées à la direction de la caméra.
-	ss<< "Direction " << cameraDirection;
+	ss<< "Direction " << m_player.GetRotationY();
 	PrintText(6, Height() - 55, ss.str());
 
 	//Crosshair
@@ -481,6 +492,9 @@ void Engine::KeyPressEvent(unsigned char key)
 	case 57: //space
 		m_keyJump = true;
 		break;
+	case 38: //MAJ
+		m_keyFly = true;
+		break;
 	default:
 		std::cout << "Unhandled key: " << (int)key << std::endl;
 	}
@@ -511,6 +525,9 @@ void Engine::KeyReleaseEvent(unsigned char key)
 		break;
 	case 57: //space
 		m_keyJump = false;
+		break;
+	case 38: //MAJ
+		m_keyFly = false;
 		break;
 	}
 }
