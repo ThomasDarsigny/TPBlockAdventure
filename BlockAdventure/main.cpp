@@ -5,6 +5,6 @@
 int main()
 {
     Engine engine;
-    engine.SetMaxFps(144);
+    engine.SetMaxFps(60);
     engine.Start("BlockAdventure", 800, 600, false);
 }

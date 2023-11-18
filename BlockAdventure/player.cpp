@@ -3,7 +3,6 @@
 
 Player::Player(const Vector3f& position, float rotX, float rotY) : m_position(position), m_rotX(rotX), m_rotY(rotY)
 {
-
 }
 
 void Player::TurnLeftRight(float value)
@@ -93,5 +92,3 @@ void Player::SetRotationY(float rotY)
 {
 	m_rotY = rotY;
 }
-
-

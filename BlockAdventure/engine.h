@@ -14,75 +14,74 @@
 class Engine : public OpenglContext
 {
 public:
-	Engine();
-	virtual ~Engine();
+    Engine();
+    virtual ~Engine();
 
-	virtual void Init() override;
-	virtual void DeInit() override;
-	virtual void LoadResource() override;
-	virtual void UnloadResource() override;
-	virtual void Render(float elapsedTime) override;
+    virtual void Init() override;
+    virtual void DeInit() override;
+    virtual void LoadResource() override;
+    virtual void UnloadResource() override;
+    virtual void Render(float elapsedTime) override;
 
-	void DrawHud(int fps, int gameTime, int crossSize);
+    void DrawHud(int fps, int gameTime, int crossSize);
 
-	virtual void KeyPressEvent(unsigned char key) override;
-	virtual void KeyReleaseEvent(unsigned char key) override;
-	virtual void MouseMoveEvent(int x, int y) override;
-	virtual void MousePressEvent(const MOUSE_BUTTON& button, int x, int y) override;
-	virtual void MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y) override;
-
-
-private:
-	bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
-	int GetMaxChunk();
-	void PrintText(unsigned int x, unsigned int y, const std::string& text);
-	void LoadShaders();
-	void LoadBlockTextures();
-	void LoadBlockType(BlockType type, const std::string& texturePath, int count);
-	void GenerateTextureAtlas();
-	void LoadTextures();
-	void PopulateBlockInfo();
-	void CollisionPlayer(float elapsedTime);
-	void checkCollisionX(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int getblockx, int blockPositionZ);
-	void checkCollisionY(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int blockPositionZ);
-	void checkCollisionZ(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int getblockz);
-	void applySafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ);
-	
+    virtual void KeyPressEvent(unsigned char key) override;
+    virtual void KeyReleaseEvent(unsigned char key) override;
+    virtual void MouseMoveEvent(int x, int y) override;
+    virtual void MousePressEvent(const MOUSE_BUTTON& button, int x, int y) override;
+    virtual void MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y) override;
 
 private:
-	bool m_wireframe = false;
+    bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
+    int GetMaxChunk();
+    void PrintText(unsigned int x, unsigned int y, const std::string& text);
+    void LoadShaders();
+    void LoadBlockTextures();
+    void LoadBlockType(BlockType type, const std::string& texturePath, int count);
+    void GenerateTextureAtlas();
+    void LoadTextures();
+    void PopulateBlockInfo();
+    void CollisionPlayer(float elapsedTime);
+    void checkCollisionX(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int getblockx, int blockPositionZ);
+    void checkCollisionY(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int blockPositionZ);
+    void checkCollisionZ(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int getblockz);
+    void SafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ);
 
-	// TEXTURES
-	Texture m_textureFont;
-	Texture m_textureCrosshair;
-	Texture m_textureItemBar;
-	std::map<BlockType, std::vector<int>> m_BlockType;
+private:
+    bool m_wireframe = false;
 
-	// SHADERS
-	Shader m_shader01;
+    // TEXTURES
+    Texture m_textureFont;
+    Texture m_textureCrosshair;
+    Texture m_textureItemBar;
+    std::map<BlockType, std::vector<int>> m_BlockType;
 
-	Player m_player;
+    // SHADERS
+    Shader m_shader01;
 
-	Chunk m_testChunk;
+    Player m_player;
 
-	TextureAtlas m_textureAtlas;
+    Chunk m_testChunk;
 
-	Array2d<Chunk*> m_chunks;
+    TextureAtlas m_textureAtlas;
 
-	BlockInfo* m_blockinfo[BTYPE_FIN];
+    Array2d<Chunk*> m_chunks;
 
-	const int m_crossSize = 20;
+    BlockInfo* m_blockinfo[BTYPE_FIN];
 
-	int m_chunkPositionX = 0;
-	int m_chunkPositionY = 0;
-	bool m_Plusx = true;
-	bool finiUpdate = false;
-	bool m_keyW = false;
-	bool m_keyA = false;
-	bool m_keyS = false;
-	bool m_keyD = false;
-	bool m_keyJump = false;
-	bool m_keyFly = false;
+    const int m_crossSize = 20;
+
+    int m_chunkPositionX = 0;
+    int m_chunkPositionY = 0;
+    int m_ChunkCount = 0;
+    bool m_Plusx = true;
+    bool finiUpdate = false;
+    bool m_keyW = false;
+    bool m_keyA = false;
+    bool m_keyS = false;
+    bool m_keyD = false;
+    bool m_keyJump = false;
+    bool m_keyFly = false;
 };
 
 #endif // ENGINE_H__

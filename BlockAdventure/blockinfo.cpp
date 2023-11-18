@@ -2,7 +2,7 @@
 #include <iostream>
 
 BlockInfo::BlockInfo(BlockType type, const std::string& name, int durability, bool lightSource)
-    : m_type(type), m_durability(durability), m_textureAtlas(16) {}
+    : m_type(type), m_durability(durability), m_textureAtlas(20) {}
 
 BlockInfo::~BlockInfo() {}
 

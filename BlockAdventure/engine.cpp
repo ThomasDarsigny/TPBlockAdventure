@@ -7,7 +7,7 @@
 #include "textureatlas.h"
 
 
-Engine::Engine() : m_player(Vector3f(0.0f, 0.0f, 0.0f)), m_textureAtlas(8), m_chunks(GetMaxChunk(), GetMaxChunk())
+Engine::Engine() : m_player(Vector3f(0.0f, 0.0f, 0.0f)), m_textureAtlas(20), m_chunks(GetMaxChunk(), GetMaxChunk())
 {
 }
 
@@ -22,7 +22,7 @@ void Engine::Init()
 		std::cerr << "ERREUR GLEW: " << glewGetErrorString(glewErr) << std::endl; abort();
 	}
 
-	glClearColor(135.0 / 255.0, 206.0 / 255.0, 250.0 / 255.0, 1.0); // Sky color
+	glClearColor(135.0 / 255.0, 206.0 / 255.0, 250.0 / 255.0, 1.0); // Couleur du ciel
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_CULL_FACE);
 
@@ -63,7 +63,7 @@ void Engine::Init()
 					for (int z = 0; z < CHUNK_SIZE_Z; ++z)
 					{
 						if (y < 2)
-							nouveauchunk->SetBlock(x, y, z, BTYPE_STONE);
+							nouveauchunk->SetBlock(x, y, z, BTYPE_BEDROCK);
 						if (y == 2)
 							nouveauchunk->SetBlock(x, y, z, BTYPE_STONE);
 						if (y == 3)
@@ -72,37 +72,40 @@ void Engine::Init()
 							nouveauchunk->SetBlock(x, y, z, BTYPE_GRASS);
 					}
 			// Escalier
-			nouveauchunk->SetBlock(6, 5, 7, BTYPE_STONE);
-			nouveauchunk->SetBlock(7, 6, 7, BTYPE_STONE);
-			nouveauchunk->SetBlock(8, 7, 7, BTYPE_STONE);
-			nouveauchunk->SetBlock(9, 8, 7, BTYPE_STONE);
+			nouveauchunk->SetBlock(6, 5, 7, BTYPE_WOODPLANK);
+			nouveauchunk->SetBlock(7, 6, 7, BTYPE_WOODPLANK);
+			nouveauchunk->SetBlock(8, 7, 7, BTYPE_WOODPLANK);
+			nouveauchunk->SetBlock(9, 8, 7, BTYPE_WOODPLANK);
 
 			// Passage
 			nouveauchunk->SetBlock(11, 5, 1, BTYPE_DIRT);
 			nouveauchunk->SetBlock(11, 6, 1, BTYPE_DIRT);
-			nouveauchunk->SetBlock(11, 7, 1, BTYPE_DIRT);
-			nouveauchunk->SetBlock(11, 7, 2, BTYPE_DIRT);
-			nouveauchunk->SetBlock(11, 7, 3, BTYPE_DIRT);
+			nouveauchunk->SetBlock(11, 7, 1, BTYPE_GRASS);
+			nouveauchunk->SetBlock(11, 7, 2, BTYPE_GRASS);
+			nouveauchunk->SetBlock(11, 7, 3, BTYPE_GRASS);
 			nouveauchunk->SetBlock(11, 6, 3, BTYPE_DIRT);
 			nouveauchunk->SetBlock(11, 5, 3, BTYPE_DIRT);
+
 			//Mur axe des Z
 			for (int i = 5; i <= 8; i++)
 			{
-				nouveauchunk->SetBlock(5, i, 10, BTYPE_DIRT);
+				nouveauchunk->SetBlock(5, i, 10, BTYPE_SLIME);
 				nouveauchunk->SetBlock(5, i, 11, BTYPE_DIRT);
 				nouveauchunk->SetBlock(5, i, 12, BTYPE_DIRT);
-				nouveauchunk->SetBlock(5, i, 13, BTYPE_DIRT);
-				nouveauchunk->SetBlock(5, i, 14, BTYPE_DIRT);
+				nouveauchunk->SetBlock(5, i, 13, BTYPE_DIAMOND);
+				nouveauchunk->SetBlock(5, i, 14, BTYPE_BEDROCK);
 			}
+
 			//Mur axe des X
 			for (int i = 5; i <= 8; i++) {
-				nouveauchunk->SetBlock(14, i, 14, BTYPE_STONE);
-				nouveauchunk->SetBlock(13, i, 14, BTYPE_STONE);
-				nouveauchunk->SetBlock(12, i, 14, BTYPE_STONE);
-				nouveauchunk->SetBlock(11, i, 14, BTYPE_STONE);
-				nouveauchunk->SetBlock(10, i, 14, BTYPE_STONE);
+				nouveauchunk->SetBlock(14, i, 14, BTYPE_SAND);
+				nouveauchunk->SetBlock(13, i, 14, BTYPE_DIRT);
+				nouveauchunk->SetBlock(12, i, 14, BTYPE_COAL);
+				nouveauchunk->SetBlock(11, i, 14, BTYPE_IRON);
+				nouveauchunk->SetBlock(10, i, 14, BTYPE_GOLD);
 			}
-		}
+			m_ChunkCount++;
+		}		
 	}
 	m_player.SetRotationY(130);
 }
@@ -141,6 +144,14 @@ void Engine::LoadBlockTextures()
 	LoadBlockType(BTYPE_WOOD, "topwood.png", 1);
 	LoadBlockType(BTYPE_WOOD, "sidewood.png", 4);
 	LoadBlockType(BTYPE_WOOD, "topwood.png", 1);
+	LoadBlockType(BTYPE_BEDROCK, "bedrock.png", 6);
+	LoadBlockType(BTYPE_GOLD, "gold.png", 6);
+	LoadBlockType(BTYPE_COAL, "coal.png", 6);
+	LoadBlockType(BTYPE_DIAMOND, "diamond.png", 6);
+	LoadBlockType(BTYPE_IRON, "iron.png", 6);
+	LoadBlockType(BTYPE_SAND, "sand.png", 6);
+	LoadBlockType(BTYPE_SLIME, "slime.png", 6);
+	LoadBlockType(BTYPE_WOODPLANK, "woodplank.png", 6);
 }
 
 void Engine::LoadBlockType(BlockType type, const std::string& texturePath, int count)
@@ -180,8 +191,6 @@ void Engine::LoadTextures()
 	LoadTexture(m_textureItemBar, TEXTURE_PATH "Itembar.png");
 }
 
-
-
 void Engine::UnloadResource()
 {
 }
@@ -205,7 +214,7 @@ void Engine::Render(float elapsedTime)
 	m_player.ApplyTransformation(cam);
 	cam.ApplyTranslation(0.5f, 0, 0.5f);
 	cam.Use();
-	
+
 
 	m_textureAtlas.Bind();
 	for (int x = 0; x < m_chunkPositionX; x++)
@@ -246,29 +255,26 @@ void Engine::Render(float elapsedTime)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Engine::CollisionPlayer(float elapsedTime)
 {
-	// Collision
 	Vector3f pos = m_player.GetPositon();
-	int chunkposx = static_cast<int>(pos.x / CHUNK_SIZE_X);
 	int chunkposy = static_cast<int>(pos.z / CHUNK_SIZE_Z);
+	int chunkposx = static_cast<int>(pos.x / CHUNK_SIZE_X);
 
-	// Adjust chunk positions for negative coordinates
 	if (pos.x < 0 && pos.z < 0)
 	{
 		chunkposx = static_cast<int>((pos.x / CHUNK_SIZE_X) - 1);
 		chunkposy = static_cast<int>((pos.z / CHUNK_SIZE_Z) - 1);
 	}
-	else if (pos.z < 0)
-	{
-		chunkposy = static_cast<int>((pos.z / CHUNK_SIZE_Z) - 1);
-		chunkposx = static_cast<int>(pos.x / CHUNK_SIZE_X);
-	}
 	else if (pos.x < 0)
 	{
 		chunkposy = static_cast<int>(pos.z / CHUNK_SIZE_Z);
 		chunkposx = static_cast<int>((pos.x / CHUNK_SIZE_X) - 1);
+	}
+	else if (pos.z < 0)
+	{
+		chunkposy = static_cast<int>((pos.z / CHUNK_SIZE_Z) - 1);
+		chunkposx = static_cast<int>(pos.x / CHUNK_SIZE_X);
 	}
 
 	bool safe = true;
@@ -283,36 +289,28 @@ void Engine::CollisionPlayer(float elapsedTime)
 		const int blockPositionX = chunkposx * CHUNK_SIZE_X;
 		const int blockPositionZ = chunkposy * CHUNK_SIZE_Z;
 
-		// Simulate player movement
 		Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, m_keyFly, elapsedTime);
 
-		// Check for collision in the x-axis
+
 		int getblockx = static_cast<int>(pos.x + delta.x - blockPositionX);
 		int getblockz = static_cast<int>(pos.z + delta.z - blockPositionZ);
-		checkCollisionX(chunk, pos, delta, getblockx, blockPositionZ);
 
-		// Check for collision in the y-axis
-		checkCollisionY(chunk, pos, delta, blockPositionX, blockPositionZ);
+		checkCollisionX(chunk, pos, delta, getblockx, blockPositionZ);      // Collision dans l'axe x
+		checkCollisionY(chunk, pos, delta, blockPositionX, blockPositionZ); // Collision dans l'axe y		
+		checkCollisionZ(chunk, pos, delta, blockPositionX, getblockz);      // Collision dans l'axe z
 
-		// Check for collision in the z-axis
-		checkCollisionZ(chunk, pos, delta, blockPositionX, getblockz);
-
-		// Update player position
 		pos += delta;
 		m_player.SetPosition(pos);
 
-		// Application du SafetyNet
-		applySafetyNet(chunk, pos, blockPositionX, blockPositionZ);
+		SafetyNet(chunk, pos, blockPositionX, blockPositionZ);
 	}
 	else
 	{
 		Vector3f delta = m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keyJump, m_keyFly, elapsedTime);
 		pos += delta;
 		m_player.SetPosition(pos);
-	}	
+	}
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Vérifier la collision dans l'axe x
 void Engine::checkCollisionX(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int getblockx, int blockPositionZ)
@@ -357,7 +355,7 @@ void Engine::checkCollisionZ(Chunk* chunk, const Vector3f& pos, Vector3f& delta,
 }
 
 // Application du SafetyNet
-void Engine::applySafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ)
+void Engine::SafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ)
 {
 	BlockType bt1 = chunk->GetBlock(pos.x - blockPositionX, pos.y, pos.z - blockPositionZ);
 	BlockType bt2 = chunk->GetBlock(pos.x - blockPositionX, pos.y + 0.9f, pos.z - blockPositionZ);
@@ -387,17 +385,71 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	// Bind de la texture pour le font
 	m_textureFont.Bind();
 	std::ostringstream ss;
-	ss << " Fps : " << Fps;
-	PrintText(1, Height() - 25, ss.str());
+	ss << " Fps: " << Fps; // Fps
+	PrintText(3, Height() - 15, ss.str());
 	ss.str("");
-	ss << " Position : " << m_player.GetPositon();
-	PrintText(1, 10, ss.str());
+	ss << "Game Time: " << gameTime; // Temps de jeu
+	PrintText(9, Height() - 30, ss.str());	
 	ss.str("");
-	ss << "Game Time : " << gameTime;
-	PrintText(7, Height() - 40, ss.str());
+	ss << "Days: " << gameTime / 1200; // Nombre de jours écoulés
+	PrintText(8, Height() - 45, ss.str());
 	ss.str("");
-	ss<< "Direction " << m_player.GetRotationY();
-	PrintText(6, Height() - 55, ss.str());
+	ss << "Chunks generated: " << m_ChunkCount << "/" << "289"; // Nombre de chunks générés
+	PrintText(8, Height() - 60, ss.str());
+	ss.str("");
+	//Boussole
+	if (m_player.GetRotationY() >= 337.5 || m_player.GetRotationY() < 22.5) // Directtion du joueur Nord
+	{
+		ss.str("");
+		ss << "Direction: " << m_player.GetRotationY() << "(Nord)"; 
+		PrintText(8, Height() - 75, ss.str());
+	}
+	else if (m_player.GetRotationY() >= 22.5 && m_player.GetRotationY() < 67.5) // Direction du joueur Nord - Est
+	{
+		ss.str("");
+		ss << "Direction: " << m_player.GetRotationY() << "(Nord-Est)"; 
+		PrintText(8, Height() - 75, ss.str());
+	}
+	else if (m_player.GetRotationY() >= 67.5 && m_player.GetRotationY() < 112.5) // Direction du joueur Est
+	{
+		ss.str("");
+		ss << "Direction: " << m_player.GetRotationY() << "(Est)"; 
+		PrintText(8, Height() - 75, ss.str());
+	}
+	else if (m_player.GetRotationY() >= 112.5 && m_player.GetRotationY() < 157.5) // Direction du joueur Sud-Est
+	{
+		ss.str("");
+		ss << "Direction: " << m_player.GetRotationY() << "(Sud-Est)"; 
+		PrintText(8, Height() - 75, ss.str());
+	}
+	else if (m_player.GetRotationY() >= 157.5 && m_player.GetRotationY() < 202.5) // Direction du joueur Sud
+	{
+		ss.str("");
+		ss << "Direction: " << m_player.GetRotationY() << "(Sud)"; 
+		PrintText(8, Height() - 75, ss.str());
+	}
+	else if (m_player.GetRotationY() >= 202.5 && m_player.GetRotationY() < 247.5) // Direction du joueur Sud-Ouest
+	{
+		ss.str("");
+		ss << "Direction: " << m_player.GetRotationY() << "(Sud-Ouest)"; 
+		PrintText(8, Height() - 75, ss.str());
+	}
+	else if (m_player.GetRotationY() >= 247.5 && m_player.GetRotationY() < 292.5) // Direction du joueur Ouest
+	{
+		ss.str("");
+		ss << "Direction: " << m_player.GetRotationY() << "(Ouest)"; 
+		PrintText(8, Height() - 75, ss.str());
+	}
+	else if (m_player.GetRotationY() >= 292.5 && m_player.GetRotationY() < 337.5) // Direction du joueur Nord-Ouest
+	{
+		ss.str("");
+		ss << "Direction: " << m_player.GetRotationY() << "(Nord-Ouest)"; 
+		PrintText(8, Height() - 75, ss.str());
+	}
+
+	ss.str("");
+	ss << " Position: " << m_player.GetPositon(); // Position du joueur
+	PrintText(0, Height() - 90, ss.str());
 
 	//Crosshair
 	m_textureCrosshair.Bind();
@@ -419,9 +471,9 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	glDisable(GL_ALPHA_TEST);
 	m_textureItemBar.Bind();
 	glLoadIdentity();
-	glTranslated(Width() / 2 - 175, 30, 0); 	//Déplacer vers le bas au milieu
-	int itemBarWidth = 370; // Choisissez la largeur souhaitée
-	int itemBarHeight = 55; // Conservez la hauteur d'origine ou ajustez au besoin
+	glTranslated(Width() / 2 - 175, 30, 0); //Location
+	int itemBarWidth = 370; // Largeur
+	int itemBarHeight = 55; // Hauteur
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);
 	glVertex2i(0, 0);
@@ -569,7 +621,6 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 
 		return false;
 	}
-
 	return true;
 }
 
