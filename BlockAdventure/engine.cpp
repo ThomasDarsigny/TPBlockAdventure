@@ -145,7 +145,7 @@ void Engine::LoadBlockTextures()
 	LoadBlockType(BTYPE_WOOD, "sidewood.png", 4);
 	LoadBlockType(BTYPE_WOOD, "topwood.png", 1);
 	LoadBlockType(BTYPE_BEDROCK, "bedrock.png", 6);
-	LoadBlockType(BTYPE_GOLD, "gold.png", 6);
+	LoadBlockType(BTYPE_GOLD, "gold.png", 6); 
 	LoadBlockType(BTYPE_COAL, "coal.png", 6);
 	LoadBlockType(BTYPE_DIAMOND, "diamond.png", 6);
 	LoadBlockType(BTYPE_IRON, "iron.png", 6);
