@@ -629,3 +629,103 @@ int Engine::GetMaxChunk()
 	// racine de VIEW_DISTANCE
 	return VIEW_DISTANCE / CHUNK_SIZE_X;
 }
+
+//void Engine::GetBlocAtCursor()
+//{
+//	int x = Width() / 2;
+//	int y = Height() / 2;
+//
+//	GLint viewport[4];
+//	GLdouble modelview[16];
+//	GLdouble projection[16];
+//	GLfloat winX, winY, winZ;
+//	GLdouble posX, posY, posZ;
+//
+//	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+//	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+//	glGetIntegerv(GL_VIEWPORT, viewport);
+//
+//	winX = (float)x;
+//	winY = (float)viewport[3] - (float)y;
+//	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+//
+//	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+//
+//	posX += .5f;
+//	posY += .5f;
+//	posZ += .5f;
+//
+//	// Le cast vers int marche juste pour les valeurs entiere, utiliser une fonction de la libc si besoin
+//	// de valeurs negatives
+//	int px = (int)(posX);
+//	int py = (int)(posY);
+//	int pz = (int)(posZ);
+//
+//	bool found = false;
+//
+//	if ((m_player.GetPositon() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECTION_DISTANCE)
+//	{
+//		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
+//		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
+//		// le vrai bloc. Le vrai bloc peut etre different a cause d'erreurs de precision de nos
+//		// nombres flottants (si z = 14.999 par exemple, et qu'il n'y a pas de blocs a la position
+//		// 14 (apres arrondi vers l'entier) on doit trouver et retourner le bloc en position 15 s'il existe
+//		// A cause des erreurs de precisions, ils arrive que le cote d'un bloc qui doit pourtant etre a la
+//		// position 15 par exemple nous retourne plutot la position 15.0001
+//		for (int x = px - 1; !found && x <= px + 1; ++x)
+//		{
+//			for (int y = py - 1; !found && x >= 0 && y <= py + 1; ++y)
+//			{
+//				for (int z = pz - 1; !found && y >= 0 && z <= pz + 1; ++z)
+//				{
+//					if (z >= 0)
+//					{
+//						BlockType bt = BlockAt((float)x, (float)y, (float)z);
+//						if (bt == BTYPE_AIR)
+//							continue;
+//
+//						// Skip water blocs
+//						//if(bloc->Type == BT_WATER)
+//						//    continue;
+//
+//						m_currentBlock.x = x;
+//						m_currentBlock.y = y;
+//						m_currentBlock.z = z;
+//
+//						if (InRangeWithEpsilon<float>((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posZ, (float)z, (float)z + 1.f, 0.05f))
+//						{
+//							found = true;
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	if (!found)
+//	{
+//		m_currentBlock.x = -1;
+//	}
+//	else
+//	{
+//		// Find on which face of the bloc we got an hit
+//		m_currentFaceNormal.Zero();
+//
+//		const float epsilon = 0.005f;
+//
+//		// Front et back:
+//		if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z, epsilon))
+//			m_currentFaceNormal.z = -1;
+//		else if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z + 1.f, epsilon))
+//			m_currentFaceNormal.z = 1;
+//		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x, epsilon))
+//			m_currentFaceNormal.x = -1;
+//		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x + 1.f, epsilon))
+//			m_currentFaceNormal.x = 1;
+//		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y, epsilon))
+//			m_currentFaceNormal.y = -1;
+//		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y + 1.f, epsilon))
+//			m_currentFaceNormal.y = 1;
+//	}
+//}
+

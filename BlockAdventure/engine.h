@@ -11,6 +11,7 @@
 #include "array2d.h"
 #include "blockinfo.h"
 
+
 class Engine : public OpenglContext
 {
 public:
@@ -31,6 +32,7 @@ public:
     virtual void MousePressEvent(const MOUSE_BUTTON& button, int x, int y) override;
     virtual void MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y) override;
 
+
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
     int GetMaxChunk();
@@ -46,6 +48,20 @@ private:
     void checkCollisionY(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int blockPositionZ);
     void checkCollisionZ(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int getblockz);
     void SafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ);
+    void Engine::GetBlocAtCursor();
+
+
+    template <class T>
+    static bool EqualWithEpsilon(const T& v1, const T& v2, T epsilon = T(0.0001))
+    {
+        return (fabs(v2 - v1) < epsilon);
+    }
+
+    template <class T>
+    static bool InRangeWithEpsilon(const T& v, const T& vinf, const T& vsup, T epsilon = T(0.0001))
+    {
+        return (v >= vinf - epsilon && v <= vsup + epsilon);
+    }
 
 private:
     bool m_wireframe = false;
@@ -74,6 +90,7 @@ private:
     int m_chunkPositionX = 0;
     int m_chunkPositionY = 0;
     int m_ChunkCount = 0;
+    int m_currentBlock = 0;
     bool m_Plusx = true;
     bool finiUpdate = false;
     bool m_keyW = false;
@@ -83,5 +100,4 @@ private:
     bool m_keyJump = false;
     bool m_keyFly = false;
 };
-
 #endif // ENGINE_H__
