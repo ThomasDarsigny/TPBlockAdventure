@@ -10,6 +10,7 @@
 #include "textureatlas.h"
 #include "array2d.h"
 #include "blockinfo.h"
+#include "perlin.h"
 
 
 class Engine : public OpenglContext
@@ -48,7 +49,7 @@ private:
     void checkCollisionY(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int blockPositionZ);
     void checkCollisionZ(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int getblockz);
     void SafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ);
-    void Engine::GetBlocAtCursor();
+    void GetBlocAtCursor();
 
 
     template <class T>

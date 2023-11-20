@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
 #include "perlin.h"
 
 #define B SAMPLE_SIZE

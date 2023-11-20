@@ -2,8 +2,6 @@
 #define PERLIN_H__
 
 #include <stdlib.h>
-
-
 #define SAMPLE_SIZE 1024
 
 class Perlin

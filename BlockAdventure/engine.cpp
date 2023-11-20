@@ -51,6 +51,8 @@ void Engine::Init()
 	CenterMouse();
 	HideCursor();
 
+	Perlin perlin(16, 6, 1, 95);
+
 	const int m_maxChunk = GetMaxChunk();
 	for (int y = -m_maxChunk; y <= m_maxChunk; ++y)
 	{
