@@ -49,7 +49,6 @@ private:
     void checkCollisionY(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int blockPositionZ);
     void checkCollisionZ(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int getblockz);
     void SafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ);
-    void GetBlocAtCursor();
 
 
     template <class T>
@@ -71,6 +70,10 @@ private:
     Texture m_textureFont;
     Texture m_textureCrosshair;
     Texture m_textureItemBar;
+    Texture m_textureOptionsButton;
+    Texture m_textureQuitButton;
+    Texture m_textureBackButton;
+    Texture m_textureBacktoGameButton;
     std::map<BlockType, std::vector<int>> m_BlockType;
 
     // SHADERS
@@ -87,7 +90,11 @@ private:
     BlockInfo* m_blockinfo[BTYPE_FIN];
 
     const int m_crossSize = 20;
-
+    const int buttonWidth = 200; // Largeur
+    const int buttonHeight = 55; // Hauteur
+    int mousex = 0;
+    int mousey = 0;
+     
     int m_chunkPositionX = 0;
     int m_chunkPositionY = 0;
     int m_ChunkCount = 0;
@@ -100,5 +107,7 @@ private:
     bool m_keyD = false;
     bool m_keyJump = false;
     bool m_keyFly = false;
+    bool m_keyESC = false;
+    bool m_Settings = false;
 };
 #endif // ENGINE_H__

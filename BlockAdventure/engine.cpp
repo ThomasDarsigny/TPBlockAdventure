@@ -5,11 +5,13 @@
 #include "shader.h"
 #include"transformation.h"
 #include "textureatlas.h"
+//#include <SFML/Graphics.hpp>
 
 
 Engine::Engine() : m_player(Vector3f(0.0f, 0.0f, 0.0f)), m_textureAtlas(20), m_chunks(GetMaxChunk(), GetMaxChunk())
 {
 }
+
 
 Engine::~Engine()
 {
@@ -48,12 +50,14 @@ void Engine::Init()
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LINE_SMOOTH);
 
+
 	CenterMouse();
 	HideCursor();
 
-	Perlin perlin(16, 6, 1, 95);
+
 
 	const int m_maxChunk = GetMaxChunk();
+	Perlin perlin(16, 6, 1, 95);
 	for (int y = -m_maxChunk; y <= m_maxChunk; ++y)
 	{
 		for (int x = -m_maxChunk; x <= m_maxChunk; ++x)
@@ -107,7 +111,7 @@ void Engine::Init()
 				nouveauchunk->SetBlock(10, i, 14, BTYPE_GOLD);
 			}
 			m_ChunkCount++;
-		}		
+		}
 	}
 	m_player.SetRotationY(130);
 }
@@ -147,7 +151,7 @@ void Engine::LoadBlockTextures()
 	LoadBlockType(BTYPE_WOOD, "sidewood.png", 4);
 	LoadBlockType(BTYPE_WOOD, "topwood.png", 1);
 	LoadBlockType(BTYPE_BEDROCK, "bedrock.png", 6);
-	LoadBlockType(BTYPE_GOLD, "gold.png", 6); 
+	LoadBlockType(BTYPE_GOLD, "gold.png", 6);
 	LoadBlockType(BTYPE_COAL, "coal.png", 6);
 	LoadBlockType(BTYPE_DIAMOND, "diamond.png", 6);
 	LoadBlockType(BTYPE_IRON, "iron.png", 6);
@@ -191,6 +195,10 @@ void Engine::LoadTextures()
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.png");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "crosshair.png");
 	LoadTexture(m_textureItemBar, TEXTURE_PATH "Itembar.png");
+	LoadTexture(m_textureOptionsButton, TEXTURE_PATH "OptionsButton.png");
+	LoadTexture(m_textureQuitButton, TEXTURE_PATH "QuitButton.png");
+	LoadTexture(m_textureBacktoGameButton, TEXTURE_PATH "BacktoGameButton.png");
+	LoadTexture(m_textureBackButton, TEXTURE_PATH "BackButton.png");
 }
 
 void Engine::UnloadResource()
@@ -217,7 +225,6 @@ void Engine::Render(float elapsedTime)
 	cam.ApplyTranslation(0.5f, 0, 0.5f);
 	cam.Use();
 
-
 	m_textureAtlas.Bind();
 	for (int x = 0; x < m_chunkPositionX; x++)
 	{
@@ -227,7 +234,7 @@ void Engine::Render(float elapsedTime)
 			for (int i = 0; i < BTYPE_FIN; i++)
 				chunk->SetBlockInfo(m_blockinfo[i], i);
 
-			if (!finiUpdate || chunk->IsDirty())
+			if (!finiUpdate || chunk->IsDirty() && !m_keyESC)
 				chunk->Update(x, y);
 			chunk->Render();
 		}
@@ -391,7 +398,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	PrintText(3, Height() - 15, ss.str());
 	ss.str("");
 	ss << "Game Time: " << gameTime; // Temps de jeu
-	PrintText(9, Height() - 30, ss.str());	
+	PrintText(9, Height() - 30, ss.str());
 	ss.str("");
 	ss << "Days: " << gameTime / 1200; // Nombre de jours écoulés
 	PrintText(8, Height() - 45, ss.str());
@@ -403,55 +410,59 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	if (m_player.GetRotationY() >= 337.5 || m_player.GetRotationY() < 22.5) // Directtion du joueur Nord
 	{
 		ss.str("");
-		ss << "Direction: " << m_player.GetRotationY() << "(Nord)"; 
+		ss << "Direction: " << m_player.GetRotationY() << "(Nord)";
 		PrintText(8, Height() - 75, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 22.5 && m_player.GetRotationY() < 67.5) // Direction du joueur Nord - Est
 	{
 		ss.str("");
-		ss << "Direction: " << m_player.GetRotationY() << "(Nord-Est)"; 
+		ss << "Direction: " << m_player.GetRotationY() << "(Nord-Est)";
 		PrintText(8, Height() - 75, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 67.5 && m_player.GetRotationY() < 112.5) // Direction du joueur Est
 	{
 		ss.str("");
-		ss << "Direction: " << m_player.GetRotationY() << "(Est)"; 
+		ss << "Direction: " << m_player.GetRotationY() << "(Est)";
 		PrintText(8, Height() - 75, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 112.5 && m_player.GetRotationY() < 157.5) // Direction du joueur Sud-Est
 	{
 		ss.str("");
-		ss << "Direction: " << m_player.GetRotationY() << "(Sud-Est)"; 
+		ss << "Direction: " << m_player.GetRotationY() << "(Sud-Est)";
 		PrintText(8, Height() - 75, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 157.5 && m_player.GetRotationY() < 202.5) // Direction du joueur Sud
 	{
 		ss.str("");
-		ss << "Direction: " << m_player.GetRotationY() << "(Sud)"; 
+		ss << "Direction: " << m_player.GetRotationY() << "(Sud)";
 		PrintText(8, Height() - 75, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 202.5 && m_player.GetRotationY() < 247.5) // Direction du joueur Sud-Ouest
 	{
 		ss.str("");
-		ss << "Direction: " << m_player.GetRotationY() << "(Sud-Ouest)"; 
+		ss << "Direction: " << m_player.GetRotationY() << "(Sud-Ouest)";
 		PrintText(8, Height() - 75, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 247.5 && m_player.GetRotationY() < 292.5) // Direction du joueur Ouest
 	{
 		ss.str("");
-		ss << "Direction: " << m_player.GetRotationY() << "(Ouest)"; 
+		ss << "Direction: " << m_player.GetRotationY() << "(Ouest)";
 		PrintText(8, Height() - 75, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 292.5 && m_player.GetRotationY() < 337.5) // Direction du joueur Nord-Ouest
 	{
 		ss.str("");
-		ss << "Direction: " << m_player.GetRotationY() << "(Nord-Ouest)"; 
+		ss << "Direction: " << m_player.GetRotationY() << "(Nord-Ouest)";
 		PrintText(8, Height() - 75, ss.str());
 	}
 
 	ss.str("");
 	ss << " Position: " << m_player.GetPositon(); // Position du joueur
 	PrintText(0, Height() - 90, ss.str());
+
+	ss.str("");
+	ss << "Mouse Location: " << mousex << " , " << mousey;
+	PrintText(5, 0.01 * Height(), ss.str());
 
 	//Crosshair
 	m_textureCrosshair.Bind();
@@ -489,6 +500,72 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	glEnable(GL_ALPHA_TEST);
 	glEnd();
 
+	if (m_keyESC)
+	{
+		const int BacktoGameButtony = 0.6 * Height();
+		const int SettingsButtony = 0.5 * Height();
+		const int QuitButtony = 0.4 * Height();
+		const int Buttonx = Width() / 2 - buttonWidth / 2;
+
+		//Button Quit
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_textureQuitButton.Bind();
+		glLoadIdentity();
+		glTranslated(Buttonx, QuitButtony, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+
+		//Button Options
+		m_textureOptionsButton.Bind();
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		glLoadIdentity();
+		glTranslated(Buttonx, SettingsButtony, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnd();
+
+		//Button Back to Game
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_textureBacktoGameButton.Bind();
+		glLoadIdentity();
+		glTranslated(Buttonx, BacktoGameButtony, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+	}
+	else if ( m_Settings)
+	{
+		// TODO : Afficher Setting . . .
+	}
+
 	glEnable(GL_LIGHTING);
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -525,8 +602,20 @@ void Engine::KeyPressEvent(unsigned char key)
 {
 	switch (key)
 	{
-	case 36: // ESC
+	case 15: // P
 		Stop();
+		break;
+	case 36: // ESC
+		if (!m_keyESC)
+		{
+			m_keyESC = true;
+			ShowCursor();
+		}
+		else
+		{
+			m_keyESC = false;
+			HideCursor();
+		}
 		break;
 	case 94: // F10
 		SetFullscreen(!IsFullscreen());
@@ -593,19 +682,54 @@ void Engine::MouseMoveEvent(int x, int y)
 	// dans une boucle infinie où l'appel à CenterMouse génère un
 	// MouseMoveEvent, qui rapelle CenterMouse qui rapelle un autre
 	// MouseMoveEvent, etc
-	if (x == (Width() / 2) && y == (Height() / 2))
-		return;
-	float m_sensitivity = 0.08f;
-	MakeRelativeToCenter(x, y);
-	m_player.TurnLeftRight(x * m_sensitivity);
-	m_player.TurnTopBottom(y * m_sensitivity);
-
-
-	CenterMouse();
+	if (!m_keyESC) {
+		if (x == (Width() / 2) && y == (Height() / 2))
+			return;
+		float m_sensitivity = 0.08f;
+		MakeRelativeToCenter(x, y);
+		m_player.TurnLeftRight(x * m_sensitivity);
+		m_player.TurnTopBottom(y * m_sensitivity);
+		CenterMouse();
+	}
+	else 
+	{
+		mousex = x;
+		mousey = -(y - Height());
+	}
 }
 
 void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 {
+	
+
+	y = -(y - Height()); // Invert the y axis to be consistent with the 2D drawing system
+	if (button == MOUSE_BUTTON_LEFT && m_keyESC)
+	{
+		const int BacktoGameButtony = 0.6 * Height();
+		const int SettingsButtony = 0.5 * Height();
+		const int QuitButtony = 0.4 * Height();
+		const int Buttonx = Width() / 2 - buttonWidth / 2;
+
+		//Settings
+		if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= SettingsButtony && y <= SettingsButtony + buttonHeight || m_Settings)
+		{
+			if (m_Settings)
+			{
+				// TODO : Faire boutton position pour les settings . . . 
+			}
+				m_Settings = true;
+		}
+		// Back to game
+		else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= BacktoGameButtony && y <= BacktoGameButtony + buttonHeight)
+		{
+			m_keyESC = false;
+			HideCursor();
+			CenterMouse();
+		}
+		// Quit 
+		else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= QuitButtony && y <= QuitButtony + buttonHeight)
+			Stop();
+	}
 }
 
 void Engine::MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y)
@@ -632,102 +756,5 @@ int Engine::GetMaxChunk()
 	return VIEW_DISTANCE / CHUNK_SIZE_X;
 }
 
-//void Engine::GetBlocAtCursor()
-//{
-//	int x = Width() / 2;
-//	int y = Height() / 2;
-//
-//	GLint viewport[4];
-//	GLdouble modelview[16];
-//	GLdouble projection[16];
-//	GLfloat winX, winY, winZ;
-//	GLdouble posX, posY, posZ;
-//
-//	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-//	glGetDoublev(GL_PROJECTION_MATRIX, projection);
-//	glGetIntegerv(GL_VIEWPORT, viewport);
-//
-//	winX = (float)x;
-//	winY = (float)viewport[3] - (float)y;
-//	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
-//
-//	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
-//
-//	posX += .5f;
-//	posY += .5f;
-//	posZ += .5f;
-//
-//	// Le cast vers int marche juste pour les valeurs entiere, utiliser une fonction de la libc si besoin
-//	// de valeurs negatives
-//	int px = (int)(posX);
-//	int py = (int)(posY);
-//	int pz = (int)(posZ);
-//
-//	bool found = false;
-//
-//	if ((m_player.GetPositon() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECTION_DISTANCE)
-//	{
-//		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
-//		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
-//		// le vrai bloc. Le vrai bloc peut etre different a cause d'erreurs de precision de nos
-//		// nombres flottants (si z = 14.999 par exemple, et qu'il n'y a pas de blocs a la position
-//		// 14 (apres arrondi vers l'entier) on doit trouver et retourner le bloc en position 15 s'il existe
-//		// A cause des erreurs de precisions, ils arrive que le cote d'un bloc qui doit pourtant etre a la
-//		// position 15 par exemple nous retourne plutot la position 15.0001
-//		for (int x = px - 1; !found && x <= px + 1; ++x)
-//		{
-//			for (int y = py - 1; !found && x >= 0 && y <= py + 1; ++y)
-//			{
-//				for (int z = pz - 1; !found && y >= 0 && z <= pz + 1; ++z)
-//				{
-//					if (z >= 0)
-//					{
-//						BlockType bt = BlockAt((float)x, (float)y, (float)z);
-//						if (bt == BTYPE_AIR)
-//							continue;
-//
-//						// Skip water blocs
-//						//if(bloc->Type == BT_WATER)
-//						//    continue;
-//
-//						m_currentBlock.x = x;
-//						m_currentBlock.y = y;
-//						m_currentBlock.z = z;
-//
-//						if (InRangeWithEpsilon<float>((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posZ, (float)z, (float)z + 1.f, 0.05f))
-//						{
-//							found = true;
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	if (!found)
-//	{
-//		m_currentBlock.x = -1;
-//	}
-//	else
-//	{
-//		// Find on which face of the bloc we got an hit
-//		m_currentFaceNormal.Zero();
-//
-//		const float epsilon = 0.005f;
-//
-//		// Front et back:
-//		if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z, epsilon))
-//			m_currentFaceNormal.z = -1;
-//		else if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z + 1.f, epsilon))
-//			m_currentFaceNormal.z = 1;
-//		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x, epsilon))
-//			m_currentFaceNormal.x = -1;
-//		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x + 1.f, epsilon))
-//			m_currentFaceNormal.x = 1;
-//		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y, epsilon))
-//			m_currentFaceNormal.y = -1;
-//		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y + 1.f, epsilon))
-//			m_currentFaceNormal.y = 1;
-//	}
-//}
+
 

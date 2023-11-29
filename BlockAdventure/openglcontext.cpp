@@ -1,5 +1,6 @@
 #include "openglcontext.h"
 #include "define.h"
+#include"engine.h"
 
 OpenglContext::OpenglContext() : m_maxFps(999999), m_fullscreen(false), m_title(""), m_lastFrameTime(0)
 {
