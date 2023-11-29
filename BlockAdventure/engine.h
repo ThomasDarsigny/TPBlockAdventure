@@ -74,6 +74,17 @@ private:
     Texture m_textureQuitButton;
     Texture m_textureBackButton;
     Texture m_textureBacktoGameButton;
+    Texture m_textureLeftArrow;
+    Texture m_textureRightArrow;
+    Texture m_texture30Fps;
+    Texture m_texture60Fps;
+    Texture m_texture120Fps;
+    Texture m_texture144Fps;
+    Texture m_texture240Fps;
+    Texture m_textureFPS;
+    Texture m_textureFullScreenON;
+    Texture m_textureFullScreenOFF;
+
     std::map<BlockType, std::vector<int>> m_BlockType;
 
     // SHADERS
@@ -92,13 +103,18 @@ private:
     const int m_crossSize = 20;
     const int buttonWidth = 200; // Largeur
     const int buttonHeight = 55; // Hauteur
+    const int arrowbuttonWidth = 50; // Largeur des boutons de fleches
+    const int FpsButtony = 200; // Position en y des boutons de fps
+    
+
     int mousex = 0;
-    int mousey = 0;
-     
+    int mousey = 0;     
     int m_chunkPositionX = 0;
     int m_chunkPositionY = 0;
     int m_ChunkCount = 0;
     int m_currentBlock = 0;
+    int m_MaxFps = 0;
+
     bool m_Plusx = true;
     bool finiUpdate = false;
     bool m_keyW = false;

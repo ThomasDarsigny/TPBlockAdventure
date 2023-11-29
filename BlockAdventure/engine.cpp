@@ -64,19 +64,25 @@ void Engine::Init()
 		{
 			Chunk* nouveauchunk = new Chunk();
 			m_chunks.Set(x, y, nouveauchunk);
-			for (int y = 0; y < 5; ++y)
-				for (int x = 0; x < CHUNK_SIZE_X; ++x)
-					for (int z = 0; z < CHUNK_SIZE_Z; ++z)
+
+			for (int blockY = 0; blockY < 5; ++blockY)
+			{
+				for (int blockX = 0; blockX < CHUNK_SIZE_X; ++blockX)
+				{
+					for (int blockZ = 0; blockZ < CHUNK_SIZE_Z; ++blockZ)
 					{
-						if (y < 2)
-							nouveauchunk->SetBlock(x, y, z, BTYPE_BEDROCK);
-						if (y == 2)
-							nouveauchunk->SetBlock(x, y, z, BTYPE_STONE);
-						if (y == 3)
-							nouveauchunk->SetBlock(x, y, z, BTYPE_DIRT);
-						if (y == 4)
-							nouveauchunk->SetBlock(x, y, z, BTYPE_GRASS);
+						if (blockY < 2)
+							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_BEDROCK);
+						else if (blockY == 2)
+							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_STONE);
+						else if (blockY == 3)
+							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_DIRT);
+						else if (blockY == 4)
+							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_GRASS);
 					}
+				}
+			}
+
 			// Escalier
 			nouveauchunk->SetBlock(6, 5, 7, BTYPE_WOODPLANK);
 			nouveauchunk->SetBlock(7, 6, 7, BTYPE_WOODPLANK);
@@ -199,6 +205,15 @@ void Engine::LoadTextures()
 	LoadTexture(m_textureQuitButton, TEXTURE_PATH "QuitButton.png");
 	LoadTexture(m_textureBacktoGameButton, TEXTURE_PATH "BacktoGameButton.png");
 	LoadTexture(m_textureBackButton, TEXTURE_PATH "BackButton.png");
+	LoadTexture(m_textureLeftArrow, TEXTURE_PATH "LeftArrow.png");
+	LoadTexture(m_textureRightArrow, TEXTURE_PATH "RightArrow.png");
+	LoadTexture(m_texture30Fps, TEXTURE_PATH "30Fps.png");
+	LoadTexture(m_texture60Fps, TEXTURE_PATH "60Fps.png");
+	LoadTexture(m_texture120Fps, TEXTURE_PATH "120Fps.png");
+	LoadTexture(m_texture144Fps, TEXTURE_PATH "144Fps.png");
+	LoadTexture(m_texture240Fps, TEXTURE_PATH "240Fps.png");
+	LoadTexture(m_textureFullScreenON, TEXTURE_PATH "FullscreenON.png");
+	LoadTexture(m_textureFullScreenOFF, TEXTURE_PATH "FullscreenOFF.png");
 }
 
 void Engine::UnloadResource()
@@ -561,9 +576,92 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		glEnable(GL_ALPHA_TEST);
 		glEnd();
 	}
-	else if ( m_Settings)
+	else if (m_Settings)
 	{
-		// TODO : Afficher Setting . . .
+		const int LeftArrowButtonx = Width() / 2 - 150;
+		const int RightArrowButtonx = Width() / 2 + 100;
+		const int Buttonx = Width() / 2 - buttonWidth / 2;
+		const int LeftArrowButtony = 0.6 * Height();
+		const int RightArrowButtony = 0.6 * Height();
+		const int FpsButtony = 0.6 * Height();
+
+		//Button decrease Max Fps
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_textureLeftArrow.Bind();
+		glLoadIdentity();
+		glTranslated(LeftArrowButtonx, LeftArrowButtony, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(arrowbuttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(arrowbuttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+
+		//Button Fps
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+
+		m_texture60Fps.Bind();	
+
+		glLoadIdentity();
+		glTranslated(Buttonx, FpsButtony, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+
+		//Button increase Max Fps
+        glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_textureRightArrow.Bind();
+		glLoadIdentity();
+		glTranslated(RightArrowButtonx, RightArrowButtony, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(arrowbuttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(arrowbuttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+
+		//Button Fps
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_texture60Fps.Bind();
+		glLoadIdentity();
+		glTranslated(Buttonx, FpsButtony, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
 	}
 
 	glEnable(GL_LIGHTING);
@@ -700,25 +798,68 @@ void Engine::MouseMoveEvent(int x, int y)
 
 void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 {
-	
-
 	y = -(y - Height()); // Invert the y axis to be consistent with the 2D drawing system
 	if (button == MOUSE_BUTTON_LEFT && m_keyESC)
 	{
+		SetMaxFps(m_MaxFps);
 		const int BacktoGameButtony = 0.6 * Height();
 		const int SettingsButtony = 0.5 * Height();
 		const int QuitButtony = 0.4 * Height();
-		const int Buttonx = Width() / 2 - buttonWidth / 2;
+		const int LeftArrowButtony = 0.6 * Height();
+		const int LeftArrowButtonx = Width() / 2 - 150;
+		const int RightArrowButtony = 0.6 * Height();
+		const int RightArrowButtonx = Width() / 2 + 100;
+		const int Buttonx = Width() / 2 - buttonWidth / 2;		
 
 		//Settings
 		if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= SettingsButtony && y <= SettingsButtony + buttonHeight || m_Settings)
-		{
-			if (m_Settings)
+		{			
+			// TODO : Faire les positions pour les boutons des settings . . . 			
+
+			
+			if (m_Settings) 
 			{
-				// TODO : Faire boutton position pour les settings . . . 
+					//Button decrease Max Fps
+				if (x >= LeftArrowButtonx && x <= LeftArrowButtonx + arrowbuttonWidth && y >= LeftArrowButtony && y <= LeftArrowButtony + buttonHeight)
+				{
+					if (m_MaxFps > 30)
+						m_MaxFps -= 30;
+				}
+				//Button increase Max Fps
+				else if (x >= RightArrowButtonx && x <= RightArrowButtonx + arrowbuttonWidth && y >= RightArrowButtony && y <= RightArrowButtony + buttonHeight)
+				{
+					if (m_MaxFps < 240)
+						m_MaxFps += 30;
+				}
+				//Button 30 Fps
+				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
+				{
+					m_MaxFps = 30;
+				}
+				//Button 60 Fps
+				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
+				{
+					m_MaxFps = 60;
+				}
+				//Button 120 Fps
+				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
+				{
+					m_MaxFps = 120;
+				}
+				//Button 144 Fps
+				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
+				{
+					m_MaxFps = 144;
+				}
+				//Button 240 Fps
+				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
+				{
+					m_MaxFps = 240;
+				}				
 			}
-				m_Settings = true;
+			m_Settings = !m_Settings;
 		}
+		
 		// Back to game
 		else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= BacktoGameButtony && y <= BacktoGameButtony + buttonHeight)
 		{
