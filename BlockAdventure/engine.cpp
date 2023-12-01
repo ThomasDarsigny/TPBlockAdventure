@@ -50,11 +50,8 @@ void Engine::Init()
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LINE_SMOOTH);
 
-
 	CenterMouse();
 	HideCursor();
-
-
 
 	const int m_maxChunk = GetMaxChunk();
 	Perlin perlin(16, 6, 1, 95);
@@ -113,7 +110,6 @@ void Engine::LoadShaders()
 
 void Engine::LoadBlockTextures()
 {
-	LoadBlockType(BTYPE_CHECKER, "checker.png", 6);
 	LoadBlockType(BTYPE_DIRT, "dirt.png", 6);
 	LoadBlockType(BTYPE_GRASS, "topgrass.png", 1);
 	LoadBlockType(BTYPE_GRASS, "sidegrass.png", 4);
@@ -179,6 +175,7 @@ void Engine::LoadTextures()
 	LoadTexture(m_texture240Fps, TEXTURE_PATH "240Fps.png");
 	LoadTexture(m_textureFullScreenON, TEXTURE_PATH "FullscreenON.png");
 	LoadTexture(m_textureFullScreenOFF, TEXTURE_PATH "FullscreenOFF.png");
+	LoadTexture(m_textureLogo, TEXTURE_PATH "logo.png");
 }
 
 void Engine::UnloadResource()
@@ -243,6 +240,48 @@ void Engine::Render(float elapsedTime)
 	if (m_wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+BlockType Engine::BlockAt(int x, int y, int z)
+{
+	int chunkposy = static_cast<int>(y / CHUNK_SIZE_Y);
+	int chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
+
+	if (x < 0 && z < 0)
+	{
+		chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
+		chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
+	}
+	else if (x < 0)
+	{
+		chunkposy = static_cast<int>(z / CHUNK_SIZE_Z);
+		chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
+	}
+	else if (z < 0)
+	{
+		chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
+		chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
+	}
+
+	bool safe = true;
+	int max = GetMaxChunk();
+	if ((chunkposx >= max && chunkposy >= max) || chunkposx >= max || chunkposy >= max)
+		safe = false;
+	else if ((chunkposx < 0 && chunkposy < 0) || chunkposx < 0 || chunkposy < 0)
+		safe = false;
+	if (safe)
+	{
+		Chunk* chunk = m_chunks.Get(chunkposx, chunkposy);
+		const int blockPositionX = chunkposx * CHUNK_SIZE_X;
+		const int blockPositionZ = chunkposy * CHUNK_SIZE_Z;
+
+		return chunk->GetBlock(x - blockPositionX, y, z - blockPositionZ);
+	}
+	else
+		return BTYPE_AIR;
+}	
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Engine::CollisionPlayer(float elapsedTime)
 {
@@ -386,6 +425,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	ss << "Chunks generated: " << m_ChunkCount << "/" << "289"; // Nombre de chunks générés
 	PrintText(8, Height() - 60, ss.str());
 	ss.str("");
+
 	//Boussole
 	if (m_player.GetRotationY() >= 337.5 || m_player.GetRotationY() < 22.5) // Directtion du joueur Nord
 	{
@@ -439,10 +479,6 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	ss.str("");
 	ss << " Position: " << m_player.GetPositon(); // Position du joueur
 	PrintText(0, Height() - 90, ss.str());
-
-	ss.str("");
-	ss << "Mouse Location: " << mousex << " , " << mousey;
-	PrintText(5, 0.01 * Height(), ss.str());
 
 	//Crosshair
 	m_textureCrosshair.Bind();
@@ -875,8 +911,7 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 						m_textureFullScreenON.Bind();
 					}
 					SetFullscreen(!IsFullscreen());
-				}
-											
+				}											
 			}			
 				m_Settings = true;
 		}
@@ -917,105 +952,98 @@ int Engine::GetMaxChunk()
 	return VIEW_DISTANCE / CHUNK_SIZE_X;
 }
 
-//YA UNE METHODE ICI
-
-
-Void Engine::GetBlockAtCursor(int& x, int& y, int& z)
-{
-	int x = Width() / 2;
-	int y = Height() / 2;
-
-	GLint viewport[4];
-	GLdouble modelview[16];
-	GLdouble projection[16];
-	GLfloat winX, winY, winZ;
-	GLdouble posX, posY, posZ;
-
-	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-	glGetDoublev(GL_PROJECTION_MATRIX, projection);
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
-	winX = (float)x;
-	winY = (float)viewport[3] - (float)y;
-	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
-
-	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
-
-	posX += .5f;
-	posY += .5f;
-	posZ += .5f;
-
-	// Le cast vers int marche juste pour les valeurs entiere, utiliser une fonction de la libc si besoin
-	// de valeurs negatives
-	int px = (int)(posX);
-	int py = (int)(posY);
-	int pz = (int)(posZ);
-
-	bool found = false;
-
-	if ((m_player.GetPositon() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECTION_DISTANCE)
-	{
-		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
-		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
-		// le vrai bloc. Le vrai bloc peut etre different a cause d'erreurs de precision de nos
-		// nombres flottants (si z = 14.999 par exemple, et qu'il n'y a pas de blocs a la position
-		// 14 (apres arrondi vers l'entier) on doit trouver et retourner le bloc en position 15 s'il existe
-		// A cause des erreurs de precisions, ils arrive que le cote d'un bloc qui doit pourtant etre a la
-		// position 15 par exemple nous retourne plutot la position 15.0001
-		for (int x = px - 1; !found && x <= px + 1; ++x)
-		{
-			for (int y = py - 1; !found && x >= 0 && y <= py + 1; ++y)
-			{
-				for (int z = pz - 1; !found && y >= 0 && z <= pz + 1; ++z)
-				{
-					if (z >= 0)
-					{
-						BlockType bt = BlockAt((float)x, (float)y, (float)z);
-						if (bt == BTYPE_AIR)
-							continue;
-
-						// Skip water blocs
-						//if(bloc->Type == BT_WATER)
-						//    continue;
-
-						m_currentBlock.x = x;
-						m_currentBlock.y = y;
-						m_currentBlock.z = z;
-
-						if (InRangeWithEpsilon<float>((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posZ, (float)z, (float)z + 1.f, 0.05f))
-						{
-							found = true;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if (!found)
-	{
-		m_currentBlock.x = -1;
-	}
-	else
-	{
-		// Find on which face of the bloc we got an hit
-		m_currentFaceNormal.Zero();
-
-		const float epsilon = 0.005f;
-
-		// Front et back:
-		if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z, epsilon))
-			m_currentFaceNormal.z = -1;
-		else if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z + 1.f, epsilon))
-			m_currentFaceNormal.z = 1;
-		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x, epsilon))
-			m_currentFaceNormal.x = -1;
-		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x + 1.f, epsilon))
-			m_currentFaceNormal.x = 1;
-		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y, epsilon))
-			m_currentFaceNormal.y = -1;
-		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y + 1.f, epsilon))
-			m_currentFaceNormal.y = 1;
-	}
-}
+//void Engine::GetBlockAtCursor(int& x, int& y, int& z)
+//{
+//	int x = Width() / 2;
+//	int y = Height() / 2;
+//
+//	GLint viewport[4];
+//	GLdouble modelview[16];
+//	GLdouble projection[16];
+//	GLfloat winX, winY, winZ;
+//	GLdouble posX, posY, posZ;
+//
+//	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+//	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+//	glGetIntegerv(GL_VIEWPORT, viewport);
+//
+//	winX = (float)x;
+//	winY = (float)viewport[3] - (float)y;
+//	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+//
+//	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+//
+//	posX += .5f;
+//	posY += .5f;
+//	posZ += .5f;
+//
+//	// Le cast vers int marche juste pour les valeurs entiere, utiliser une fonction de la libc si besoin
+//	// de valeurs negatives
+//	int px = (int)(posX);
+//	int py = (int)(posY);
+//	int pz = (int)(posZ);
+//
+//	bool found = false;
+//
+//	if ((m_player.GetPositon() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECTION_DISTANCE)
+//	{
+//		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
+//		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
+//		// le vrai bloc. Le vrai bloc peut etre different a cause d'erreurs de precision de nos
+//		// nombres flottants (si z = 14.999 par exemple, et qu'il n'y a pas de blocs a la position
+//		// 14 (apres arrondi vers l'entier) on doit trouver et retourner le bloc en position 15 s'il existe
+//		// A cause des erreurs de precisions, ils arrive que le cote d'un bloc qui doit pourtant etre a la
+//		// position 15 par exemple nous retourne plutot la position 15.0001
+//		for (int x = px - 1; !found && x <= px + 1; ++x)
+//		{
+//			for (int y = py - 1; !found && x >= 0 && y <= py + 1; ++y)
+//			{
+//				for (int z = pz - 1; !found && y >= 0 && z <= pz + 1; ++z)
+//				{
+//					if (z >= 0)
+//					{
+//						BlockType bt = BlockAt((float)x, (float)y, (float)z);
+//						if (bt == BTYPE_AIR)
+//							continue;
+//
+//						m_currentBlock.x = x;
+//						m_currentBlock.y = y;
+//						m_currentBlock.z = z;
+//
+//						if (InRangeWithEpsilon<float>((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posZ, (float)z, (float)z + 1.f, 0.05f))
+//						{
+//							found = true;
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	if (!found)
+//	{
+//		m_currentBlock.x = -1;
+//	}
+//	else
+//	{
+//		// Find on which face of the bloc we got an hit
+//		m_currentFaceNormal.Zero();
+//
+//		const float epsilon = 0.005f;
+//
+//		// Front et back:
+//		if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z, epsilon))
+//			m_currentFaceNormal.z = -1;
+//		else if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z + 1.f, epsilon))
+//			m_currentFaceNormal.z = 1;
+//		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x, epsilon))
+//			m_currentFaceNormal.x = -1;
+//		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x + 1.f, epsilon))
+//			m_currentFaceNormal.x = 1;
+//		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y, epsilon))
+//			m_currentFaceNormal.y = -1;
+//		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y + 1.f, epsilon))
+//			m_currentFaceNormal.y = 1;
+//	}
+//}
 

@@ -51,6 +51,7 @@ private:
     void SafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ);
     void DrawHud(int fps, int gameTime, int crossSize);
     void GetBlockAtCursor(int& x, int& y, int& z);
+    BlockType BlockAt(int x, int y, int z);
 
     template <class T>
     static bool EqualWithEpsilon(const T& v1, const T& v2, T epsilon = T(0.0001))
@@ -85,6 +86,7 @@ private:
     Texture m_textureFullScreenON;
     Texture m_textureFullScreenOFF;
     Texture m_textureFullScreen;
+    Texture m_textureLogo;
 
     std::map<BlockType, std::vector<int>> m_BlockType;
 
@@ -100,12 +102,13 @@ private:
     Array2d<Chunk*> m_chunks;
 
     BlockInfo* m_blockinfo[BTYPE_FIN];
+    
 
     const int m_crossSize = 20;
     const int buttonWidth = 200; // Largeur
     const int buttonHeight = 55; // Hauteur
     const int arrowbuttonWidth = 50; // Largeur des boutons de fleches
-    const int FpsButtony = 200; // Position en y des boutons de fps
+    const int FpsButtony = 200; // Position en y des boutons des fps
     
 
     int mousex = 0;
@@ -113,7 +116,6 @@ private:
     int m_chunkPositionX = 0;
     int m_chunkPositionY = 0;
     int m_ChunkCount = 0;
-    int m_currentBlock = 0;
     int m_MaxFps = 0;
 
     bool m_Plusx = true;
