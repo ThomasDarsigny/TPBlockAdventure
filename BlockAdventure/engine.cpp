@@ -81,41 +81,7 @@ void Engine::Init()
 							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_GRASS);
 					}
 				}
-			}
-
-			// Escalier
-			nouveauchunk->SetBlock(6, 5, 7, BTYPE_WOODPLANK);
-			nouveauchunk->SetBlock(7, 6, 7, BTYPE_WOODPLANK);
-			nouveauchunk->SetBlock(8, 7, 7, BTYPE_WOODPLANK);
-			nouveauchunk->SetBlock(9, 8, 7, BTYPE_WOODPLANK);
-
-			// Passage
-			nouveauchunk->SetBlock(11, 5, 1, BTYPE_DIRT);
-			nouveauchunk->SetBlock(11, 6, 1, BTYPE_DIRT);
-			nouveauchunk->SetBlock(11, 7, 1, BTYPE_GRASS);
-			nouveauchunk->SetBlock(11, 7, 2, BTYPE_GRASS);
-			nouveauchunk->SetBlock(11, 7, 3, BTYPE_GRASS);
-			nouveauchunk->SetBlock(11, 6, 3, BTYPE_DIRT);
-			nouveauchunk->SetBlock(11, 5, 3, BTYPE_DIRT);
-
-			//Mur axe des Z
-			for (int i = 5; i <= 8; i++)
-			{
-				nouveauchunk->SetBlock(5, i, 10, BTYPE_SLIME);
-				nouveauchunk->SetBlock(5, i, 11, BTYPE_DIRT);
-				nouveauchunk->SetBlock(5, i, 12, BTYPE_DIRT);
-				nouveauchunk->SetBlock(5, i, 13, BTYPE_DIAMOND);
-				nouveauchunk->SetBlock(5, i, 14, BTYPE_BEDROCK);
-			}
-
-			//Mur axe des X
-			for (int i = 5; i <= 8; i++) {
-				nouveauchunk->SetBlock(14, i, 14, BTYPE_SAND);
-				nouveauchunk->SetBlock(13, i, 14, BTYPE_DIRT);
-				nouveauchunk->SetBlock(12, i, 14, BTYPE_COAL);
-				nouveauchunk->SetBlock(11, i, 14, BTYPE_IRON);
-				nouveauchunk->SetBlock(10, i, 14, BTYPE_GOLD);
-			}
+			}			
 			m_ChunkCount++;
 		}
 	}
@@ -210,7 +176,6 @@ void Engine::LoadTextures()
 	LoadTexture(m_texture30Fps, TEXTURE_PATH "30Fps.png");
 	LoadTexture(m_texture60Fps, TEXTURE_PATH "60Fps.png");
 	LoadTexture(m_texture120Fps, TEXTURE_PATH "120Fps.png");
-	LoadTexture(m_texture144Fps, TEXTURE_PATH "144Fps.png");
 	LoadTexture(m_texture240Fps, TEXTURE_PATH "240Fps.png");
 	LoadTexture(m_textureFullScreenON, TEXTURE_PATH "FullscreenON.png");
 	LoadTexture(m_textureFullScreenOFF, TEXTURE_PATH "FullscreenOFF.png");
@@ -515,7 +480,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	glEnable(GL_ALPHA_TEST);
 	glEnd();
 
-	if (m_keyESC)
+	if (m_keyESC && !m_Settings)
 	{
 		const int BacktoGameButtony = 0.6 * Height();
 		const int SettingsButtony = 0.5 * Height();
@@ -579,11 +544,15 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	else if (m_Settings)
 	{
 		const int LeftArrowButtonx = Width() / 2 - 150;
-		const int RightArrowButtonx = Width() / 2 + 100;
-		const int Buttonx = Width() / 2 - buttonWidth / 2;
 		const int LeftArrowButtony = 0.6 * Height();
+
+		const int RightArrowButtonx = Width() / 2 + 100;
 		const int RightArrowButtony = 0.6 * Height();
+
+		const int Buttonx = Width() / 2 - buttonWidth / 2;
 		const int FpsButtony = 0.6 * Height();
+		const int FullscreenButtony = 0.5 * Height();
+		const int BacktoGameButtony = 0.4 * Height();
 
 		//Button decrease Max Fps
 		glDisable(GL_BLEND);
@@ -607,9 +576,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		//Button Fps
 		glDisable(GL_BLEND);
 		glDisable(GL_ALPHA_TEST);
-
-		m_texture60Fps.Bind();	
-
+		m_texture30Fps.Bind();
 		glLoadIdentity();
 		glTranslated(Buttonx, FpsButtony, 0); //Location
 		glBegin(GL_QUADS);
@@ -626,7 +593,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		glEnd();
 
 		//Button increase Max Fps
-        glDisable(GL_BLEND);
+		glDisable(GL_BLEND);
 		glDisable(GL_ALPHA_TEST);
 		m_textureRightArrow.Bind();
 		glLoadIdentity();
@@ -644,12 +611,31 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		glEnable(GL_ALPHA_TEST);
 		glEnd();
 
-		//Button Fps
+		//Button Fullscreen
 		glDisable(GL_BLEND);
 		glDisable(GL_ALPHA_TEST);
-		m_texture60Fps.Bind();
+		m_textureFullScreenON.Bind();
 		glLoadIdentity();
-		glTranslated(Buttonx, FpsButtony, 0); //Location
+		glTranslated(Buttonx, FullscreenButtony, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+
+		//Button Back to Game
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_textureBacktoGameButton.Bind();
+		glLoadIdentity();
+		glTranslated(Buttonx, BacktoGameButtony, 0); //Location
 		glBegin(GL_QUADS);
 		glTexCoord2f(0, 0);
 		glVertex2i(0, 0);
@@ -700,9 +686,6 @@ void Engine::KeyPressEvent(unsigned char key)
 {
 	switch (key)
 	{
-	case 15: // P
-		Stop();
-		break;
 	case 36: // ESC
 		if (!m_keyESC)
 		{
@@ -789,7 +772,7 @@ void Engine::MouseMoveEvent(int x, int y)
 		m_player.TurnTopBottom(y * m_sensitivity);
 		CenterMouse();
 	}
-	else 
+	else
 	{
 		mousex = x;
 		mousey = -(y - Height());
@@ -805,61 +788,98 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 		const int BacktoGameButtony = 0.6 * Height();
 		const int SettingsButtony = 0.5 * Height();
 		const int QuitButtony = 0.4 * Height();
+		const int FullscreenButtony = 0.5 * Height();
+		const int BackButtony = 0.4 * Height();
 		const int LeftArrowButtony = 0.6 * Height();
 		const int LeftArrowButtonx = Width() / 2 - 150;
 		const int RightArrowButtony = 0.6 * Height();
 		const int RightArrowButtonx = Width() / 2 + 100;
-		const int Buttonx = Width() / 2 - buttonWidth / 2;		
+		const int Buttonx = Width() / 2 - buttonWidth / 2;
 
-		//Settings
+		//Options
 		if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= SettingsButtony && y <= SettingsButtony + buttonHeight || m_Settings)
-		{			
-			// TODO : Faire les positions pour les boutons des settings . . . 			
-
+		{
 			
-			if (m_Settings) 
+			// TODO : Faire les positions pour les boutons des settings . . . 				
+			if (m_Settings)
 			{
-					//Button decrease Max Fps
+				//Button decrease Max Fps
 				if (x >= LeftArrowButtonx && x <= LeftArrowButtonx + arrowbuttonWidth && y >= LeftArrowButtony && y <= LeftArrowButtony + buttonHeight)
 				{
-					if (m_MaxFps > 30)
-						m_MaxFps -= 30;
+					if (m_MaxFps >= 30 && m_MaxFps <= 240 && m_MaxFps != 30)
+					{
+						m_MaxFps / 2;
+
+						if (m_MaxFps == 30)
+						{
+							m_textureFPS = m_texture30Fps;
+							m_textureFPS.Bind();
+						}
+						else if (m_MaxFps == 60)
+						{
+							m_textureFPS = m_texture60Fps;
+							m_texture60Fps.Bind();
+						}
+						else if (m_MaxFps == 120)
+						{
+							m_textureFPS = m_texture120Fps;
+							m_texture120Fps.Bind();
+						}
+						else if (m_MaxFps == 240)
+						{
+							m_textureFPS = m_texture240Fps;
+							m_texture240Fps.Bind();
+						}
+					}
 				}
 				//Button increase Max Fps
 				else if (x >= RightArrowButtonx && x <= RightArrowButtonx + arrowbuttonWidth && y >= RightArrowButtony && y <= RightArrowButtony + buttonHeight)
 				{
-					if (m_MaxFps < 240)
-						m_MaxFps += 30;
+					if (m_MaxFps >= 30 && m_MaxFps <= 240 && m_MaxFps != 240)
+					{
+						m_MaxFps * 2;
+
+						if (m_MaxFps == 30)
+						{
+							m_textureFPS = m_texture30Fps;
+							m_texture30Fps.Bind();
+						}
+						else if (m_MaxFps == 60)
+						{
+							m_textureFPS = m_texture60Fps;
+							m_texture60Fps.Bind();
+						}
+						else if (m_MaxFps == 120)
+						{
+							m_textureFPS = m_texture120Fps;
+							m_texture120Fps.Bind();
+						}
+						else if (m_MaxFps == 240)
+						{
+							m_textureFPS = m_texture240Fps;
+							m_texture240Fps.Bind();
+						}
+					}
 				}
-				//Button 30 Fps
-				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
+				//Button Fullscreen
+				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FullscreenButtony && y <= FullscreenButtony + buttonHeight)
 				{
-					m_MaxFps = 30;
+					if (IsFullscreen())
+					{
+						m_textureFullScreenON = m_textureFullScreenOFF;
+						m_textureFullScreenOFF.Bind();
+					}
+					else
+					{
+						m_textureFullScreenOFF = m_textureFullScreenON;
+						m_textureFullScreenON.Bind();
+					}
+					SetFullscreen(!IsFullscreen());
 				}
-				//Button 60 Fps
-				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
-				{
-					m_MaxFps = 60;
-				}
-				//Button 120 Fps
-				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
-				{
-					m_MaxFps = 120;
-				}
-				//Button 144 Fps
-				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
-				{
-					m_MaxFps = 144;
-				}
-				//Button 240 Fps
-				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
-				{
-					m_MaxFps = 240;
-				}				
-			}
-			m_Settings = !m_Settings;
+											
+			}			
+				m_Settings = true;
 		}
-		
 		// Back to game
 		else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= BacktoGameButtony && y <= BacktoGameButtony + buttonHeight)
 		{
@@ -897,5 +917,105 @@ int Engine::GetMaxChunk()
 	return VIEW_DISTANCE / CHUNK_SIZE_X;
 }
 
+//YA UNE METHODE ICI
 
+
+Void Engine::GetBlockAtCursor(int& x, int& y, int& z)
+{
+	int x = Width() / 2;
+	int y = Height() / 2;
+
+	GLint viewport[4];
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	GLfloat winX, winY, winZ;
+	GLdouble posX, posY, posZ;
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	winX = (float)x;
+	winY = (float)viewport[3] - (float)y;
+	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+
+	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+
+	posX += .5f;
+	posY += .5f;
+	posZ += .5f;
+
+	// Le cast vers int marche juste pour les valeurs entiere, utiliser une fonction de la libc si besoin
+	// de valeurs negatives
+	int px = (int)(posX);
+	int py = (int)(posY);
+	int pz = (int)(posZ);
+
+	bool found = false;
+
+	if ((m_player.GetPositon() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECTION_DISTANCE)
+	{
+		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
+		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
+		// le vrai bloc. Le vrai bloc peut etre different a cause d'erreurs de precision de nos
+		// nombres flottants (si z = 14.999 par exemple, et qu'il n'y a pas de blocs a la position
+		// 14 (apres arrondi vers l'entier) on doit trouver et retourner le bloc en position 15 s'il existe
+		// A cause des erreurs de precisions, ils arrive que le cote d'un bloc qui doit pourtant etre a la
+		// position 15 par exemple nous retourne plutot la position 15.0001
+		for (int x = px - 1; !found && x <= px + 1; ++x)
+		{
+			for (int y = py - 1; !found && x >= 0 && y <= py + 1; ++y)
+			{
+				for (int z = pz - 1; !found && y >= 0 && z <= pz + 1; ++z)
+				{
+					if (z >= 0)
+					{
+						BlockType bt = BlockAt((float)x, (float)y, (float)z);
+						if (bt == BTYPE_AIR)
+							continue;
+
+						// Skip water blocs
+						//if(bloc->Type == BT_WATER)
+						//    continue;
+
+						m_currentBlock.x = x;
+						m_currentBlock.y = y;
+						m_currentBlock.z = z;
+
+						if (InRangeWithEpsilon<float>((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posZ, (float)z, (float)z + 1.f, 0.05f))
+						{
+							found = true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (!found)
+	{
+		m_currentBlock.x = -1;
+	}
+	else
+	{
+		// Find on which face of the bloc we got an hit
+		m_currentFaceNormal.Zero();
+
+		const float epsilon = 0.005f;
+
+		// Front et back:
+		if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z, epsilon))
+			m_currentFaceNormal.z = -1;
+		else if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z + 1.f, epsilon))
+			m_currentFaceNormal.z = 1;
+		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x, epsilon))
+			m_currentFaceNormal.x = -1;
+		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x + 1.f, epsilon))
+			m_currentFaceNormal.x = 1;
+		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y, epsilon))
+			m_currentFaceNormal.y = -1;
+		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y + 1.f, epsilon))
+			m_currentFaceNormal.y = 1;
+	}
+}
 

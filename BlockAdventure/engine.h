@@ -25,7 +25,7 @@ public:
     virtual void UnloadResource() override;
     virtual void Render(float elapsedTime) override;
 
-    void DrawHud(int fps, int gameTime, int crossSize);
+    
 
     virtual void KeyPressEvent(unsigned char key) override;
     virtual void KeyReleaseEvent(unsigned char key) override;
@@ -49,7 +49,8 @@ private:
     void checkCollisionY(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int blockPositionZ);
     void checkCollisionZ(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int getblockz);
     void SafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ);
-
+    void DrawHud(int fps, int gameTime, int crossSize);
+    void GetBlockAtCursor(int& x, int& y, int& z);
 
     template <class T>
     static bool EqualWithEpsilon(const T& v1, const T& v2, T epsilon = T(0.0001))
@@ -79,11 +80,11 @@ private:
     Texture m_texture30Fps;
     Texture m_texture60Fps;
     Texture m_texture120Fps;
-    Texture m_texture144Fps;
     Texture m_texture240Fps;
     Texture m_textureFPS;
     Texture m_textureFullScreenON;
     Texture m_textureFullScreenOFF;
+    Texture m_textureFullScreen;
 
     std::map<BlockType, std::vector<int>> m_BlockType;
 
