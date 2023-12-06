@@ -6,7 +6,7 @@
 #include"transformation.h"
 #include "textureatlas.h"
 
-Engine::Engine() : m_player(Vector3f(50.0f, 82.0f, 100.0f)), m_textureAtlas(20), m_chunks(GetMaxChunk(), GetMaxChunk())
+Engine::Engine() : m_player(Vector3f(50.0f, 75.0f, 100.0f)), m_textureAtlas(20), m_chunks(GetMaxChunk(), GetMaxChunk())
 {
 }
 Engine::~Engine()
@@ -24,40 +24,38 @@ void Engine::Init()
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_CULL_FACE);
 
-		// Lumière
-		GLfloat light0Pos[4] = { 0.0f, 8.0f, 0.0f, 1.0f };
-		GLfloat light0Amb[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
-		GLfloat light0Diff[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
-		GLfloat light0Spec[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	// Lumière
+	GLfloat light0Pos[4] = { 0.0f, 8.0f, 0.0f, 1.0f };
+	GLfloat light0Amb[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	GLfloat light0Diff[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
+	GLfloat light0Spec[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-		glEnable(GL_LIGHT0);
-		glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
-		glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
-		glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
 
-		// Matériaux
-		GLfloat materialAmbDiff[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
-		GLfloat materialSpecular[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
-		GLfloat materialShininess = 10.0f;
+	// Matériaux
+	GLfloat materialAmbDiff[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
+	GLfloat materialSpecular[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	GLfloat materialShininess = 10.0f;
 
-		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, materialAmbDiff);
-		glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
-		glMaterialf(GL_FRONT, GL_SHININESS, materialShininess);
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, materialAmbDiff);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+	glMaterialf(GL_FRONT, GL_SHININESS, materialShininess);
 
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
-		glEnable(GL_DEPTH_TEST);
-		glShadeModel(GL_SMOOTH);
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LINE_SMOOTH);
-	
-	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
+	glEnable(GL_DEPTH_TEST);
+	glShadeModel(GL_SMOOTH);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LINE_SMOOTH);
 
 	CenterMouse();
 	HideCursor();
-	
+
 	const int m_maxChunk = GetMaxChunk();
 	Perlin perlin(16.f, 10.f, 0.5f, 95.f);
 
@@ -68,15 +66,30 @@ void Engine::Init()
 
 			for (int blockX = 0; blockX < CHUNK_SIZE_X; ++blockX) {
 				for (int blockZ = 0; blockZ < CHUNK_SIZE_Z; ++blockZ) {
+					// Calcul de la hauteur du terrain en utilisant le bruit de Perlin
+					int terrainHeight = static_cast<int>((perlin.Get((float)(x * CHUNK_SIZE_X + blockX) / 2000.f, (float)(y * CHUNK_SIZE_Z + blockZ) / 2000.f) + 1.0f) * 0.5f * CHUNK_SIZE_Y);
 					for (int blockY = 0; blockY <= CHUNK_SIZE_Y; ++blockY) {
-						// Calcul de la hauteur du terrain en utilisant le bruit de Perlin
-						int terrainHeight = static_cast<int>((perlin.Get((float)(x * CHUNK_SIZE_X + blockX) / 2000.f, (float)(blockY + CHUNK_SIZE_Y / 2000), (float)(y * CHUNK_SIZE_Z + blockZ) / 2000.f) + 1.0f) * 0.5f * CHUNK_SIZE_Y);
-
 						// Définition des blocs en fonction de la hauteur du terrain
-						if (blockY == terrainHeight - 1)
-							nouveauchunk->SetBlock(blockX, terrainHeight, blockZ, BTYPE_DIRT);
-						else if (blockY > terrainHeight - 6)
-							nouveauchunk->SetBlock(blockX, terrainHeight, blockZ, BTYPE_GRASS);
+						if (blockY < terrainHeight - 20)
+						{
+							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_BEDROCK);
+							continue;
+						}
+						if (blockY < terrainHeight - 10)
+						{
+							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_STONE);
+							continue;
+						}
+						if (blockY < terrainHeight - 3)
+						{
+							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_DIRT);
+							continue;
+						}
+						if (blockY < terrainHeight)
+						{
+							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_GRASS);
+							continue;
+						}
 					}
 				}
 			}
@@ -166,8 +179,6 @@ void Engine::LoadTextures()
 	LoadTexture(m_textureQuitButton, TEXTURE_PATH "QuitButton.png");
 	LoadTexture(m_textureBacktoGameButton, TEXTURE_PATH "BacktoGameButton.png");
 	LoadTexture(m_textureBackButton, TEXTURE_PATH "BackButton.png");
-	LoadTexture(m_textureLeftArrow, TEXTURE_PATH "LeftArrow.png");
-	LoadTexture(m_textureRightArrow, TEXTURE_PATH "RightArrow.png");
 	LoadTexture(m_texture30Fps, TEXTURE_PATH "30Fps.png");
 	LoadTexture(m_texture60Fps, TEXTURE_PATH "60Fps.png");
 	LoadTexture(m_texture120Fps, TEXTURE_PATH "120Fps.png");
@@ -175,6 +186,7 @@ void Engine::LoadTextures()
 	LoadTexture(m_textureFullScreenON, TEXTURE_PATH "FullscreenON.png");
 	LoadTexture(m_textureFullScreenOFF, TEXTURE_PATH "FullscreenOFF.png");
 	LoadTexture(m_textureLogo, TEXTURE_PATH "logo.png");
+	LoadTexture(m_textureFPS, TEXTURE_PATH "FPSSETTINGS.png");
 }
 
 void Engine::UnloadResource()
@@ -242,24 +254,24 @@ void Engine::Render(float elapsedTime)
 
 BlockType Engine::BlockAt(int x, int y, int z)
 {
-	int chunkposy = static_cast<int>(y / CHUNK_SIZE_Y);
+	int chunkposy = static_cast<int>(z / CHUNK_SIZE_Z);
 	int chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
 
-	if (x < 0 && z < 0)
-	{
-		chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
-		chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
-	}
-	else if (x < 0)
-	{
-		chunkposy = static_cast<int>(z / CHUNK_SIZE_Z);
-		chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
-	}
-	else if (z < 0)
-	{
-		chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
-		chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
-	}
+	// if (x < 0 && z < 0)
+	// {
+	// 	chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
+	// 	chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
+	// }
+	// else if (x < 0)
+	// {
+	// 	chunkposy = static_cast<int>(z / CHUNK_SIZE_Z);
+	// 	chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
+	// }
+	// else if (z < 0)
+	// {
+	// 	chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
+	// 	chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
+	// }
 
 	bool safe = true;
 	int max = GetMaxChunk();
@@ -471,7 +483,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 
 	ss.str("");
 	ss << " Position: " << m_player.GetPositon(); // Position du joueur
-	PrintText(0, Height() - 90, ss.str());
+	PrintText(0, Height() - 75, ss.str());
 
 	//Crosshair
 	m_textureCrosshair.Bind();
@@ -572,40 +584,15 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	}
 	else if (m_keyESC && m_Settings)
 	{
-		const int LeftArrowButtonx = Width() / 2 - 150;
-		const int LeftArrowButtony = 0.6 * Height();
-
-		const int RightArrowButtonx = Width() / 2 + 100;
-		const int RightArrowButtony = 0.6 * Height();
-
 		const int Buttonx = Width() / 2 - buttonWidth / 2;
 		const int FpsButtony = 0.6 * Height();
 		const int FullscreenButtony = 0.5 * Height();
 		const int BacktoGameButtony = 0.4 * Height();
 
-		//Button decrease Max Fps
+		//Button Fps Settings
 		glDisable(GL_BLEND);
 		glDisable(GL_ALPHA_TEST);
-		m_textureLeftArrow.Bind();
-		glLoadIdentity();
-		glTranslated(LeftArrowButtonx, LeftArrowButtony, 0); //Location
-		glBegin(GL_QUADS);
-		glTexCoord2f(0, 0);
-		glVertex2i(0, 0);
-		glTexCoord2f(1, 0);
-		glVertex2i(arrowbuttonWidth, 0);
-		glTexCoord2f(1, 1);
-		glVertex2i(arrowbuttonWidth, buttonHeight);
-		glTexCoord2f(0, 1);
-		glVertex2i(0, buttonHeight);
-		glEnable(GL_BLEND);
-		glEnable(GL_ALPHA_TEST);
-		glEnd();
-
-		//Button Fps
-		glDisable(GL_BLEND);
-		glDisable(GL_ALPHA_TEST);
-		m_texture30Fps.Bind();
+		m_textureFPS.Bind();
 		glLoadIdentity();
 		glTranslated(Buttonx, FpsButtony, 0); //Location
 		glBegin(GL_QUADS);
@@ -615,25 +602,6 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		glVertex2i(buttonWidth, 0);
 		glTexCoord2f(1, 1);
 		glVertex2i(buttonWidth, buttonHeight);
-		glTexCoord2f(0, 1);
-		glVertex2i(0, buttonHeight);
-		glEnable(GL_BLEND);
-		glEnable(GL_ALPHA_TEST);
-		glEnd();
-
-		//Button increase Max Fps
-		glDisable(GL_BLEND);
-		glDisable(GL_ALPHA_TEST);
-		m_textureRightArrow.Bind();
-		glLoadIdentity();
-		glTranslated(RightArrowButtonx, RightArrowButtony, 0); //Location
-		glBegin(GL_QUADS);
-		glTexCoord2f(0, 0);
-		glVertex2i(0, 0);
-		glTexCoord2f(1, 0);
-		glVertex2i(arrowbuttonWidth, 0);
-		glTexCoord2f(1, 1);
-		glVertex2i(arrowbuttonWidth, buttonHeight);
 		glTexCoord2f(0, 1);
 		glVertex2i(0, buttonHeight);
 		glEnable(GL_BLEND);
@@ -659,12 +627,116 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		glEnable(GL_ALPHA_TEST);
 		glEnd();
 
-		//Button Back to Game
+		//Button Back
 		glDisable(GL_BLEND);
 		glDisable(GL_ALPHA_TEST);
 		m_textureBackButton.Bind();
 		glLoadIdentity();
 		glTranslated(Buttonx, BacktoGameButtony, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+	}
+	else if (m_keyESC && m_Settings && !m_FPSSettings)
+	{
+		const int Buttonx = Width() / 2 - buttonWidth / 2;
+		const int FpsButtony = 0.7 * Height();
+		const int FpsButton60y = 0.6 * Height();
+		const int FpsButton120y = 0.5 * Height();
+		const int FpsButton240y = 0.4 * Height();
+		const int BacktoBack = 0.3 * Height();
+
+		//Button 30 FPS
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_texture30Fps.Bind();
+		glLoadIdentity();
+		glTranslated(Buttonx, FpsButtony, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+
+		//Button 60 FPS
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_texture60Fps.Bind();
+		glLoadIdentity();
+		glTranslated(Buttonx, FpsButton60y, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+
+		//Button 120 FPS
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_texture120Fps.Bind();
+		glLoadIdentity();
+		glTranslated(Buttonx, FpsButton120y, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+
+		//Button 240 FPS
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_texture240Fps.Bind();
+		glLoadIdentity();
+		glTranslated(Buttonx, FpsButton240y, 0); //Location
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex2i(0, 0);
+		glTexCoord2f(1, 0);
+		glVertex2i(buttonWidth, 0);
+		glTexCoord2f(1, 1);
+		glVertex2i(buttonWidth, buttonHeight);
+		glTexCoord2f(0, 1);
+		glVertex2i(0, buttonHeight);
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glEnd();
+
+		//Button Back
+		glDisable(GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		m_textureBackButton.Bind();
+		glLoadIdentity();
+		glTranslated(Buttonx, BacktoBack, 0); //Location
 		glBegin(GL_QUADS);
 		glTexCoord2f(0, 0);
 		glVertex2i(0, 0);
@@ -715,9 +787,6 @@ void Engine::KeyPressEvent(unsigned char key)
 {
 	switch (key)
 	{
-		case 15: // P
-		
-			break;
 	case 36: // ESC
 		if (!m_keyESC)
 		{
@@ -816,81 +885,55 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 	y = -(y - Height()); // Invert the y axis to be consistent with the 2D drawing system
 	if (button == MOUSE_BUTTON_LEFT && m_keyESC)
 	{
-		SetMaxFps(m_MaxFps);
 		const int BacktoGameButtony = 0.6 * Height();
 		const int SettingsButtony = 0.5 * Height();
 		const int QuitButtony = 0.4 * Height();
 		const int FullscreenButtony = 0.5 * Height();
 		const int BackButtony = 0.4 * Height();
-		const int LeftArrowButtony = 0.6 * Height();
-		const int LeftArrowButtonx = Width() / 2 - 150;
-		const int RightArrowButtony = 0.6 * Height();
-		const int RightArrowButtonx = Width() / 2 + 100;
+		const int FpsButtony = 0.6 * Height();
+		const int FpsButton60y = 0.5 * Height();
+		const int FpsButton120y = 0.4 * Height();
+		const int FpsButton240y = 0.3 * Height();
 		const int Buttonx = Width() / 2 - buttonWidth / 2;
+		const int BacktoBack = 0.3 * Height();
 
 		//Options
 		if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= SettingsButtony && y <= SettingsButtony + buttonHeight || m_Settings)
 		{
 			if (m_Settings)
 			{
-				//Button decrease Max Fps
-				if (x >= LeftArrowButtonx && x <= LeftArrowButtonx + arrowbuttonWidth && y >= LeftArrowButtony && y <= LeftArrowButtony + buttonHeight)
+				//Button FPS Settings
+				if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight)
 				{
-					if (m_MaxFps >= 30 && m_MaxFps <= 240 && m_MaxFps != 30)
+					m_FPSSettings = true;
+					if (m_FPSSettings)
 					{
-
-						if (m_MaxFps == 30)
-						{
-							m_textureFPS = m_texture30Fps;
-							m_textureFPS.Bind();
+						if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButtony && y <= FpsButtony + buttonHeight) {
+							SetMaxFps(30);
 						}
-						else if (m_MaxFps == 60)
-						{
-							m_textureFPS = m_texture60Fps;
-							m_texture60Fps.Bind();
+						else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButton60y && y <= FpsButton60y + buttonHeight) {
+							SetMaxFps(60);
 						}
-						else if (m_MaxFps == 120)
-						{
-							m_textureFPS = m_texture120Fps;
-							m_texture120Fps.Bind();
+						else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButton120y && y <= FpsButton120y + buttonHeight) {
+							SetMaxFps(120);
 						}
-						else if (m_MaxFps == 240)
+						else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButton240y && y <= FpsButton240y + buttonHeight) {
+							SetMaxFps(240);
+						}
+						else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= BacktoBack && y <= BacktoBack + buttonHeight)
 						{
-							m_textureFPS = m_texture240Fps;
-							m_texture240Fps.Bind();
+							m_Settings = true;
+							m_keyESC = false;
 						}
 					}
-				}
-				//Button increase Max Fps
-				else if (x >= RightArrowButtonx && x <= RightArrowButtonx + arrowbuttonWidth && y >= RightArrowButtony && y <= RightArrowButtony + buttonHeight)
-				{
-					if (m_MaxFps >= 30 && m_MaxFps <= 240 && m_MaxFps != 240)
+					else
 					{
-
-						if (m_MaxFps == 30)
-						{
-							m_textureFPS = m_texture30Fps;
-							m_texture30Fps.Bind();
-						}
-						else if (m_MaxFps == 60)
-						{
-							m_textureFPS = m_texture60Fps;
-							m_texture60Fps.Bind();
-						}
-						else if (m_MaxFps == 120)
-						{
-							m_textureFPS = m_texture120Fps;
-							m_texture120Fps.Bind();
-						}
-						else if (m_MaxFps == 240)
-						{
-							m_textureFPS = m_texture240Fps;
-							m_texture240Fps.Bind();
-						}
+						m_FPSSettings = true;
 					}
 				}
+
 				//Button Fullscreen
-				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FullscreenButtony && y <= FullscreenButtony + buttonHeight)
+				if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FullscreenButtony && y <= FullscreenButtony + buttonHeight)
 				{
 					if (IsFullscreen())
 					{
@@ -904,14 +947,12 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 					}
 					SetFullscreen(!IsFullscreen());
 				}
-				
-				
-				
-				//Back
+
+				//Button Back
 				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= BackButtony && y <= BackButtony + buttonHeight)
 				{
 					m_Settings = false;
-					m_keyESC = false;
+					m_keyESC = true;
 				}
 			}
 			else
@@ -919,7 +960,7 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 				m_Settings = true;
 			}
 		}
-		// Back to game
+		// Button Back to Game
 		else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= BacktoGameButtony && y <= BacktoGameButtony + buttonHeight)
 		{
 			m_keyESC = false;
@@ -931,35 +972,29 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 			Stop();
 	}
 
-	if (button == MOUSE_BUTTON_LEFT && !m_keyESC)
+	else if (button == MOUSE_BUTTON_LEFT && !m_keyESC)
 	{
-		if (m_currentBlock.x != -1)
-		{
-			int* x = new int(m_player.GetPositon().x);
-			int* y = new int(m_player.GetPositon().y);
-			int* z = new int(m_player.GetPositon().z);
+		int x = m_player.GetPositon().x;
+		int y = m_player.GetPositon().y;
+		int z = m_player.GetPositon().z;
 
-			GetBlockAtCursor(*x, *y, *z);
-			// On detruit le bloc
-			SetBlockAt(m_currentBlock.x, m_currentBlock.y, m_currentBlock.z, BTYPE_AIR);
-			// On met a jour les chunks
-			UpdateChunks(m_currentBlock.x, m_currentBlock.y, m_currentBlock.z);
-		}
+		GetBlockAtCursor(x, y, z); // bro je peux pas aller a la methode
+		// On detruit le bloc
+		SetBlockAt(m_currentBlock.x, m_currentBlock.y, m_currentBlock.z, BTYPE_AIR);
+		// On met a jour les chunks
+		UpdateChunks(m_currentBlock.x, m_currentBlock.y, m_currentBlock.z);
 	}
 
 	else	if (button == MOUSE_BUTTON_RIGHT && !m_keyESC)
 	{
-		if (m_currentBlock.x != -1)
-		{
-			int* x = new int(m_player.GetPositon().x);
-			int* y = new int(m_player.GetPositon().y);
-			int* z = new int(m_player.GetPositon().z);
-			GetBlockAtCursor(*x, *y, *z);
-			// On place le bloc
-			SetBlockAt(m_currentBlock.x + (int)m_currentFaceNormal.x, m_currentBlock.y + (int)m_currentFaceNormal.y, m_currentBlock.z + (int)m_currentFaceNormal.z, BTYPE_GRASS);
-			// On met a jour les chunks
-			UpdateChunks(m_currentBlock.x + (int)m_currentFaceNormal.x, m_currentBlock.y + (int)m_currentFaceNormal.y, m_currentBlock.z + (int)m_currentFaceNormal.z);
-		}
+		int x = m_player.GetPositon().x;
+		int y = m_player.GetPositon().y;
+		int z = m_player.GetPositon().z;
+		GetBlockAtCursor(x, y, z);
+		// On place le bloc
+		SetBlockAt(m_currentBlock.x + (int)m_currentFaceNormal.x, m_currentBlock.y + (int)m_currentFaceNormal.y, m_currentBlock.z + (int)m_currentFaceNormal.z, BTYPE_GRASS);
+		// On met a jour les chunks
+		UpdateChunks(m_currentBlock.x + (int)m_currentFaceNormal.x, m_currentBlock.y + (int)m_currentFaceNormal.y, m_currentBlock.z + (int)m_currentFaceNormal.z);
 	}
 }
 
@@ -987,7 +1022,7 @@ int Engine::GetMaxChunk()
 	return VIEW_DISTANCE / CHUNK_SIZE_X;
 }
 
-void Engine::GetBlockAtCursor(int& x, int& y, int& z)
+void Engine::GetBlockAtCursor(int x, int y, int z)
 {
 	x = Width() / 2;
 	y = Height() / 2;
@@ -1032,20 +1067,23 @@ void Engine::GetBlockAtCursor(int& x, int& y, int& z)
 		// position 15 par exemple nous retourne plutot la position 15.0001
 		for (int x = px - 1; !found && x <= px + 1; ++x)
 		{
-			for (int y = py - 1; !found && x >= 0 && y <= py + 1; ++y)
+			for (int y = py - 2; !found && x >= 0 && y <= py + 2; ++y)
 			{
 				for (int z = pz - 1; !found && y >= 0 && z <= pz + 1; ++z)
 				{
 					if (z >= 0)
 					{
-						BlockType bt = BlockAt((float)x, (float)y, (float)z);
-						if (bt == BTYPE_AIR || bt ==BTYPE_BEDROCK)
+						BlockType bt = BlockAt(x, y, z);
+
+						if (bt == BTYPE_AIR /* || bt == BTYPE_BEDROCK */)
 							continue;
 						m_currentBlock.x = x;
 						m_currentBlock.y = y;
 						m_currentBlock.z = z;
 
-						if (InRangeWithEpsilon<float>((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posZ, (float)z, (float)z + 1.f, 0.05f))
+						if (InRangeWithEpsilon<float>((float)posX, (float)x, (float)x + 1.f, 0.05f) &&
+							InRangeWithEpsilon<float>((float)posY, (float)y, (float)y + 1.f, 0.05f) &&
+							InRangeWithEpsilon<float>((float)posZ, (float)z, (float)z + 1.f, 0.05f))
 						{
 							found = true;
 						}
@@ -1054,7 +1092,6 @@ void Engine::GetBlockAtCursor(int& x, int& y, int& z)
 			}
 		}
 	}
-
 	if (!found)
 	{
 		m_currentBlock.x = -1;
@@ -1064,7 +1101,7 @@ void Engine::GetBlockAtCursor(int& x, int& y, int& z)
 		// Find on which face of the bloc we got an hit
 		m_currentFaceNormal.Zero();
 
-		const float epsilon = 0.005f;
+		const float epsilon = 0.05f;
 
 		// Front et back:
 		if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z, epsilon))

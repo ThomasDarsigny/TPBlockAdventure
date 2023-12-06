@@ -50,7 +50,7 @@ private:
     void checkCollisionZ(Chunk* chunk, const Vector3f& pos, Vector3f& delta, int blockPositionX, int getblockz);
     void SafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ);
     void DrawHud(int fps, int gameTime, int crossSize);
-    void GetBlockAtCursor(int& x, int& y, int& z);
+    void GetBlockAtCursor(int x, int y, int z);
 
     void SetBlockAt(int x, int y, int z, BlockType);
     void UpdateChunks(int x, int y, int z);
@@ -80,8 +80,7 @@ private:
     Texture m_textureQuitButton;
     Texture m_textureBackButton;
     Texture m_textureBacktoGameButton;
-    Texture m_textureLeftArrow;
-    Texture m_textureRightArrow;
+
     Texture m_texture30Fps;
     Texture m_texture60Fps;
     Texture m_texture120Fps;
@@ -114,7 +113,6 @@ private:
     const int m_crossSize = 20;
     const int buttonWidth = 200; // Largeur
     const int buttonHeight = 55; // Hauteur
-    const int arrowbuttonWidth = 50; // Largeur des boutons de fleches
     const int FpsButtony = 200; // Position en y des boutons des fps
     
 
@@ -135,6 +133,6 @@ private:
     bool m_keyFly = false;
     bool m_keyESC = false;
     bool m_Settings = false;
-    bool materialSettingsEnabled = true;
+    bool m_FPSSettings = false; 
 };
 #endif // ENGINE_H__

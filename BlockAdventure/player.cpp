@@ -16,7 +16,7 @@ void Player::TurnTopBottom(float value)
 {
 	m_rotX += value;
 	if (m_rotX < -90.0f) m_rotX = -90.0f; //Pour ne pas faire de tours en arrière
-	if (m_rotX > 90.0f) m_rotX = 90.0f;   //Pour ne pas faire de tours en avant
+	if (m_rotX > 90.0f) m_rotX = 90.0f;   //Pour ne pas faire de tours en avant 
 }
 
 Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool m_keyJump, bool m_keyFly, float elapsedTime)
@@ -49,6 +49,8 @@ Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool
 			}
 		}
 		else {
+			if (elapsedTime > 0.5f)
+				elapsedTime = 0.5f;
 			movement.y -= elapsedTime;
 		}
 	}
