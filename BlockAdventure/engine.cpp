@@ -57,7 +57,7 @@ void Engine::Init()
 	HideCursor();
 
 	const int m_maxChunk = GetMaxChunk();
-	Perlin perlin(16.f, 10.f, 0.5f, 95.f);
+	Perlin perlin(16.f, 25.f, 0.4f, 95.f);
 
 	for (int y = -m_maxChunk; y <= m_maxChunk; ++y) {
 		for (int x = -m_maxChunk; x <= m_maxChunk; ++x) {
@@ -256,23 +256,6 @@ BlockType Engine::BlockAt(int x, int y, int z)
 {
 	int chunkposy = static_cast<int>(z / CHUNK_SIZE_Z);
 	int chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
-
-	// if (x < 0 && z < 0)
-	// {
-	// 	chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
-	// 	chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
-	// }
-	// else if (x < 0)
-	// {
-	// 	chunkposy = static_cast<int>(z / CHUNK_SIZE_Z);
-	// 	chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
-	// }
-	// else if (z < 0)
-	// {
-	// 	chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
-	// 	chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
-	// }
-
 	bool safe = true;
 	int max = GetMaxChunk();
 	if ((chunkposx >= max && chunkposy >= max) || chunkposx >= max || chunkposy >= max)
@@ -521,7 +504,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	glEnable(GL_ALPHA_TEST);
 	glEnd();
 
-	if (m_keyESC && !m_Settings)
+	if (m_keyESC && !m_Settings && !m_FPSSettings)
 	{
 		const int BacktoGameButtony = 0.6 * Height();
 		const int SettingsButtony = 0.5 * Height();
@@ -582,7 +565,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		glEnable(GL_ALPHA_TEST);
 		glEnd();
 	}
-	else if (m_keyESC && m_Settings)
+	else if (m_keyESC && m_Settings && !m_FPSSettings)
 	{
 		const int Buttonx = Width() / 2 - buttonWidth / 2;
 		const int FpsButtony = 0.6 * Height();
@@ -646,14 +629,14 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		glEnable(GL_ALPHA_TEST);
 		glEnd();
 	}
-	else if (m_keyESC && m_Settings && !m_FPSSettings)
+	else if (m_keyESC && m_Settings && m_FPSSettings)
 	{
 		const int Buttonx = Width() / 2 - buttonWidth / 2;
 		const int FpsButtony = 0.7 * Height();
 		const int FpsButton60y = 0.6 * Height();
 		const int FpsButton120y = 0.5 * Height();
 		const int FpsButton240y = 0.4 * Height();
-		const int BacktoBack = 0.3 * Height();
+		const int BacktoBacky = 0.3 * Height();
 
 		//Button 30 FPS
 		glDisable(GL_BLEND);
@@ -736,7 +719,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		glDisable(GL_ALPHA_TEST);
 		m_textureBackButton.Bind();
 		glLoadIdentity();
-		glTranslated(Buttonx, BacktoBack, 0); //Location
+		glTranslated(Buttonx, BacktoBacky, 0); //Location
 		glBegin(GL_QUADS);
 		glTexCoord2f(0, 0);
 		glVertex2i(0, 0);
@@ -895,7 +878,7 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 		const int FpsButton120y = 0.4 * Height();
 		const int FpsButton240y = 0.3 * Height();
 		const int Buttonx = Width() / 2 - buttonWidth / 2;
-		const int BacktoBack = 0.3 * Height();
+		const int BacktoBacky = 0.3 * Height();
 
 		//Options
 		if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= SettingsButtony && y <= SettingsButtony + buttonHeight || m_Settings)
@@ -920,10 +903,11 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 						else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= FpsButton240y && y <= FpsButton240y + buttonHeight) {
 							SetMaxFps(240);
 						}
-						else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= BacktoBack && y <= BacktoBack + buttonHeight)
+						else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= BacktoBacky && y <= BacktoBacky + buttonHeight)
 						{
 							m_Settings = true;
 							m_keyESC = false;
+							m_FPSSettings = false;
 						}
 					}
 					else

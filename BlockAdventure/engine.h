@@ -112,9 +112,7 @@ private:
 
     const int m_crossSize = 20;
     const int buttonWidth = 200; // Largeur
-    const int buttonHeight = 55; // Hauteur
-    const int FpsButtony = 200; // Position en y des boutons des fps
-    
+    const int buttonHeight = 55; // Hauteur    
 
     int mousex = 0;
     int mousey = 0;     
