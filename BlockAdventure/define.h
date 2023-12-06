@@ -26,6 +26,6 @@ enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_GRASS, BTYPE_WOOD,
 #define TEXTURE_PATH        "../BlockAdventure/media/textures/"
 #define SHADER_PATH			"../BlockAdventure/media/shaders/"
 #define VIEW_DISTANCE       128
-#define MAX_SELECTION_DISTANCE 3.0f
+#define MAX_SELECTION_DISTANCE 10.0f
 
 #endif // DEFINE_H__

@@ -5,14 +5,10 @@
 #include "shader.h"
 #include"transformation.h"
 #include "textureatlas.h"
-//#include <SFML/Graphics.hpp>
 
-
-Engine::Engine() : m_player(Vector3f(0.0f, 0.0f, 0.0f)), m_textureAtlas(20), m_chunks(GetMaxChunk(), GetMaxChunk())
+Engine::Engine() : m_player(Vector3f(50.0f, 82.0f, 100.0f)), m_textureAtlas(20), m_chunks(GetMaxChunk(), GetMaxChunk())
 {
 }
-
-
 Engine::~Engine()
 {
 }
@@ -28,61 +24,64 @@ void Engine::Init()
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_CULL_FACE);
 
-	// Light
-	GLfloat light0Pos[4] = { 0.0f, 8 , 0, 1.0f };
-	GLfloat light0Amb[4] = { 1,1,1,1 };
-	GLfloat light0Diff[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
-	GLfloat light0Spec[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
+		// Lumière
+		GLfloat light0Pos[4] = { 0.0f, 8.0f, 0.0f, 1.0f };
+		GLfloat light0Amb[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
+		GLfloat light0Diff[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
+		GLfloat light0Spec[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	glEnable(GL_LIGHT0);
-	glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
+		glEnable(GL_LIGHT0);
+		glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
+		glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
+		glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
 
+		// Matériaux
+		GLfloat materialAmbDiff[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
+		GLfloat materialSpecular[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+		GLfloat materialShininess = 10.0f;
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
-	glEnable(GL_DEPTH_TEST);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LINE_SMOOTH);
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, materialAmbDiff);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+		glMaterialf(GL_FRONT, GL_SHININESS, materialShininess);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
+		glEnable(GL_DEPTH_TEST);
+		glShadeModel(GL_SMOOTH);
+		glEnable(GL_LIGHTING);
+		glEnable(GL_LINE_SMOOTH);
+	
+	
 
 	CenterMouse();
 	HideCursor();
-
+	
 	const int m_maxChunk = GetMaxChunk();
-	Perlin perlin(16, 6, 1, 95);
-	for (int y = -m_maxChunk; y <= m_maxChunk; ++y)
-	{
-		for (int x = -m_maxChunk; x <= m_maxChunk; ++x)
-		{
+	Perlin perlin(16.f, 10.f, 0.5f, 95.f);
+
+	for (int y = -m_maxChunk; y <= m_maxChunk; ++y) {
+		for (int x = -m_maxChunk; x <= m_maxChunk; ++x) {
 			Chunk* nouveauchunk = new Chunk();
 			m_chunks.Set(x, y, nouveauchunk);
 
-			for (int blockY = 0; blockY < 5; ++blockY)
-			{
-				for (int blockX = 0; blockX < CHUNK_SIZE_X; ++blockX)
-				{
-					for (int blockZ = 0; blockZ < CHUNK_SIZE_Z; ++blockZ)
-					{
-						if (blockY < 2)
-							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_BEDROCK);
-						else if (blockY == 2)
-							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_STONE);
-						else if (blockY == 3)
-							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_DIRT);
-						else if (blockY == 4)
-							nouveauchunk->SetBlock(blockX, blockY, blockZ, BTYPE_GRASS);
+			for (int blockX = 0; blockX < CHUNK_SIZE_X; ++blockX) {
+				for (int blockZ = 0; blockZ < CHUNK_SIZE_Z; ++blockZ) {
+					for (int blockY = 0; blockY <= CHUNK_SIZE_Y; ++blockY) {
+						// Calcul de la hauteur du terrain en utilisant le bruit de Perlin
+						int terrainHeight = static_cast<int>((perlin.Get((float)(x * CHUNK_SIZE_X + blockX) / 2000.f, (float)(blockY + CHUNK_SIZE_Y / 2000), (float)(y * CHUNK_SIZE_Z + blockZ) / 2000.f) + 1.0f) * 0.5f * CHUNK_SIZE_Y);
+
+						// Définition des blocs en fonction de la hauteur du terrain
+						if (blockY == terrainHeight - 1)
+							nouveauchunk->SetBlock(blockX, terrainHeight, blockZ, BTYPE_DIRT);
+						else if (blockY > terrainHeight - 6)
+							nouveauchunk->SetBlock(blockX, terrainHeight, blockZ, BTYPE_GRASS);
 					}
 				}
-			}			
-			m_ChunkCount++;
+			}
 		}
 	}
-	m_player.SetRotationY(130);
 }
 
 void Engine::DeInit()
@@ -241,7 +240,6 @@ void Engine::Render(float elapsedTime)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 BlockType Engine::BlockAt(int x, int y, int z)
 {
 	int chunkposy = static_cast<int>(y / CHUNK_SIZE_Y);
@@ -279,9 +277,7 @@ BlockType Engine::BlockAt(int x, int y, int z)
 	}
 	else
 		return BTYPE_AIR;
-}	
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+}
 
 void Engine::CollisionPlayer(float elapsedTime)
 {
@@ -422,58 +418,55 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 	ss << "Days: " << gameTime / 1200; // Nombre de jours écoulés
 	PrintText(8, Height() - 45, ss.str());
 	ss.str("");
-	ss << "Chunks generated: " << m_ChunkCount << "/" << "289"; // Nombre de chunks générés
-	PrintText(8, Height() - 60, ss.str());
-	ss.str("");
 
 	//Boussole
 	if (m_player.GetRotationY() >= 337.5 || m_player.GetRotationY() < 22.5) // Directtion du joueur Nord
 	{
 		ss.str("");
 		ss << "Direction: " << m_player.GetRotationY() << "(Nord)";
-		PrintText(8, Height() - 75, ss.str());
+		PrintText(8, Height() - 60, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 22.5 && m_player.GetRotationY() < 67.5) // Direction du joueur Nord - Est
 	{
 		ss.str("");
 		ss << "Direction: " << m_player.GetRotationY() << "(Nord-Est)";
-		PrintText(8, Height() - 75, ss.str());
+		PrintText(8, Height() - 60, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 67.5 && m_player.GetRotationY() < 112.5) // Direction du joueur Est
 	{
 		ss.str("");
 		ss << "Direction: " << m_player.GetRotationY() << "(Est)";
-		PrintText(8, Height() - 75, ss.str());
+		PrintText(8, Height() - 60, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 112.5 && m_player.GetRotationY() < 157.5) // Direction du joueur Sud-Est
 	{
 		ss.str("");
 		ss << "Direction: " << m_player.GetRotationY() << "(Sud-Est)";
-		PrintText(8, Height() - 75, ss.str());
+		PrintText(8, Height() - 60, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 157.5 && m_player.GetRotationY() < 202.5) // Direction du joueur Sud
 	{
 		ss.str("");
 		ss << "Direction: " << m_player.GetRotationY() << "(Sud)";
-		PrintText(8, Height() - 75, ss.str());
+		PrintText(8, Height() - 60, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 202.5 && m_player.GetRotationY() < 247.5) // Direction du joueur Sud-Ouest
 	{
 		ss.str("");
 		ss << "Direction: " << m_player.GetRotationY() << "(Sud-Ouest)";
-		PrintText(8, Height() - 75, ss.str());
+		PrintText(8, Height() - 60, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 247.5 && m_player.GetRotationY() < 292.5) // Direction du joueur Ouest
 	{
 		ss.str("");
 		ss << "Direction: " << m_player.GetRotationY() << "(Ouest)";
-		PrintText(8, Height() - 75, ss.str());
+		PrintText(8, Height() - 60, ss.str());
 	}
 	else if (m_player.GetRotationY() >= 292.5 && m_player.GetRotationY() < 337.5) // Direction du joueur Nord-Ouest
 	{
 		ss.str("");
 		ss << "Direction: " << m_player.GetRotationY() << "(Nord-Ouest)";
-		PrintText(8, Height() - 75, ss.str());
+		PrintText(8, Height() - 60, ss.str());
 	}
 
 	ss.str("");
@@ -577,7 +570,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		glEnable(GL_ALPHA_TEST);
 		glEnd();
 	}
-	else if (m_Settings)
+	else if (m_keyESC && m_Settings)
 	{
 		const int LeftArrowButtonx = Width() / 2 - 150;
 		const int LeftArrowButtony = 0.6 * Height();
@@ -669,7 +662,7 @@ void Engine::DrawHud(int Fps, const int gameTime, const int crossSize)
 		//Button Back to Game
 		glDisable(GL_BLEND);
 		glDisable(GL_ALPHA_TEST);
-		m_textureBacktoGameButton.Bind();
+		m_textureBackButton.Bind();
 		glLoadIdentity();
 		glTranslated(Buttonx, BacktoGameButtony, 0); //Location
 		glBegin(GL_QUADS);
@@ -722,6 +715,9 @@ void Engine::KeyPressEvent(unsigned char key)
 {
 	switch (key)
 	{
+		case 15: // P
+		
+			break;
 	case 36: // ESC
 		if (!m_keyESC)
 		{
@@ -835,8 +831,6 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 		//Options
 		if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= SettingsButtony && y <= SettingsButtony + buttonHeight || m_Settings)
 		{
-			
-			// TODO : Faire les positions pour les boutons des settings . . . 				
 			if (m_Settings)
 			{
 				//Button decrease Max Fps
@@ -844,7 +838,6 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 				{
 					if (m_MaxFps >= 30 && m_MaxFps <= 240 && m_MaxFps != 30)
 					{
-						m_MaxFps / 2;
 
 						if (m_MaxFps == 30)
 						{
@@ -873,7 +866,6 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 				{
 					if (m_MaxFps >= 30 && m_MaxFps <= 240 && m_MaxFps != 240)
 					{
-						m_MaxFps * 2;
 
 						if (m_MaxFps == 30)
 						{
@@ -911,9 +903,21 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 						m_textureFullScreenON.Bind();
 					}
 					SetFullscreen(!IsFullscreen());
-				}											
-			}			
+				}
+				
+				
+				
+				//Back
+				else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= BackButtony && y <= BackButtony + buttonHeight)
+				{
+					m_Settings = false;
+					m_keyESC = false;
+				}
+			}
+			else
+			{
 				m_Settings = true;
+			}
 		}
 		// Back to game
 		else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= BacktoGameButtony && y <= BacktoGameButtony + buttonHeight)
@@ -925,6 +929,37 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y)
 		// Quit 
 		else if (x >= Buttonx && x <= Buttonx + buttonWidth && y >= QuitButtony && y <= QuitButtony + buttonHeight)
 			Stop();
+	}
+
+	if (button == MOUSE_BUTTON_LEFT && !m_keyESC)
+	{
+		if (m_currentBlock.x != -1)
+		{
+			int* x = new int(m_player.GetPositon().x);
+			int* y = new int(m_player.GetPositon().y);
+			int* z = new int(m_player.GetPositon().z);
+
+			GetBlockAtCursor(*x, *y, *z);
+			// On detruit le bloc
+			SetBlockAt(m_currentBlock.x, m_currentBlock.y, m_currentBlock.z, BTYPE_AIR);
+			// On met a jour les chunks
+			UpdateChunks(m_currentBlock.x, m_currentBlock.y, m_currentBlock.z);
+		}
+	}
+
+	else	if (button == MOUSE_BUTTON_RIGHT && !m_keyESC)
+	{
+		if (m_currentBlock.x != -1)
+		{
+			int* x = new int(m_player.GetPositon().x);
+			int* y = new int(m_player.GetPositon().y);
+			int* z = new int(m_player.GetPositon().z);
+			GetBlockAtCursor(*x, *y, *z);
+			// On place le bloc
+			SetBlockAt(m_currentBlock.x + (int)m_currentFaceNormal.x, m_currentBlock.y + (int)m_currentFaceNormal.y, m_currentBlock.z + (int)m_currentFaceNormal.z, BTYPE_GRASS);
+			// On met a jour les chunks
+			UpdateChunks(m_currentBlock.x + (int)m_currentFaceNormal.x, m_currentBlock.y + (int)m_currentFaceNormal.y, m_currentBlock.z + (int)m_currentFaceNormal.z);
+		}
 	}
 }
 
@@ -952,98 +987,173 @@ int Engine::GetMaxChunk()
 	return VIEW_DISTANCE / CHUNK_SIZE_X;
 }
 
-//void Engine::GetBlockAtCursor(int& x, int& y, int& z)
-//{
-//	int x = Width() / 2;
-//	int y = Height() / 2;
-//
-//	GLint viewport[4];
-//	GLdouble modelview[16];
-//	GLdouble projection[16];
-//	GLfloat winX, winY, winZ;
-//	GLdouble posX, posY, posZ;
-//
-//	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-//	glGetDoublev(GL_PROJECTION_MATRIX, projection);
-//	glGetIntegerv(GL_VIEWPORT, viewport);
-//
-//	winX = (float)x;
-//	winY = (float)viewport[3] - (float)y;
-//	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
-//
-//	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
-//
-//	posX += .5f;
-//	posY += .5f;
-//	posZ += .5f;
-//
-//	// Le cast vers int marche juste pour les valeurs entiere, utiliser une fonction de la libc si besoin
-//	// de valeurs negatives
-//	int px = (int)(posX);
-//	int py = (int)(posY);
-//	int pz = (int)(posZ);
-//
-//	bool found = false;
-//
-//	if ((m_player.GetPositon() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECTION_DISTANCE)
-//	{
-//		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
-//		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
-//		// le vrai bloc. Le vrai bloc peut etre different a cause d'erreurs de precision de nos
-//		// nombres flottants (si z = 14.999 par exemple, et qu'il n'y a pas de blocs a la position
-//		// 14 (apres arrondi vers l'entier) on doit trouver et retourner le bloc en position 15 s'il existe
-//		// A cause des erreurs de precisions, ils arrive que le cote d'un bloc qui doit pourtant etre a la
-//		// position 15 par exemple nous retourne plutot la position 15.0001
-//		for (int x = px - 1; !found && x <= px + 1; ++x)
-//		{
-//			for (int y = py - 1; !found && x >= 0 && y <= py + 1; ++y)
-//			{
-//				for (int z = pz - 1; !found && y >= 0 && z <= pz + 1; ++z)
-//				{
-//					if (z >= 0)
-//					{
-//						BlockType bt = BlockAt((float)x, (float)y, (float)z);
-//						if (bt == BTYPE_AIR)
-//							continue;
-//
-//						m_currentBlock.x = x;
-//						m_currentBlock.y = y;
-//						m_currentBlock.z = z;
-//
-//						if (InRangeWithEpsilon<float>((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posZ, (float)z, (float)z + 1.f, 0.05f))
-//						{
-//							found = true;
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	if (!found)
-//	{
-//		m_currentBlock.x = -1;
-//	}
-//	else
-//	{
-//		// Find on which face of the bloc we got an hit
-//		m_currentFaceNormal.Zero();
-//
-//		const float epsilon = 0.005f;
-//
-//		// Front et back:
-//		if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z, epsilon))
-//			m_currentFaceNormal.z = -1;
-//		else if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z + 1.f, epsilon))
-//			m_currentFaceNormal.z = 1;
-//		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x, epsilon))
-//			m_currentFaceNormal.x = -1;
-//		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x + 1.f, epsilon))
-//			m_currentFaceNormal.x = 1;
-//		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y, epsilon))
-//			m_currentFaceNormal.y = -1;
-//		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y + 1.f, epsilon))
-//			m_currentFaceNormal.y = 1;
-//	}
-//}
+void Engine::GetBlockAtCursor(int& x, int& y, int& z)
+{
+	x = Width() / 2;
+	y = Height() / 2;
+
+	GLint viewport[4];
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	GLfloat winX, winY, winZ;
+	GLdouble posX, posY, posZ;
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	winX = (float)x;
+	winY = (float)viewport[3] - (float)y;
+	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+
+	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+
+	posX += .5f;
+	posY += .5f;
+	posZ += .5f;
+
+	// Le cast vers int marche juste pour les valeurs entiere, utiliser une fonction de la libc si besoin
+	// de valeurs negatives
+	int px = (int)(posX);
+	int py = (int)(posY);
+	int pz = (int)(posZ);
+
+	bool found = false;
+	float value = (m_player.GetPositon() - Vector3f((float)posX, (float)posY, (float)posZ)).Length();
+
+	if (value <= MAX_SELECTION_DISTANCE)
+	{
+		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
+		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
+		// le vrai bloc. Le vrai bloc peut etre different a cause d'erreurs de precision de nos
+		// nombres flottants (si z = 14.999 par exemple, et qu'il n'y a pas de blocs a la position
+		// 14 (apres arrondi vers l'entier) on doit trouver et retourner le bloc en position 15 s'il existe
+		// A cause des erreurs de precisions, ils arrive que le cote d'un bloc qui doit pourtant etre a la
+		// position 15 par exemple nous retourne plutot la position 15.0001
+		for (int x = px - 1; !found && x <= px + 1; ++x)
+		{
+			for (int y = py - 1; !found && x >= 0 && y <= py + 1; ++y)
+			{
+				for (int z = pz - 1; !found && y >= 0 && z <= pz + 1; ++z)
+				{
+					if (z >= 0)
+					{
+						BlockType bt = BlockAt((float)x, (float)y, (float)z);
+						if (bt == BTYPE_AIR || bt ==BTYPE_BEDROCK)
+							continue;
+						m_currentBlock.x = x;
+						m_currentBlock.y = y;
+						m_currentBlock.z = z;
+
+						if (InRangeWithEpsilon<float>((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon<float>((float)posZ, (float)z, (float)z + 1.f, 0.05f))
+						{
+							found = true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (!found)
+	{
+		m_currentBlock.x = -1;
+	}
+	else
+	{
+		// Find on which face of the bloc we got an hit
+		m_currentFaceNormal.Zero();
+
+		const float epsilon = 0.005f;
+
+		// Front et back:
+		if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z, epsilon))
+			m_currentFaceNormal.z = -1;
+		else if (EqualWithEpsilon<float>((float)posZ, (float)m_currentBlock.z + 1.f, epsilon))
+			m_currentFaceNormal.z = 1;
+		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x, epsilon))
+			m_currentFaceNormal.x = -1;
+		else if (EqualWithEpsilon<float>((float)posX, (float)m_currentBlock.x + 1.f, epsilon))
+			m_currentFaceNormal.x = 1;
+		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y, epsilon))
+			m_currentFaceNormal.y = -1;
+		else if (EqualWithEpsilon<float>((float)posY, (float)m_currentBlock.y + 1.f, epsilon))
+			m_currentFaceNormal.y = 1;
+	}
+}
+
+void Engine::SetBlockAt(int x, int y, int z, BlockType bt)
+{
+	int chunkposy = static_cast<int>(z / CHUNK_SIZE_Z);
+	int chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
+
+	if (x < 0 && z < 0)
+	{
+		chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
+		chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
+	}
+	else if (x < 0)
+	{
+		chunkposy = static_cast<int>(z / CHUNK_SIZE_Z);
+		chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
+	}
+	else if (z < 0)
+	{
+		chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
+		chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
+	}
+
+	bool safe = true;
+	int max = GetMaxChunk();
+	if ((chunkposx >= max && chunkposy >= max) || chunkposx >= max || chunkposy >= max)
+		safe = false;
+	else if ((chunkposx < 0 && chunkposy < 0) || chunkposx < 0 || chunkposy < 0)
+		safe = false;
+	if (safe)
+	{
+		Chunk* chunk = m_chunks.Get(chunkposx, chunkposy);
+		const int blockPositionX = chunkposx * CHUNK_SIZE_X;
+		const int blockPositionZ = chunkposy * CHUNK_SIZE_Z;
+
+		chunk->SetBlock(x - blockPositionX, y, z - blockPositionZ, bt);
+	}
+}
+
+
+void Engine::UpdateChunks(int x, int y, int z)
+{
+	int chunkposy = static_cast<int>(z / CHUNK_SIZE_Z);
+	int chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
+
+	if (x < 0 && z < 0)
+	{
+		chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
+		chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
+	}
+	else if (x < 0)
+	{
+		chunkposy = static_cast<int>(z / CHUNK_SIZE_Z);
+		chunkposx = static_cast<int>((x / CHUNK_SIZE_X) - 1);
+	}
+	else if (z < 0)
+	{
+		chunkposy = static_cast<int>((z / CHUNK_SIZE_Z) - 1);
+		chunkposx = static_cast<int>(x / CHUNK_SIZE_X);
+	}
+
+	bool safe = true;
+	int max = GetMaxChunk();
+	if ((chunkposx >= max && chunkposy >= max) || chunkposx >= max || chunkposy >= max)
+		safe = false;
+	else if ((chunkposx < 0 && chunkposy < 0) || chunkposx < 0 || chunkposy < 0)
+		safe = false;
+	if (safe)
+	{
+		Chunk* chunk = m_chunks.Get(chunkposx, chunkposy);
+		const int blockPositionX = chunkposx * CHUNK_SIZE_X;
+		const int blockPositionZ = chunkposy * CHUNK_SIZE_Z;
+
+		chunk->Update(chunkposx, chunkposy);
+	}
+}
 

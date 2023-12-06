@@ -30,7 +30,7 @@ Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool
 	if (right)  movement += Vector3f(cos(yrotrad), 0.0f, sin(yrotrad)) * elapsedTime;
 
 	if (m_keyFly) {
-		movement.y +=1* elapsedTime;
+		movement.y +=30* elapsedTime;
 	}
 	else
 		{		

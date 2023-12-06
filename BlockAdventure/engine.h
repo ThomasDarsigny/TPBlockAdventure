@@ -51,6 +51,10 @@ private:
     void SafetyNet(Chunk* chunk, Vector3f& pos, int blockPositionX, int blockPositionZ);
     void DrawHud(int fps, int gameTime, int crossSize);
     void GetBlockAtCursor(int& x, int& y, int& z);
+
+    void SetBlockAt(int x, int y, int z, BlockType);
+    void UpdateChunks(int x, int y, int z);
+
     BlockType BlockAt(int x, int y, int z);
 
     template <class T>
@@ -102,6 +106,9 @@ private:
     Array2d<Chunk*> m_chunks;
 
     BlockInfo* m_blockinfo[BTYPE_FIN];
+
+    Vector3f m_currentBlock;
+    Vector3f m_currentFaceNormal;
     
 
     const int m_crossSize = 20;
@@ -128,5 +135,6 @@ private:
     bool m_keyFly = false;
     bool m_keyESC = false;
     bool m_Settings = false;
+    bool materialSettingsEnabled = true;
 };
 #endif // ENGINE_H__
