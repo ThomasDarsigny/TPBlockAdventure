@@ -15,38 +15,65 @@
     <ClInclude Include="array3d.h" />
     <ClInclude Include="blockinfo.h" />
     <ClInclude Include="chunk.h" />
+    <ClInclude Include="chunkmesher.h" />
+    <ClInclude Include="crafting.h" />
+    <ClInclude Include="entity.h" />
     <ClInclude Include="define.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="frustum.h" />
+    <ClInclude Include="inventory.h" />
     <ClInclude Include="matrix4.h" />
+    <ClInclude Include="noise.h" />
     <ClInclude Include="openglcontext.h" />
     <ClInclude Include="perlin.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="postfx.h" />
+    <ClInclude Include="proctex.h" />
     <ClInclude Include="shader.h" />
-    <ClInclude Include="textureatlas.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="textureatlas.h" />
     <ClInclude Include="tool.h" />
     <ClInclude Include="transformation.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="vertexbuffer.h" />
+    <ClInclude Include="world.h" />
+    <ClInclude Include="worldgen.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="blockinfo.cpp" />
     <ClCompile Include="chunk.cpp" />
+    <ClCompile Include="chunkmesher.cpp" />
+    <ClCompile Include="crafting.cpp" />
+    <ClCompile Include="entity.cpp" />
     <ClCompile Include="engine.cpp" />
+    <ClCompile Include="inventory.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="noise.cpp" />
     <ClCompile Include="openglcontext.cpp" />
     <ClCompile Include="perlin.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="postfx.cpp" />
+    <ClCompile Include="proctex.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="textureatlas.cpp" />
     <ClCompile Include="tool.cpp" />
     <ClCompile Include="transformation.cpp" />
     <ClCompile Include="vertexbuffer.cpp" />
+    <ClCompile Include="world.cpp" />
+    <ClCompile Include="worldgen.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="media\shaders\shader01.frag" />
+    <None Include="media\shaders\terrain.vert" />
+    <None Include="media\shaders\terrain.frag" />
+    <None Include="media\shaders\sky.vert" />
+    <None Include="media\shaders\sky.frag" />
+    <None Include="media\shaders\fullscreen.vert" />
+    <None Include="media\shaders\bright.frag" />
+    <None Include="media\shaders\blur.frag" />
+    <None Include="media\shaders\post.frag" />
     <None Include="media\shaders\shader01.vert" />
+    <None Include="media\shaders\shader01.frag" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A21FD938-1FEA-4687-AB86-0EABAC30877B}</ProjectGuid>
@@ -94,6 +121,8 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -106,6 +135,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
@@ -118,7 +149,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>sfml-main.lib;sfml-system.lib;sfml-window.lib;sfml-graphics.lib;GlU32.Lib;OpenGL32.Lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-main.lib;sfml-system.lib;sfml-window.lib;sfml-graphics.lib;GlU32.Lib;OpenGL32.Lib;DevIL.lib;ILU.lib;ILUT.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

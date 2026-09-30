@@ -9,13 +9,41 @@ Texture::Texture(const std::string& filename) : m_isValid(false)
 
 Texture::~Texture()
 {
-    if(IsValid())
+    Destroy();
+}
+
+void Texture::Destroy()
+{
+    if (m_isValid)
+    {
         glDeleteTextures(1, &m_textureId);
+        m_isValid = false;
+    }
+}
+
+// Cree une texture directement a partir de pixels RGBA en memoire.
+// Utilise pour les elements generes proceduralement (etapes de cassure...).
+bool Texture::LoadFromMemory(int width, int height, const unsigned char* rgba, bool smooth)
+{
+    Destroy();
+
+    glGenTextures(1, &m_textureId);
+    glBindTexture(GL_TEXTURE_2D, m_textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    m_isValid = true;
+    return true;
 }
 
 
 bool Texture::Load(const std::string& filename)
 {
+    Destroy();
+
     // Initialize Devil only once:
     static bool alreadyInitialized = false;
     if(!alreadyInitialized)

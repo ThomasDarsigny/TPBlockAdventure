@@ -2,81 +2,73 @@
 #include "define.h"
 #include "tool.h"
 #include <iostream>
-#include <cassert>
+#include <vector>
 
-#ifndef WINDOWS
+Shader::Shader() : m_program(0), m_vertexShader(0), m_fragmentShader(0), m_valid(false)
+{
+}
+
+Shader::~Shader()
+{
+}
+
+void Shader::Destroy()
+{
+    if (m_program)
+    {
+        if (m_vertexShader)   { glDetachShader(m_program, m_vertexShader);   glDeleteShader(m_vertexShader); }
+        if (m_fragmentShader) { glDetachShader(m_program, m_fragmentShader); glDeleteShader(m_fragmentShader); }
+        glDeleteProgram(m_program);
+    }
+    m_program = m_vertexShader = m_fragmentShader = 0;
+    m_valid = false;
+    m_uniforms.clear();
+}
 
 bool Shader::Load(const std::string& vertFile, const std::string& fragFile, bool verbose)
 {
-    std::string fragmentShader;
-    std::string vertexShader;
+    Destroy();
 
-    if(!Tool::LoadTextFile(vertFile, vertexShader))
+    std::string vertexShader, fragmentShader;
+
+    if (!Tool::LoadTextFile(vertFile, vertexShader))
     {
-        if(verbose)
-            std::cout << "Failed to load " << vertFile << std::endl;
+        std::cerr << "[Shader] Fichier introuvable: " << vertFile << std::endl;
+        return false;
+    }
+    if (!Tool::LoadTextFile(fragFile, fragmentShader))
+    {
+        std::cerr << "[Shader] Fichier introuvable: " << fragFile << std::endl;
         return false;
     }
 
-    if(!Tool::LoadTextFile(fragFile, fragmentShader))
-    {
-        if(verbose)
-            std::cout << "Failed to load " << fragFile << std::endl;
-        return false;
-    }
-
-    const char * my_fragment_shader_source = fragmentShader.c_str();
-    const char * my_vertex_shader_source = vertexShader.c_str();
-
-    //std::cout << fragmentShader << std::endl;
-    //std::cout << vertexShader << std::endl;
+    const char* vsrc = vertexShader.c_str();
+    const char* fsrc = fragmentShader.c_str();
 
     m_program = glCreateProgram();
-    CHECK_GL_ERROR();
-    assert(glIsProgram(m_program));
+    m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    m_vertexShader = glCreateShader(GL_VERTEX_SHADER_ARB);
-    CHECK_GL_ERROR();
-    assert(glIsShader(m_vertexShader));
+    glShaderSource(m_vertexShader, 1, &vsrc, NULL);
+    glShaderSource(m_fragmentShader, 1, &fsrc, NULL);
 
-    m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER_ARB);
-    CHECK_GL_ERROR();
-    assert(glIsShader(m_fragmentShader));
-
-    // Load Shader Sources
-    glShaderSource(m_vertexShader, 1, (const GLchar**)&my_vertex_shader_source, NULL);
-    CHECK_GL_ERROR();
-    glShaderSource(m_fragmentShader, 1, (const GLchar**)&my_fragment_shader_source, NULL);
-    CHECK_GL_ERROR();
-
-    // Compile The Shaders
-    if(verbose)
-        std::cout << "Compiling vertex shader (" << vertFile << ")..." << std::endl;
     glCompileShader(m_vertexShader);
-    if(!CheckShaderError(m_vertexShader, verbose))
+    if (!CheckShaderError(m_vertexShader, vertFile, verbose))
         return false;
 
-    if(verbose)
-        std::cout << "Compiling fragment shader (" << fragFile << ")..." << std::endl;
     glCompileShader(m_fragmentShader);
-    if(!CheckShaderError(m_fragmentShader, verbose))
+    if (!CheckShaderError(m_fragmentShader, fragFile, verbose))
         return false;
 
-    // Attach The Shader Objects To The Program Object
     glAttachShader(m_program, m_vertexShader);
-    CHECK_GL_ERROR();
     glAttachShader(m_program, m_fragmentShader);
-    CHECK_GL_ERROR();
-
-    // Link The Program Object
     glLinkProgram(m_program);
-    //if(!CheckProgramError(m_program, verbose))
-    //    return false;
-    CheckProgramError(m_program, true, verbose);
-    CHECK_GL_ERROR();
 
+    if (!CheckProgramError(m_program, verbose))
+        return false;
+
+    m_valid = true;
     return true;
-
 }
 
 void Shader::Use() const
@@ -84,72 +76,97 @@ void Shader::Use() const
     glUseProgram(m_program);
 }
 
-GLint Shader::BindIntUniform(const std::string& name) const
-{
-    return glGetUniformLocation(m_program, name.c_str());
-}
-
-void Shader::UpdateIntUniform(GLint name, GLint value) const
-{
-    glUniform1i(name, value);
-}
-
-void Shader::UpdateFloatUniform(GLint name, GLfloat value) const
-{
-    glUniform1f(name, value);
-}
-
 void Shader::Disable()
 {
     glUseProgram(0);
 }
 
-bool Shader::CheckShaderError(GLenum shader, bool verbose)
+GLint Shader::Uniform(const std::string& name) const
 {
-    GLint compileOk;
+    std::map<std::string, GLint>::const_iterator it = m_uniforms.find(name);
+    if (it != m_uniforms.end())
+        return it->second;
 
+    const GLint loc = glGetUniformLocation(m_program, name.c_str());
+    m_uniforms[name] = loc;
+    return loc;
+}
+
+void Shader::SetInt(const std::string& name, int v) const
+{
+    const GLint loc = Uniform(name);
+    if (loc >= 0) glUniform1i(loc, v);
+}
+
+void Shader::SetFloat(const std::string& name, float v) const
+{
+    const GLint loc = Uniform(name);
+    if (loc >= 0) glUniform1f(loc, v);
+}
+
+void Shader::SetVec2(const std::string& name, float x, float y) const
+{
+    const GLint loc = Uniform(name);
+    if (loc >= 0) glUniform2f(loc, x, y);
+}
+
+void Shader::SetVec3(const std::string& name, float x, float y, float z) const
+{
+    const GLint loc = Uniform(name);
+    if (loc >= 0) glUniform3f(loc, x, y, z);
+}
+
+void Shader::SetVec4(const std::string& name, float x, float y, float z, float w) const
+{
+    const GLint loc = Uniform(name);
+    if (loc >= 0) glUniform4f(loc, x, y, z, w);
+}
+
+void Shader::UpdateIntUniform(GLint loc, GLint value) const
+{
+    if (loc >= 0) glUniform1i(loc, value);
+}
+
+void Shader::UpdateFloatUniform(GLint loc, GLfloat value) const
+{
+    if (loc >= 0) glUniform1f(loc, value);
+}
+
+bool Shader::CheckShaderError(GLuint shader, const std::string& what, bool verbose)
+{
+    GLint compileOk = GL_FALSE;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compileOk);
-    if(verbose && !compileOk)
+
+    if (!compileOk || verbose)
     {
-        int maxLength;
+        GLint maxLength = 0;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-
-        char* infoLog = new char[maxLength];
-
-        glGetShaderInfoLog(shader, maxLength, &maxLength, infoLog);
-
-        std::cout << infoLog << std::endl;
-        delete [] infoLog;
-        return false;
+        if (maxLength > 1)
+        {
+            std::vector<char> log(maxLength + 1, 0);
+            glGetShaderInfoLog(shader, maxLength, &maxLength, log.data());
+            if (!compileOk)
+                std::cerr << "[Shader] Erreur de compilation (" << what << "):\n" << log.data() << std::endl;
+        }
     }
 
-    return compileOk;
+    return compileOk == GL_TRUE;
 }
 
-bool Shader::CheckProgramError(GLenum program, bool showWarning, bool verbose)
+bool Shader::CheckProgramError(GLuint program, bool verbose)
 {
-    GLint compileOk;
+    GLint linkOk = GL_FALSE;
+    glGetProgramiv(program, GL_LINK_STATUS, &linkOk);
 
-    glGetProgramiv(program, GL_LINK_STATUS, &compileOk);
-    CHECK_GL_ERROR();
-    if(verbose && (showWarning || !compileOk))
+    if (!linkOk)
     {
-        int maxLength;
+        GLint maxLength = 0;
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
-        CHECK_GL_ERROR();
-
-        char* infoLog = new char[maxLength + 1];
-
-        glGetProgramInfoLog(program, maxLength, &maxLength, infoLog);
-        CHECK_GL_ERROR();
-
-        infoLog[maxLength] = 0;
-
-        std::cout << infoLog << std::endl;
-        delete [] infoLog;
+        std::vector<char> log(maxLength + 1, 0);
+        if (maxLength > 1)
+            glGetProgramInfoLog(program, maxLength, &maxLength, log.data());
+        std::cerr << "[Shader] Erreur d'edition de liens:\n" << log.data() << std::endl;
     }
 
-    return compileOk;
+    return linkOk == GL_TRUE;
 }
-
-#endif

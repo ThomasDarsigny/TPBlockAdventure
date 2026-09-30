@@ -60,8 +60,9 @@ void Tool::CheckGLError(const char* file, int line)
                 std::cerr << "unknown";
         }
         std::cerr << ")" << std::endl;
-        std::cerr << "ATTENTION: this error might come from anywhere in the code since the previous call to CHECK_GL_ERROR" << std::endl;
-        exit(1);
+        std::cerr << "ATTENTION: cette erreur peut venir de n'importe ou depuis le dernier CHECK_GL_ERROR" << std::endl;
+        // On n'interrompt plus le programme: certaines erreurs sont benignes
+        // (extension absente par exemple) et le moteur sait s'en passer.
     }
 }
 

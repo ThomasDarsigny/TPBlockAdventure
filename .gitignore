@@ -364,3 +364,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# BlockAdventure : donnees generees a l'execution
+BlockAdventure/media/saves/
+BlockAdventure/media/screenshots/

@@ -9,9 +9,11 @@ class Texture
 {
 public:
     Texture(const std::string& filename = "");
+    void Destroy();
     ~Texture();
 
     bool Load(const std::string& filename);
+    bool LoadFromMemory(int width, int height, const unsigned char* rgba, bool smooth = false);
     bool IsValid() const;
     void Bind() const;
 

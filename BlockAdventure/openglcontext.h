@@ -18,6 +18,7 @@ public:
         MOUSE_BUTTON_WHEEL_UP   = 0x08,
         MOUSE_BUTTON_WHEEL_DOWN = 0x10
     };
+
     OpenglContext();
     virtual ~OpenglContext();
 
@@ -26,12 +27,15 @@ public:
     virtual void LoadResource() = 0;
     virtual void UnloadResource() = 0;
     virtual void Render(float elapsedTime) = 0;
-    virtual void KeyPressEvent(unsigned char key) = 0;
-    virtual void KeyReleaseEvent(unsigned char key) = 0;
-    virtual void MouseMoveEvent(int x, int y) = 0;
-    virtual void MousePressEvent(const MOUSE_BUTTON &button, int x, int y) = 0;
-    virtual void MouseReleaseEvent(const MOUSE_BUTTON &button, int x, int y) = 0;
 
+    // Les codes de touches sont ceux de sf::Keyboard::Key
+    virtual void KeyPressEvent(int key) = 0;
+    virtual void KeyReleaseEvent(int key) = 0;
+    virtual void MouseMoveEvent(int x, int y) = 0;
+    virtual void MousePressEvent(const MOUSE_BUTTON& button, int x, int y) = 0;
+    virtual void MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y) = 0;
+    virtual void MouseWheelEvent(int delta) {}
+    virtual void ResizeEvent(int width, int height) {}
 
     bool Start(const std::string& title, int width, int height, bool fullscreen);
     bool Stop();
@@ -42,8 +46,13 @@ public:
     void SetMaxFps(int maxFps);
     int GetMaxFps() const;
 
+    void SetVerticalSync(bool enabled);
+    bool VerticalSync() const { return m_vsync; }
+
     void SetFullscreen(bool fullscreen);
     bool IsFullscreen() const;
+
+    bool HasFocus() const { return m_hasFocus; }
 
 protected:
     void CenterMouse();
@@ -58,11 +67,16 @@ private:
     MOUSE_BUTTON ConvertMouseButton(sf::Mouse::Button button) const;
 
 private:
-    sf::Window	m_app;
-    int			m_maxFps;
-    bool		m_fullscreen;
+    sf::Window  m_app;
+    int         m_maxFps;
+    bool        m_fullscreen;
+    bool        m_vsync;
+    bool        m_hasFocus;
+    bool        m_running;
     std::string m_title;
-	float m_lastFrameTime;
+    float       m_lastFrameTime;
+    int         m_windowedWidth;
+    int         m_windowedHeight;
 };
 
 #endif // OPENGLCONTEXT_H__

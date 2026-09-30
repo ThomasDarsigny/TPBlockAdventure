@@ -1,84 +1,119 @@
 #include "vertexbuffer.h"
 #include <cassert>
-#include <climits>
+#include <iostream>
 
-VertexBuffer::VertexBuffer() : m_isValid(false)
+GLuint VertexBuffer::s_indexVboId = 0;
+int    VertexBuffer::s_indexQuadCapacity = 0;
+
+VertexBuffer::VertexBuffer() : m_isValid(false), m_vertexCount(0), m_vertexVboId(0)
 {
 }
 
 VertexBuffer::~VertexBuffer()
 {
-    if(m_isValid)
+    Free();
+}
+
+void VertexBuffer::Free()
+{
+    if (m_vertexVboId != 0)
     {
         glDeleteBuffers(1, &m_vertexVboId);
-        glDeleteBuffers(1, &m_indexVboId);
+        m_vertexVboId = 0;
     }
+    m_isValid = false;
+    m_vertexCount = 0;
 }
 
-bool VertexBuffer::IsValid() const
+void VertexBuffer::EnsureSharedIndices(int quadCount)
 {
-    return m_isValid;
-}
-
-void VertexBuffer::SetMeshData(VertexData* vd, int vertexCount)
-{
-    assert(vertexCount <= USHRT_MAX);
-    if(vertexCount == 0)
+    if (quadCount <= s_indexQuadCapacity)
         return;
 
-    if(!m_isValid)
+    // On grossit par paliers pour eviter de reallouer a chaque chunk
+    int cap = s_indexQuadCapacity > 0 ? s_indexQuadCapacity : 4096;
+    while (cap < quadCount)
+        cap *= 2;
+
+    std::vector<uint32_t> idx((size_t)cap * 6);
+    for (int q = 0; q < cap; ++q)
     {
-        glGenBuffers(1, &m_vertexVboId);
-        glGenBuffers(1, &m_indexVboId);
+        uint32_t base = (uint32_t)q * 4;
+        idx[(size_t)q * 6 + 0] = base + 0;
+        idx[(size_t)q * 6 + 1] = base + 1;
+        idx[(size_t)q * 6 + 2] = base + 2;
+        idx[(size_t)q * 6 + 3] = base + 0;
+        idx[(size_t)q * 6 + 4] = base + 2;
+        idx[(size_t)q * 6 + 5] = base + 3;
     }
+
+    if (s_indexVboId == 0)
+        glGenBuffers(1, &s_indexVboId);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexVboId);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * idx.size(), idx.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    s_indexQuadCapacity = cap;
+}
+
+void VertexBuffer::ReleaseSharedIndices()
+{
+    if (s_indexVboId != 0)
+    {
+        glDeleteBuffers(1, &s_indexVboId);
+        s_indexVboId = 0;
+        s_indexQuadCapacity = 0;
+    }
+}
+
+void VertexBuffer::SetMeshData(const VertexData* vd, int vertexCount)
+{
+    if (vertexCount <= 0)
+    {
+        Free();
+        return;
+    }
+
+    assert(vertexCount % 4 == 0);
+    EnsureSharedIndices(vertexCount / 4);
+
+    if (m_vertexVboId == 0)
+        glGenBuffers(1, &m_vertexVboId);
 
     m_vertexCount = vertexCount;
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexVboId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vertexCount, vd, GL_STATIC_DRAW);
-
-    // Pour le moment, generer le index array pour inclure tout les vertex, sans 
-    // optimisation pour reduire le nombre de vertex envoyes a la carte
-    // Idealement cet array devrait etre utiliser pour reutiliser les vertex et ainsi
-    // sauver du temps en envoyant moins de donnees a la carte (il devrait etre construit
-    // en meme temps que le buffer vd est rempli..)
-    uint16_t* idx = new uint16_t[vertexCount];
-    for(int i = 0; i < vertexCount; ++i)
-        idx[i] = i;
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVboId);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * vertexCount, idx, GL_STATIC_DRAW);
-    delete [] idx;
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     m_isValid = true;
 }
 
 void VertexBuffer::Render() const
 {
-    if(IsValid())
-    {
-        glClientActiveTexture(GL_TEXTURE0);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vertexVboId);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(3, GL_FLOAT, sizeof(VertexData), (char*)0);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glColorPointer(3, GL_FLOAT, sizeof(VertexData), (char*)12);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData), (char*)24);
+    if (!m_isValid || s_indexVboId == 0)
+        return;
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVboId);
-        glDrawElements(GL_QUADS, m_vertexCount, GL_UNSIGNED_SHORT, (char*)0);
-        // TODO
-        //glDrawRangeElements(GL_TRIANGLES, 0, 3, 3, GL_UNSIGNED_SHORT, (char*)0);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexVboId);
 
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    }
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_SHORT, sizeof(VertexData), (char*)0);
+
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(VertexData), (char*)8);
+
+    glClientActiveTexture(GL_TEXTURE0);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexCoordPointer(2, GL_SHORT, sizeof(VertexData), (char*)12);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexVboId);
+    glDrawElements(GL_TRIANGLES, (m_vertexCount / 4) * 6, GL_UNSIGNED_INT, (char*)0);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
-
-int VertexBuffer::Count() const
-{
-    return m_vertexCount;
-}
-
